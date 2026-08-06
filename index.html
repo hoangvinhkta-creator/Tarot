@@ -38,13 +38,13 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .cards{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;margin:28px 0;perspective:1200px;flex-wrap:wrap}
 .card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent;opacity:0}
-.card:nth-child(1){animation:dealL .9s cubic-bezier(.22,.75,.3,1) .15s both}
-.card:nth-child(2){animation:dealT .9s cubic-bezier(.22,.75,.3,1) .75s both}
-.card:nth-child(3){animation:dealR .9s cubic-bezier(.22,.75,.3,1) 1.35s both}
+.card:nth-child(1){animation:dealL 1.5s cubic-bezier(.22,.72,.28,1) .25s both}
+.card:nth-child(2){animation:dealT 1.5s cubic-bezier(.22,.72,.28,1) 1.15s both}
+.card:nth-child(3){animation:dealR 1.5s cubic-bezier(.22,.72,.28,1) 2.05s both}
 @keyframes dealL{from{opacity:1;transform:translateX(-120vw) translateY(9vh) rotate(-22deg)}to{opacity:1;transform:none}}
 @keyframes dealT{from{opacity:1;transform:translateY(-115vh) rotate(12deg)}to{opacity:1;transform:none}}
 @keyframes dealR{from{opacity:1;transform:translateX(120vw) translateY(9vh) rotate(22deg)}to{opacity:1;transform:none}}
-.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.4,.1,.2,1)}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
 .card.flipped .card-inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
 .back{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow)}
@@ -54,6 +54,22 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .front .glyph svg{width:clamp(34px,9vw,46px);height:auto}
 .front .cname{font-size:clamp(13px,3.6vw,15px);font-weight:700;color:#5b50c0;line-height:1.25}
 .front .cpos{font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
+.minicards{display:flex;gap:clamp(8px,3vw,14px);justify-content:center;margin:26px 0 10px;flex-wrap:wrap;opacity:0;animation:fadeUp .6s ease .05s forwards}
+.minicard{width:clamp(78px,24vw,108px);aspect-ratio:130/214;border-radius:12px;padding:10px 6px;cursor:pointer;font-family:inherit;
+  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;
+  transition:border-color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
+.minicard:hover,.minicard:focus-visible{border-color:var(--rose);transform:translateY(-2px);outline:none}
+.minicard.on{border-color:var(--rose);border-width:2px;transform:translateY(-2px)}
+.minicard .glyph{line-height:0}
+.minicard .glyph svg{width:clamp(26px,7vw,34px);height:auto}
+.minicard .cname{font-size:clamp(11px,3vw,13px);font-weight:700;color:#5b50c0;line-height:1.2}
+.minicard .cpos{font-size:9.5px;color:var(--mist);letter-spacing:.1em;text-transform:uppercase}
+.taphint{font-size:12.5px;margin-bottom:16px}
+.meaningbox{margin-top:0}
+.meaningbox .mline{font-size:15.5px;line-height:1.65;font-weight:500;color:var(--moon)}
+.meaningbox .mgrid{margin-top:14px;display:grid;gap:9px;font-size:13.5px;line-height:1.6;color:var(--mist)}
+.meaningbox .mgrid b{color:var(--navy);font-weight:700;margin-right:5px}
 .panel{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px;box-shadow:var(--shadow)}
 .panel strong{color:var(--gold);font-weight:500}
 .panel .cardline{margin-bottom:14px;opacity:0;animation:fadeUp .65s ease forwards}
@@ -147,6 +163,9 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 </section>
 
 <section class="step" id="s4">
+  <div class="minicards" id="resultCards"></div>
+  <p class="sub taphint">Chạm vào từng lá để xem ý nghĩa gốc của nó</p>
+  <div class="panel meaningbox" id="meaningBox" style="display:none"></div>
   <h2>Lời bài nói với bạn</h2>
   <div class="panel" id="reading"></div>
   <div id="aiZone">
@@ -287,6 +306,88 @@ C("💎","King of Pentacles","thành tựu vật chất từ tầm nhìn dài h�
 
 const REFLECT_FALLBACK="Điều gì trong chuyện này nằm trong tầm kiểm soát của bạn?";
 
+/* ---------- ý nghĩa gốc của 78 lá (từ khóa truyền thống) ---------- */
+const MEAN={
+"The Fool":"Khởi đầu mới, ngây thơ, tự do, dám nhảy vào điều chưa biết.",
+"The Magician":"Ý chí, kỹ năng, đủ nguồn lực trong tay để biến ý tưởng thành hiện thực.",
+"The High Priestess":"Trực giác, tri thức ẩn giấu, im lặng để nghe tiếng bên trong.",
+"The Empress":"Nuôi dưỡng, phong nhiêu, sáng tạo, chăm sóc và sinh sôi.",
+"The Emperor":"Quyền lực, cấu trúc, kỷ luật, ranh giới rõ ràng.",
+"The Hierophant":"Truyền thống, học hỏi từ người đi trước, quy tắc và niềm tin chung.",
+"The Lovers":"Tình yêu, sự kết hợp, và một lựa chọn phải trung thành với giá trị của mình.",
+"The Chariot":"Ý chí, chiến thắng nhờ cầm cương được hai lực đối nghịch.",
+"Strength":"Sức mạnh nội tâm, kiên nhẫn, thuần phục bản năng bằng sự dịu dàng.",
+"The Hermit":"Ẩn dật, tự vấn, cầm đèn đi tìm ánh sáng bên trong mình.",
+"Wheel of Fortune":"Chu kỳ, vận may, bước ngoặt — mọi thứ đang xoay chuyển.",
+"Justice":"Công bằng, nhân quả, sự thật, quyết định cần cân nhắc.",
+"The Hanged Man":"Tạm dừng, buông xả, treo ngược để nhìn đời bằng góc khác.",
+"Death":"Kết thúc một chương, chuyển hóa, buông cái cũ để cái mới đến.",
+"Temperance":"Điều độ, cân bằng, pha trộn các thái cực một cách kiên nhẫn.",
+"The Devil":"Ràng buộc, cám dỗ, lệ thuộc — xiềng xích thường do ta tự đeo.",
+"The Tower":"Sụp đổ đột ngột, vỡ ảo tưởng, giải phóng khỏi nền móng sai.",
+"The Star":"Hy vọng, chữa lành, cảm hứng, niềm tin sau giông bão.",
+"The Moon":"Ảo ảnh, mơ hồ, nỗi sợ vô thức — không phải mọi thứ đều như bạn thấy.",
+"The Sun":"Niềm vui, sáng tỏ, sức sống, thành công hiển hiện.",
+"Judgement":"Thức tỉnh, nhìn lại và tự đánh giá, một lời gọi đổi đời.",
+"The World":"Hoàn tất, trọn vẹn, khép một chu kỳ và hòa nhập.",
+"Ace of Wands":"Tia lửa cảm hứng, tiềm năng mới, động lực vừa bùng lên.",
+"Two of Wands":"Lên kế hoạch, tầm nhìn xa, chọn hướng đi trước khi rời bến.",
+"Three of Wands":"Mở rộng, chờ thành quả trở về, nhìn ra chân trời.",
+"Four of Wands":"Ăn mừng, ổn định, mái ấm, một cột mốc đáng ghi nhận.",
+"Five of Wands":"Cạnh tranh, va chạm ý kiến — ồn ào nhưng chưa hẳn ác ý.",
+"Six of Wands":"Chiến thắng, được công nhận, tự tin bước ra ánh sáng.",
+"Seven of Wands":"Giữ vững lập trường, phòng thủ điều mình tin là đúng.",
+"Eight of Wands":"Tăng tốc, tin tức dồn dập, mọi thứ chuyển động rất nhanh.",
+"Nine of Wands":"Kiên trì, mang thương tích nhưng gần đích hơn ta tưởng.",
+"Ten of Wands":"Gánh nặng, ôm đồm quá nhiều, quá tải.",
+"Page of Wands":"Tò mò, nhiệt huyết mới mẻ, sẵn sàng khám phá.",
+"Knight of Wands":"Bốc đồng, nhiệt thành, lao về phía trước không ngoái lại.",
+"Queen of Wands":"Tự tin, sức hút tự nhiên, ấm áp mà quyết đoán.",
+"King of Wands":"Lãnh đạo bằng tầm nhìn, dám nghĩ dám làm.",
+"Ace of Cups":"Cảm xúc mới tuôn trào, tình yêu khởi sinh, trái tim mở ra.",
+"Two of Cups":"Kết nối, đồng điệu, một mối quan hệ hai chiều.",
+"Three of Cups":"Bạn bè, cộng đồng, niềm vui được chia sẻ.",
+"Four of Cups":"Chán chường, thờ ơ, bỏ lỡ điều đang được trao tận tay.",
+"Five of Cups":"Mất mát, tiếc nuối, mải nhìn cốc đổ mà quên cốc còn đầy.",
+"Six of Cups":"Hoài niệm, ký ức tuổi thơ, sự ngây thơ trong trẻo.",
+"Seven of Cups":"Quá nhiều lựa chọn, ảo tưởng, hoa mắt trước viễn cảnh đẹp.",
+"Eight of Cups":"Rời đi khỏi điều đủ đầy nhưng vô nghĩa, đi tìm chiều sâu.",
+"Nine of Cups":"Toại nguyện, hài lòng, điều ước thành sự thật.",
+"Ten of Cups":"Viên mãn, hòa hợp, hạnh phúc trong các mối quan hệ.",
+"Page of Cups":"Thông điệp cảm xúc bất ngờ, nhạy cảm, mộng mơ.",
+"Knight of Cups":"Lãng mạn, lý tưởng, đi theo tiếng gọi trái tim.",
+"Queen of Cups":"Thấu cảm, trực giác sâu, chăm sóc cảm xúc người khác.",
+"King of Cups":"Làm chủ cảm xúc, điềm tĩnh giữa sóng gió, bao dung.",
+"Ace of Swords":"Sự thật lóe sáng, tư duy đột phá, cắt qua sương mù.",
+"Two of Swords":"Bế tắc lựa chọn, né tránh, tự bịt mắt trước sự thật.",
+"Three of Swords":"Tổn thương, đau lòng, sự thật phũ phàng nhưng cần thiết.",
+"Four of Swords":"Nghỉ ngơi, hồi phục, tĩnh lặng để nạp lại sức.",
+"Five of Swords":"Thắng bằng mọi giá — được việc nhưng mất người.",
+"Six of Swords":"Chuyển tiếp, rời vùng nước dữ để đến nơi bình yên hơn.",
+"Seven of Swords":"Lén lút, đi đường vòng, có điều chưa được nói thẳng.",
+"Eight of Swords":"Tự trói mình, bất lực vì niềm tin giới hạn chứ không phải hoàn cảnh.",
+"Nine of Swords":"Lo âu, mất ngủ, nỗi sợ ban đêm phóng đại hơn thực tế.",
+"Ten of Swords":"Kết thúc đau đớn, chạm đáy — nghĩa là chỉ còn đường đi lên.",
+"Page of Swords":"Tò mò sắc bén, ham hỏi, quan sát và kiểm chứng.",
+"Knight of Swords":"Lao nhanh, quyết liệt, hành động trước khi kịp cân nhắc.",
+"Queen of Swords":"Sáng suốt, thẳng thắn, tách bạch cảm xúc khỏi sự thật.",
+"King of Swords":"Lý trí, nguyên tắc, phán đoán chiến lược lạnh và đúng.",
+"Ace of Pentacles":"Cơ hội vật chất, hạt mầm thịnh vượng vừa được trao.",
+"Two of Pentacles":"Cân bằng, xoay xở nhiều vai, linh hoạt trong biến động.",
+"Three of Pentacles":"Hợp tác, tay nghề, cùng nhau xây điều lớn hơn.",
+"Four of Pentacles":"Giữ chặt vì sợ mất — an toàn dần thành gò bó.",
+"Five of Pentacles":"Thiếu thốn, cảm giác bị bỏ lại ngoài cửa dù cửa vẫn mở.",
+"Six of Pentacles":"Cho và nhận, hào phóng, cân bằng lại dòng chảy nguồn lực.",
+"Seven of Pentacles":"Kiên nhẫn, dừng lại đánh giá thành quả trước khi tưới tiếp.",
+"Eight of Pentacles":"Rèn nghề, lặp lại có chủ đích, tinh thông đến từ từ.",
+"Nine of Pentacles":"Độc lập, tự chủ, xứng đáng hưởng thành quả của chính mình.",
+"Ten of Pentacles":"Di sản, nền móng bền vững, của cải vượt khỏi đời mình.",
+"Page of Pentacles":"Học một kỹ năng thực tế, thực dụng, bắt đầu từ điều nhỏ.",
+"Knight of Pentacles":"Bền bỉ, chậm mà chắc, đáng tin cậy đến cùng.",
+"Queen of Pentacles":"Chu toàn, ấm áp và thực tế, chăm lo cả người lẫn của.",
+"King of Pentacles":"Vững vàng tài chính, thành đạt, hào phóng có tính toán."
+};
+
 /* ---------- suit icons (phong cách nét viền Tín Phát) ---------- */
 DECK.forEach((c,i)=>{c.s=i<22?"major":i<36?"wands":i<50?"cups":i<64?"swords":"pentacles"});
 const IC='stroke="#7F77DD" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" fill="none"';
@@ -332,13 +433,41 @@ function deal(){
     const btn=document.createElement("button");
     btn.className="card";btn.setAttribute("aria-label","Lật lá bài "+POS[i]);
     btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
-    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,1100)}; /* 800ms lật xong + 300ms nhịp thở */
+    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,1800)}; /* 1400ms lật xong + 400ms nhịp thở */
     row.appendChild(btn);
   });
 }
 
+function renderResultCards(){
+  const row=document.getElementById("resultCards");row.innerHTML="";
+  const box=document.getElementById("meaningBox");box.style.display="none";box.dataset.open="";
+  state.drawn.forEach((c,i)=>{
+    const btn=document.createElement("button");
+    btn.className="minicard";btn.setAttribute("aria-label","Xem ý nghĩa gốc lá "+c.n);
+    btn.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div>`;
+    btn.onclick=()=>showMeaning(i,btn);
+    row.appendChild(btn);
+  });
+}
+function showMeaning(i,btn){
+  const c=state.drawn[i],box=document.getElementById("meaningBox");
+  const isOpen=box.dataset.open===String(i)&&box.style.display!=="none";
+  document.querySelectorAll("#resultCards .minicard").forEach(x=>x.classList.remove("on"));
+  if(isOpen){box.style.display="none";box.dataset.open="";return}
+  btn.classList.add("on");
+  box.dataset.open=String(i);box.style.display="block";
+  box.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ý nghĩa gốc</div>
+   <div class="mline">${escapeHtml(MEAN[c.n]||"")}</div>
+   <div class="mgrid">
+     <div><b>Khi ở Quá khứ:</b>${escapeHtml(c.past)}</div>
+     <div><b>Khi ở Hiện tại:</b>${escapeHtml(c.now)}</div>
+     <div><b>Khi ở Hướng đi:</b>${escapeHtml(c.next)}</div>
+   </div>
+   <p class="note">Đây là ý nghĩa nền của lá bài. Hãy tự nối nó với câu chuyện của bạn — điều bạn thấy có thể khác điều máy đọc.</p>`;
+}
 function showReading(){
   const [a,b,c]=state.drawn;
+  renderResultCards();
   const moodLine=state.mood?` Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.`:"";
   document.getElementById("reading").innerHTML=
    `<div class="cardline"><strong>${a.n} · Quá khứ</strong> — Trong chuyện ${state.topic.toLowerCase()}, có dấu ấn của ${a.past}.</div>
