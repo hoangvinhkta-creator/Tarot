@@ -157,7 +157,7 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
 #aiZone{opacity:0;animation:fadeUp .65s ease 2s forwards}
 .late{opacity:0;animation:fadeUp .65s ease 2.4s forwards}
 
-textarea,input[type=password],input[type=text]{width:100%;background:#121017;border:1px solid var(--hair);border-radius:10px;color:var(--ivory);font-family:inherit;font-size:16px;font-weight:300;padding:14px;line-height:1.6}
+textarea,input[type=password],input[type=text],input[type=email]{width:100%;background:#121017;border:1px solid var(--hair);border-radius:10px;color:var(--ivory);font-family:inherit;font-size:16px;font-weight:300;padding:14px;line-height:1.6}
 textarea{min-height:120px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,74,.12)}
 textarea::placeholder,input::placeholder{color:var(--mut)}
@@ -173,6 +173,56 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .ex .youline{font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.75;
   color:var(--mut);border-left:2px solid var(--hair);padding-left:12px;margin-bottom:14px}
 .panel.closing{background:linear-gradient(165deg,#1a1725,var(--card));border-color:var(--hair2);text-align:center}
+
+/* ===== cánh cửa đồng hành: ô bị khoá, ghi chú mang về, cửa đăng nhập ===== */
+.panel.lockbox{text-align:center;border-color:var(--hair2)}
+.lockwrap{position:relative;margin:16px 0 14px}
+.lockfield{min-height:86px;border:1px dashed rgba(201,162,74,.34);border-radius:12px;padding:16px;
+  text-align:left;color:var(--mut);font-size:15px;filter:blur(2.4px);opacity:.5;user-select:none;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.02),transparent)}
+.lockfield.tall{min-height:112px;font-family:var(--serif);font-style:italic}
+.lockseal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.lockseal svg{width:38px;height:38px;filter:drop-shadow(0 0 14px rgba(232,200,126,.45));animation:sealPulse 3.4s ease-in-out infinite}
+@keyframes sealPulse{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+
+.notebox{margin-top:16px}
+.ncard{display:flex;gap:13px;padding:15px 0;border-top:1px solid rgba(201,162,74,.14)}
+.ncard:first-of-type{border-top:none;padding-top:4px}
+.ncard .nglyph{flex:none;width:26px;line-height:0;opacity:.85}
+.ncard .nglyph svg{width:26px;height:auto}
+.nname{font-family:var(--serif);font-size:15px;color:var(--goldb);margin-bottom:6px}
+.nstory{font-size:13.5px;line-height:1.8;color:var(--ivory);opacity:.9}
+.nmean{font-size:12.5px;line-height:1.75;color:var(--mut);margin-top:6px}
+.nsep{margin:20px 0 4px;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);
+  border-top:1px solid rgba(201,162,74,.18);padding-top:16px}
+.nsay{font-size:13.5px;line-height:1.85;color:var(--ivory);opacity:.92;margin-top:12px}
+.nsay .nq{font-family:var(--serif);font-style:italic;color:var(--mut);border-left:2px solid var(--hair);
+  padding-left:11px;margin-bottom:8px;font-size:13px}
+
+.panel.gate{text-align:center;margin-top:6px}
+.panel.gate.strong{background:linear-gradient(165deg,#201a2e,var(--card));border-color:var(--hair2);
+  box-shadow:0 0 34px rgba(201,162,74,.1)}
+.gate-lead{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.6;color:var(--goldb);margin:6px 0 12px}
+.perks{list-style:none;margin:16px 0 20px;text-align:left}
+.perks li{display:flex;align-items:flex-start;gap:11px;padding:9px 0;font-size:13.5px;line-height:1.65;color:var(--ivory);
+  border-top:1px solid rgba(201,162,74,.12)}
+.perks li:first-child{border-top:none}
+.perks .pi{flex:none;width:20px;line-height:0;margin-top:1px;opacity:.9}
+.perks .pi svg{width:20px;height:auto}
+
+#signModal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:22px;
+  background:rgba(6,5,9,.82);backdrop-filter:blur(5px);opacity:0;transition:opacity .38s ease}
+#signModal.open{display:flex}
+#signModal.shown{opacity:1}
+.signcard{width:100%;max-width:380px;border-radius:16px;padding:26px 22px;text-align:center;
+  background:linear-gradient(165deg,#221b30,var(--card));border:1px solid var(--hair2);
+  box-shadow:0 26px 70px rgba(0,0,0,.7),0 0 40px rgba(201,162,74,.12);
+  transform:translateY(16px) scale(.96);transition:transform .42s cubic-bezier(.2,.8,.25,1)}
+#signModal.shown .signcard{transform:none}
+.signcard h3{font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.45;color:var(--ivory);margin-bottom:8px}
+.signwhy{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.7;color:var(--mut);margin-bottom:18px}
+.signcard input{margin-bottom:11px}
+.signerr{min-height:16px;font-size:12px;color:#e0857c;margin-bottom:6px}
 .throwback{border:1px solid var(--hair2);border-radius:14px;padding:20px 24px;margin:18px 0;background:var(--card);box-shadow:var(--shadow)}
 .throwback .tb-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .throwback .tb-quote{font-family:var(--serif);font-style:italic;font-size:16.5px;line-height:1.6;color:var(--ivory)}
@@ -665,9 +715,9 @@ body.deep .stage{margin-top:26px}
   <p class="sub taphint">Chạm vào từng lá để lật xem câu chuyện trong tranh</p>
   <h2>Ba lá nói gì cùng nhau</h2>
   <div class="panel" id="reading"></div>
+  <div class="panel notebox" id="noteBox" style="display:none"></div>
   <div id="aiZone">
-    <button class="btn" id="aiBtn" onclick="aiRead()">Diễn giải sâu hơn ✦</button>
-    <p class="note" style="text-align:center">Lá bài còn nhớ những lần bạn đã ghé qua</p>
+    <div id="deepGate"></div>
     <div class="panel ai-panel" id="aiOut" style="display:none"></div>
   </div>
   <div class="stage late" style="margin-top:38px">Reflect · nhìn lại</div>
@@ -681,7 +731,8 @@ body.deep .stage{margin-top:26px}
 <section class="step" id="s5">
   <h2>Đã gieo một hạt ký ức</h2>
   <p class="sub">Bạn sẽ gặp lại nó trong những lần mở app tới — như một lời nhắn từ chính mình.</p>
-  <button class="btn" onclick="goHome()">Bốc bài mới</button>
+  <div class="panel gate" id="finalGate"></div>
+  <button class="btn ghost" onclick="goHome()">Bốc bài mới</button>
   <button class="btn ghost" onclick="showJournal()">Xem nhật ký</button>
 </section>
 
@@ -705,6 +756,20 @@ body.deep .stage{margin-top:26px}
 </section>
 
 <footer>Bản demo · Bộ bài đủ 78 lá</footer>
+</div>
+
+<div id="signModal" onclick="closeSign(event)">
+  <div class="signcard" role="dialog" aria-label="Cánh cửa đồng hành">
+    <div class="ai-label">✦ Cánh cửa đồng hành</div>
+    <h3>Để lá bài còn nhớ bạn lần sau</h3>
+    <p class="signwhy" id="signWhy"></p>
+    <input type="text" id="signName" placeholder="Gọi bạn là gì?" autocomplete="name">
+    <input type="email" id="signMail" placeholder="Email của bạn" autocomplete="email">
+    <p class="signerr" id="signErr"></p>
+    <button class="btn" onclick="doSign()">Bước qua cánh cửa ✦</button>
+    <button class="btn ghost" onclick="closeSign()">Để lúc khác</button>
+    <p class="note">Tên và email chỉ nằm trên thiết bị này — vừa đủ để nghi thức nhận ra bạn.</p>
+  </div>
 </div>
 
 <div id="cardModal" onclick="closeCard(event)">
@@ -933,6 +998,7 @@ function show(id){
   document.body.classList.toggle("deep",id!=="sCenter");
   document.body.classList.toggle("at-center",id==="sCenter");
   document.body.className=document.body.className.replace(/\bst-\d\b/g,"").trim()+" st-"+(STAGE[id]||2);
+  if(id==="s5")renderFinalGate();
   if(id==="sAsk"){
     renderAskFree();
     const t=document.getElementById("askText"),bt=document.getElementById("askBtn"),
@@ -941,6 +1007,9 @@ function show(id){
     if(t){t.style.display="block";t.value=""}if(bt){bt.style.display="block";bt.disabled=false;bt.textContent="Thổ lộ cùng lá bài ✦"}
     if(o){o.style.display="none";o.className="panel ai-panel";o.innerHTML=""}
     if(m){m.innerHTML="";m.className=""}if(h)h.style.display="block";if(sk)sk.style.display="block";
+    if(h)h.innerHTML=isMember()
+      ? "Lá bài đã quen bạn rồi —<br>cứ nói hết những gì đang nặng lòng."
+      : "Hôm nay bạn có <strong>một</strong> lời thì thầm.<br>Hãy dành nó cho điều thật sự nặng nhất trong lòng.";
     resetAskThread();
   }
   const go=()=>{
@@ -1143,17 +1212,28 @@ function pickSpread(i,el){
   state.drawn.push(c);
   if(navigator.vibrate)navigator.vibrate(12);
   geoFlare();
-  const f=el.getBoundingClientRect(),t=document.getElementById("slot"+slot).getBoundingClientRect();
-  const ang=el.style.getPropertyValue("--a")||"0deg";
+  /* lá trong quạt đang xoay nên getBoundingClientRect() trả về khung bao (gần vuông) —
+     đo theo khung layout thật rồi tính lại phép biến đổi quanh đúng transform-origin,
+     nhờ vậy lá giữ nguyên tỉ lệ chữ nhật suốt đường bay. */
+  const t=document.getElementById("slot"+slot).getBoundingClientRect();
+  const cs=getComputedStyle(el),mStr=cs.transform,oStr=cs.transformOrigin;
+  const sp=document.getElementById("spread").getBoundingClientRect();
+  const w=el.offsetWidth,h=el.offsetHeight;
+  const fl=sp.left+el.offsetLeft,ft=sp.top+el.offsetTop;
+  const o=oStr.split(" ").map(parseFloat);
+  const ox=fl+(o[0]||0),oy=ft+(o[1]||0);
+  const s=t.width/w;
+  const tx=(t.left+t.width/2)-ox-s*((fl+w/2)-ox);
+  const ty=(t.top+t.height/2)-oy-s*((ft+h/2)-oy);
   const fly=document.createElement("div");fly.className="flycard";
-  fly.style.cssText=`left:${f.left}px;top:${f.top}px;width:${f.width}px;height:${f.height}px;transform:rotate(${ang})`;
+  fly.style.cssText=`left:${fl}px;top:${ft}px;width:${w}px;height:${h}px;transform-origin:${oStr}`;
+  fly.style.transform=mStr==="none"?"none":mStr;
   fly.innerHTML=`<div class="face back"></div>`;
   document.body.appendChild(fly);
   el.style.visibility="hidden";
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     fly.style.transition="transform 1.25s cubic-bezier(.32,.72,.25,1)";
-    fly.style.transform=`translate(${(t.left+t.width/2)-(f.left+f.width/2)}px,`
-      +`${(t.top+t.height/2)-(f.top+f.height/2)}px) rotate(0deg) scale(${t.width/f.width})`;
+    fly.style.transform=`translate(${tx}px,${ty}px) scale(${s})`;
   }));
   setTimeout(()=>{
     fillSlot(slot,c);
@@ -1190,28 +1270,93 @@ function fillSlot(i,c){
 function openDrawCard(i,el){openCard(i,el,"draw")}
 
 /* ---------- DEEPEN — hỏi thêm, free câu đầu ---------- */
-const KEY_ASKN="lro_ask_used",KEY_PRO="lro_pro";
+const KEY_ASKN="lro_ask_used",KEY_USER="lro_user";
 function askUsed(){return +(localStorage.getItem(KEY_ASKN)||0)}
-function isPro(){return localStorage.getItem(KEY_PRO)==="1"}
+/* Tài khoản: bản này giữ trên chính thiết bị của bạn. Khi có máy chủ riêng,
+   chỉ cần thay hai hàm member()/doSign() là xong, phần còn lại không đổi. */
+function member(){try{return JSON.parse(localStorage.getItem(KEY_USER)||"null")}catch(_){return null}}
+function isMember(){return !!member()}
+function askTurns(){return askThread.filter(m=>m.role==="user").length}
 function renderAskFree(){
   const el=document.getElementById("askFree");
-  el.innerHTML=isPro()?'<div class="freetag">Lá bài luôn sẵn lòng nghe bạn</div>'
-    :(askUsed()<1?'<div class="freetag">Lời tâm sự đầu tiên luôn được đón nhận</div>':'');
+  el.innerHTML=isMember()?'<div class="freetag">Lá bài luôn sẵn lòng nghe bạn</div>'
+    :(askTurns()<1?'<div class="freetag">Hôm nay bạn có một lời thì thầm</div>':'');
 }
-function showPaywall(){
+/* ---------- cánh cửa đồng hành (đăng nhập) ---------- */
+let signAfter=null;
+function openSign(why,after){
+  signAfter=after||null;
+  document.getElementById("signWhy").innerHTML=why||"Cánh cửa này mở ra phần sâu hơn của nghi thức.";
+  const m=document.getElementById("signModal");
+  m.classList.add("open");
+  requestAnimationFrame(()=>m.classList.add("shown"));
+  setTimeout(()=>{const n=document.getElementById("signName");if(n)n.focus()},420);
+}
+function closeSign(e){
+  if(e&&e.target&&e.target.closest&&e.target.closest(".signcard"))return;
+  const m=document.getElementById("signModal");
+  m.classList.remove("shown");
+  setTimeout(()=>m.classList.remove("open"),380);
+}
+function doSign(){
+  const n=document.getElementById("signName"),m=document.getElementById("signMail"),
+        er=document.getElementById("signErr");
+  const name=n.value.trim(),mail=m.value.trim();
+  if(!name){er.textContent="Lá bài cần biết gọi bạn là gì.";n.focus();return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){er.textContent="Email này chưa đúng dạng.";m.focus();return}
+  er.textContent="";
+  localStorage.setItem(KEY_USER,JSON.stringify({name,mail,since:Date.now()}));
+  closeSign();
+  const fn=signAfter;signAfter=null;
+  setTimeout(()=>{renderAskFree();renderFinalGate();if(fn)fn()},420);
+}
+const PERKS=[
+  ["calm","Chiêm nghiệm sâu hơn cùng lá bài — không chỉ một lượt"],
+  ["work","Giữ lại nhật ký, không mất khi đổi máy"],
+  ["heart","Theo dõi cảm xúc của bạn qua từng chặng"],
+  ["coin","Sưu tầm dần đủ bộ 78 lá"],
+  ["self","Mở ý nghĩa riêng của từng lá bài"]
+];
+function perkList(){
+  return `<ul class="perks">`+PERKS.map(([i,t])=>
+    `<li><span class="pi">${UI_ICONS[i]||"✦"}</span>${t}</li>`).join("")+`</ul>`;
+}
+function renderFinalGate(){
+  const el=document.getElementById("finalGate");if(!el)return;
+  const u=member();
+  if(u){
+    el.className="panel gate";
+    el.innerHTML=`<div class="ai-label">✦ Cánh cửa đã mở</div>
+     <p class="gate-lead">Lá bài đã nhớ bạn, ${escapeHtml(u.name)}</p>
+     <p class="pw-note">Từ giờ mỗi lần bạn ghé qua, nghi thức sẽ bắt đầu từ chỗ bạn đã dừng lại.</p>`;
+    return;
+  }
+  el.className="panel gate strong";
+  el.innerHTML=`<div class="ai-label">✦ Còn một cánh cửa nữa</div>
+   <p class="gate-lead">Đêm nay bạn mới đi được nửa nghi thức</p>
+   <p class="pw-note">Hạt ký ức này đang nằm trên chiếc máy bạn cầm trên tay.<br>
+   Bước qua cánh cửa, nó sẽ theo bạn đi bất cứ đâu — cùng với:</p>
+   ${perkList()}
+   <button class="btn" onclick="openSign('Đây là nơi nghi thức thật sự bắt đầu dài hơn một đêm.')">Bước qua cánh cửa ✦</button>`;
+}
+/* Lượt thứ hai trở đi: ô tâm sự vẫn hiện ra nhưng đã khoá mờ,
+   để người ta thấy rõ điều mình đang bỏ lỡ chứ không phải một bức tường trống. */
+function showAskLock(){
   const out=document.getElementById("askMore");
-  out.className="panel paywall";
-  out.innerHTML=`<div class="ai-label">✦ Lá bài cần một khoảng lặng</div>
-   <div class="pw-price">Đêm nay, lá bài đã lắng nghe bạn một lần</div>
-   <p class="pw-note">Mỗi lời tâm sự đều cần thời gian để thấm.<br>
-   Hãy để những gì vừa nghe được ở lại với bạn thêm chút nữa.<br><br>
-   Còn nếu lòng bạn vẫn chưa yên và muốn có người đồng hành lâu dài,<br>
-   cánh cửa này luôn mở sẵn.</p>
-   <button class="btn" onclick="unlockPro()">Mở cánh cửa đồng hành ✦</button>
-   <button class="btn ghost" onclick="toSynth()">Để lòng lắng lại — xem tổng hợp</button>`;
+  out.className="panel lockbox";
+  out.innerHTML=`<p class="hintline">Nếu trong lòng còn điều gì nữa,<br>lá bài vẫn ở đây.</p>
+   <div class="lockwrap">
+     <div class="lockfield">Hãy nói tiếp...</div>
+     <div class="lockseal">
+       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10" stroke="#e8c87e" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="10.5" rx="3" stroke="#e8c87e" stroke-width="1.6" fill="rgba(232,200,126,.07)"/><circle cx="12" cy="15.2" r="1.5" fill="#e8c87e"/></svg>
+     </div>
+   </div>
+   <p class="pw-note">Lời thì thầm đầu tiên, vũ trụ luôn nghe không cần đổi lấy gì.<br>
+   Từ lời thứ hai, lá bài cần biết bạn là ai để còn nhớ bạn lần sau.</p>
+   <button class="btn" onclick="openSign('Bạn còn điều chưa nói hết — cánh cửa này mở ra phần còn lại của đêm nay.',()=>{const m=document.getElementById('askMore');m.className='';renderAskAgain()})">Bước qua cánh cửa ✦</button>
+   <button class="btn ghost" onclick="toSynth()">Hôm nay vậy là đủ →</button>`;
   out.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();const m=document.getElementById("askMore");m.className="";renderAskAgain();}
 /* mạch trò chuyện: giữ nguyên ngữ cảnh nhiều lượt để lời đáp không quay vòng */
 let askThread=[],askClosed=false,askCloseTimer=null;
 function resetAskThread(){askThread=[];askClosed=false;clearTimeout(askCloseTimer);
@@ -1256,7 +1401,7 @@ async function askAI(qIn){
   const q=(qIn!==undefined?qIn:inputEl.value).trim();
   const out=document.getElementById("askOut"),btn=document.getElementById("askBtn");
   if(!q){if(qIn===undefined)inputEl.focus();return}
-  if(askUsed()>=1&&!isPro()){showPaywall();return}
+  if(!isMember()&&askTurns()>=1){showAskLock();return}
   const key=localStorage.getItem(KEY_API);
   out.style.display="block";
   if(!key){out.className="panel ai-panel";
@@ -1301,6 +1446,7 @@ async function askAI(qIn){
     btn.disabled=false;
     const looping=prev.some(t=>askOverlap(t,clean)>=.45);
     if(/\[+\s*KHEP/i.test(raw)||looping||turn>=4)closeAskThread();
+    else if(!isMember())showAskLock();
     else renderAskAgain();
   }catch(err){clearInterval(tTimer);out.classList.remove("live");
     te.innerHTML=`Chưa kết nối được: ${escapeHtml(err.message)}.`;
@@ -1338,7 +1484,7 @@ function askMore(){
   const el=document.getElementById("askText2");
   const v=(el||{}).value||"";
   if(!v.trim()){if(el)el.focus();return}
-  if(!isPro()){showPaywall();return}
+  if(!isMember()){showAskLock();return}
   document.getElementById("askMore").innerHTML="";
   askAI(v);
 }
@@ -1455,9 +1601,46 @@ function showReading(){
     <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}. Không phải định mệnh — chỉ là một góc nhìn để bạn tự quyết định.</div>`;
   document.getElementById("reflectQ").textContent=REFLECT[state.topic]||REFLECT_FALLBACK;
   document.getElementById("aiOut").style.display="none";
-  document.getElementById("aiBtn").disabled=false;
-  document.getElementById("aiBtn").textContent="Diễn giải sâu hơn ✦";
+  renderNote();
+  renderDeepGate();
   show("s4");
+}
+/* Ghi lại để mang về: câu chuyện trong tranh của từng lá + những gì đã nói ở bước thổ lộ */
+function renderNote(){
+  const el=document.getElementById("noteBox");if(!el)return;
+  const cards=state.drawn.map((c,i)=>
+    `<div class="ncard"><div class="nglyph">${SUIT_ICONS[c.s]}</div>
+      <div class="nbody"><div class="nname">${escapeHtml(c.n)} · ${POS[i]}</div>
+      <p class="nstory">${escapeHtml(STORY[c.n]||"")}</p>
+      <p class="nmean">Ở vị trí này, lá nói về ${escapeHtml([c.past,c.now,c.next][i])}.</p></div></div>`).join("");
+  const said=askThread.filter(m=>m.role==="assistant").map(m=>m.content);
+  const asked=askThread.filter(m=>m.role==="user").map(m=>m.content);
+  const talk=said.length?`<div class="nsep">Điều đã nói với bạn hôm nay</div>`+
+    said.map((t,i)=>`<div class="nsay">${asked[i]?`<p class="nq">${escapeHtml(asked[i])}</p>`:""}
+      <p>${escapeHtml(t)}</p></div>`).join(""):"";
+  el.style.display="block";
+  el.innerHTML=`<div class="ai-label">✦ Ghi lại để mang về</div>${cards}${talk}`;
+}
+/* Chiêm nghiệm sâu hơn — phần này cần cánh cửa đã mở */
+function renderDeepGate(){
+  const el=document.getElementById("deepGate");if(!el)return;
+  if(isMember()){
+    el.className="";
+    el.innerHTML=`<button class="btn" id="aiBtn" onclick="aiRead()">Chiêm nghiệm sâu hơn ✦</button>
+     <p class="note" style="text-align:center">Lá bài còn nhớ những lần bạn đã ghé qua</p>`;
+    return;
+  }
+  el.className="panel lockbox";
+  el.innerHTML=`<div class="ai-label">✦ Chiêm nghiệm sâu hơn</div>
+   <div class="lockwrap">
+     <div class="lockfield tall">Ba lá này còn một tầng nữa chưa mở ra…</div>
+     <div class="lockseal">
+       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10" stroke="#e8c87e" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="10.5" rx="3" stroke="#e8c87e" stroke-width="1.6" fill="rgba(232,200,126,.07)"/><circle cx="12" cy="15.2" r="1.5" fill="#e8c87e"/></svg>
+     </div>
+   </div>
+   <p class="pw-note">Phần này đọc chậm hơn, đi sâu vào chính câu chuyện bạn vừa kể —<br>
+   và chỉ mở ra cho người mà lá bài đã biết tên.</p>
+   <button class="btn" onclick="openSign('Ba lá của bạn còn một tầng nghĩa nữa đang đợi.',()=>{renderDeepGate();renderNote()})">Bước qua cánh cửa ✦</button>`;
 }
 
 /* ---------- AI reading via OpenAI ---------- */
@@ -1506,6 +1689,7 @@ function typeFinish(el){
 }
 function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+' <span class="tw">✦</span>'+h.slice(i):h;}
 async function aiRead(){
+  if(!isMember()){renderDeepGate();return}
   const key=localStorage.getItem(KEY_API);
   const out=document.getElementById("aiOut"),btn=document.getElementById("aiBtn");
   if(!key){out.style.display="block";out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
