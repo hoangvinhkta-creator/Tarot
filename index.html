@@ -76,11 +76,13 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
   opacity:0;animation:chipIn .6s ease both;transition:border-color .35s,opacity .5s,transform .5s;-webkit-tap-highlight-color:transparent}
 @keyframes chipIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .chip:hover,.chip:focus-visible{border-color:var(--gold);outline:none}
-.chip .ci{margin-right:8px}
+.chip .ci{margin-right:9px;display:inline-block;line-height:0;vertical-align:-4px}
+.chip .ci svg{width:19px;height:19px}
+.homebtn svg{display:block}
 .chip.dim{opacity:.25;pointer-events:none}
 .chip.sel{border-color:var(--goldb);transform:translateY(-6px)}
 .chip.mask{animation:maskIn .7s cubic-bezier(.3,.6,.2,1) both}
-@keyframes maskIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes maskIn{from{clip-path:inset(0 100% 0 0);opacity:1}to{clip-path:inset(0 0 0 0);opacity:1}}
 .chip.mask:hover{transform:rotate(1deg)}
 .chip.picked{transform:scale(1.02);border-color:var(--goldb)}
 
@@ -301,7 +303,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <div class="ihero"><div class="ihero-card">✦</div></div>
   <button class="ibegin" onclick="beginRitual()" aria-label="Bắt đầu"><span class="bl"></span><span class="bt">Bắt đầu nghi thức</span></button>
 </div>
-<button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ">⌂</button>
+<button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 11.5 L12 4.5 L20 11.5 M6.5 10 V19 H17.5 V10" stroke="#c9a24a" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="wrap">
 <header>
   <div class="brand"><span class="mark"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#e8c87e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="12" y="5" width="24" height="38" rx="6" fill="rgba(232,200,126,.1)"/><path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#e8c87e" stroke="none"/></g></svg></span>Life Reflection OS</div>
@@ -399,8 +401,8 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 
 <script>
 /* ---------- data ---------- */
-const MOODS=[["😌","Bình yên"],["🙂","Ổn"],["😕","Bối rối"],["😔","Buồn"],["😟","Lo âu"],["🔥","Quyết tâm"]];
-const TOPICS=[["💞","Tình cảm"],["💼","Công việc"],["🌱","Bản thân"],["🪙","Tài chính"]];
+const MOODS=[["calm","Bình yên"],["ok","Ổn"],["lost","Bối rối"],["sad","Buồn"],["anx","Lo âu"],["fire","Quyết tâm"]];
+const TOPICS=[["heart","Tình cảm"],["work","Công việc"],["self","Bản thân"],["coin","Tài chính"]];
 const POS=["Quá khứ","Hiện tại","Hướng đi"];
 const REFLECT={
  "Tình cảm":"Điều gì trong mối quan hệ này nằm trong tầm kiểm soát của bạn — và điều gì không?",
@@ -610,11 +612,25 @@ function show(id){
   document.getElementById("homeBtn").classList.toggle("hidden",id==="s1");
   scrollTo({top:0,behavior:"smooth"});
 }
+/* ---------- icon hệ thống (nét vàng, cùng ngôn ngữ icon 78 lá) ---------- */
+const UIC='stroke="#c9a24a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+const UI_ICONS={
+ calm:`<svg viewBox="0 0 48 48"><circle cx="24" cy="16" r="6" ${UIC}/><path d="M8 30 C13 27 19 27 24 30 C29 33 35 33 40 30" ${UIC}/><path d="M8 38 C13 35 19 35 24 38 C29 41 35 41 40 38" ${UIC}/></svg>`,
+ ok:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="15" ${UIC}/><path d="M16.5 24.5 L21.5 29.5 L31.5 18.5" ${UIC}/></svg>`,
+ lost:`<svg viewBox="0 0 48 48"><path d="M24 25 C24 21.5 27.5 21.5 27.5 25 C27.5 29.5 20.5 29.5 20.5 24 C20.5 17.5 31 17.5 31 24 C31 32 16.5 32 16.5 23 C16.5 13.5 34.5 13.5 34.5 24" ${UIC}/></svg>`,
+ sad:`<svg viewBox="0 0 48 48"><path d="M24 9 C24 9 13 24 13 31 A11 11 0 0 0 35 31 C35 24 24 9 24 9 Z" ${UIC}/></svg>`,
+ anx:`<svg viewBox="0 0 48 48"><path d="M7 24 H15 L19 13 L25 35 L29 19 L33 28 L41 24" ${UIC}/></svg>`,
+ fire:`<svg viewBox="0 0 48 48"><path d="M24 8 C29 15 34 19 34 27 A10 10 0 0 1 14 27 C14 21 19 16 24 8 Z" ${UIC}/><path d="M24 22 C26.5 25 27.5 26.5 27.5 29 A3.5 3.5 0 0 1 20.5 29 C20.5 26.5 21.5 25 24 22 Z" fill="#c9a24a" stroke="none"/></svg>`,
+ heart:`<svg viewBox="0 0 48 48"><path d="M24 38 C10 29 8 19 14 14 C18 11 23 13 24 17 C25 13 30 11 34 14 C40 19 38 29 24 38 Z" ${UIC}/></svg>`,
+ work:`<svg viewBox="0 0 48 48"><rect x="9" y="17" width="30" height="20" rx="3" ${UIC}/><path d="M19 17 V13.5 A2.5 2.5 0 0 1 21.5 11 H26.5 A2.5 2.5 0 0 1 29 13.5 V17" ${UIC}/><path d="M9 25 H39" ${UIC}/></svg>`,
+ self:`<svg viewBox="0 0 48 48"><ellipse cx="24" cy="19" rx="10" ry="12.5" ${UIC}/><path d="M24 31.5 V39" ${UIC}/><path d="M17 41.5 H31" ${UIC}/><path d="M20 13 C18.5 15 18 18 18.5 21" ${UIC}/></svg>`,
+ coin:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14.5" ${UIC}/><path d="M24 17 C25.2 20.8 27.2 22.8 31 24 C27.2 25.2 25.2 27.2 24 31 C22.8 27.2 20.8 25.2 17 24 C20.8 22.8 22.8 20.8 24 17 Z" fill="#c9a24a" stroke="none"/></svg>`
+};
 function buildMoods(){
   const el=document.getElementById("moods");el.innerHTML="";el.dataset.lock="";
   MOODS.forEach(([icon,label],i)=>{
     const b=document.createElement("button");b.className="chip";b.style.animationDelay=(i*80)+"ms";
-    b.innerHTML=`<span class="ci">${icon}</span>${label}`;
+    b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
     b.onclick=()=>{
       if(el.dataset.lock)return;el.dataset.lock="1";
       [...el.children].forEach(x=>{if(x!==b)x.classList.add("dim")});
@@ -630,7 +646,7 @@ function buildTopics(){
   const el=document.getElementById("topics");el.innerHTML="";el.dataset.lock="";
   TOPICS.forEach(([icon,label],i)=>{
     const b=document.createElement("button");b.className="chip mask";b.style.animationDelay=(i*110)+"ms";
-    b.innerHTML=`<span class="ci">${icon}</span>${label}`;
+    b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
     b.onclick=()=>{
       if(el.dataset.lock)return;el.dataset.lock="1";
       b.classList.add("picked");
