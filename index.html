@@ -29,7 +29,7 @@ header{text-align:center;padding:56px 0 8px}
 .step{display:none;animation:fade .6s ease both}
 .step.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.step{animation:none}.card-inner{transition:none!important}}
+@media (prefers-reduced-motion: reduce){.step{animation:none}.card-inner{transition:none!important}.card,.panel .cardline,#aiZone,.late{animation:none;opacity:1}}
 h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3efff;letter-spacing:-.01em;text-shadow:0 2px 10px rgba(0,0,0,.4)}
 .sub{color:#d9d2f0;text-align:center;font-size:14px;margin-bottom:26px;text-shadow:0 1px 4px rgba(0,0,0,.35)}
 .choices{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
@@ -37,7 +37,11 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .chip:hover,.chip:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .cards{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;margin:28px 0;perspective:1200px;flex-wrap:wrap}
-.card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent}
+.card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent;opacity:0;animation:dealIn .55s cubic-bezier(.2,.8,.3,1) forwards}
+.card:nth-child(1){animation-delay:.05s}
+.card:nth-child(2){animation-delay:.25s}
+.card:nth-child(3){animation-delay:.45s}
+@keyframes dealIn{from{opacity:0;transform:translateY(28px) scale(.92)}to{opacity:1;transform:none}}
 .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.4,.1,.2,1)}
 .card.flipped .card-inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
@@ -50,8 +54,14 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .front .cpos{font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
 .panel{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px;box-shadow:var(--shadow)}
 .panel strong{color:var(--gold);font-weight:500}
-.panel .cardline{margin-bottom:14px}
+.panel .cardline{margin-bottom:14px;opacity:0;animation:fadeUp .65s ease forwards}
+.panel .cardline:nth-child(1){animation-delay:.15s}
+.panel .cardline:nth-child(2){animation-delay:.75s}
+.panel .cardline:nth-child(3){animation-delay:1.35s}
 .panel .cardline:last-child{margin-bottom:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#aiZone{opacity:0;animation:fadeUp .65s ease 2s forwards}
+.late{opacity:0;animation:fadeUp .65s ease 2.4s forwards}
 textarea,input[type=password],input[type=text]{width:100%;background:rgba(255,255,255,.86);border:1px solid rgba(17,24,39,.14);border-radius:12px;color:var(--moon);font-family:inherit;font-size:16px;font-weight:400;padding:14px;line-height:1.6}
 textarea{min-height:120px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(29,91,234,.12)}
@@ -142,11 +152,11 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
     <p class="note" style="text-align:center">AI đọc theo câu chuyện riêng của bạn và nhớ những lần trước</p>
     <div class="panel ai-panel" id="aiOut" style="display:none"></div>
   </div>
-  <h2 style="margin-top:34px">Dành 2 phút nhìn lại</h2>
-  <p class="sub" id="reflectQ"></p>
-  <textarea id="journalText" placeholder="Viết vài dòng cho chính bạn... Đây sẽ là mảnh ký ức bạn gặp lại trong tương lai."></textarea>
-  <button class="btn" onclick="saveEntry()">Lưu mảnh ký ức ✦</button>
-  <button class="btn ghost" onclick="goHome()">Để lúc khác — bốc lá mới</button>
+  <h2 style="margin-top:34px" class="late">Dành 2 phút nhìn lại</h2>
+  <p class="sub late" id="reflectQ"></p>
+  <textarea id="journalText" class="late" placeholder="Viết vài dòng cho chính bạn... Đây sẽ là mảnh ký ức bạn gặp lại trong tương lai."></textarea>
+  <button class="btn late" onclick="saveEntry()">Lưu mảnh ký ức ✦</button>
+  <button class="btn ghost late" onclick="goHome()">Để lúc khác — bốc lá mới</button>
 </section>
 
 <section class="step" id="s5">
@@ -320,7 +330,7 @@ function deal(){
     const btn=document.createElement("button");
     btn.className="card";btn.setAttribute("aria-label","Lật lá bài "+POS[i]);
     btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
-    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,400)};
+    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,1100)}; /* 800ms lật xong + 300ms nhịp thở */
     row.appendChild(btn);
   });
 }
