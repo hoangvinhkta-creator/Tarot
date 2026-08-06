@@ -204,7 +204,14 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   box-shadow:var(--shadow),0 0 34px rgba(201,162,74,.22)}
 .bigface::before{content:"";position:absolute;inset:9px;border:1px solid var(--hair);border-radius:10px;pointer-events:none}
 .bigface.art{justify-content:center}
-.bigface.art .bglyph{line-height:0}
+.bigface.art.asback{justify-content:center;gap:0}
+.bigface.art.asback .bmark{font-size:clamp(38px,11vw,52px);color:var(--gold);line-height:1}
+.bigcard.nofx .bigcard-inner{transition:none}
+.bglyph.mini{line-height:0;margin:2px 0 6px}
+.bglyph.mini svg{width:clamp(30px,8vw,38px);height:auto}
+.bigface.story .istory{font-family:var(--serif);font-style:italic;font-size:clamp(13.5px,3.5vw,15px);line-height:1.78;color:var(--ivory);text-align:left}
+.bigface.story .imean{margin-top:12px;font-size:clamp(12.5px,3.2vw,13.5px);line-height:1.7;color:var(--mut);text-align:left}
+.bigface.story .bigface.art .bglyph{line-height:0}
 .bigface.art .bglyph svg{width:clamp(58px,16vw,76px);height:auto}
 .bigface.art .bname{font-family:var(--serif);font-size:clamp(17px,4.6vw,21px);font-weight:600;color:var(--goldb);line-height:1.3;letter-spacing:.04em}
 .bigface.art .bpos{font-size:10.5px;color:var(--mut);letter-spacing:.26em;text-transform:uppercase}
@@ -280,7 +287,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .slotcard.flipped .front::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.4) 50%,transparent 68%);
   transform:translateX(-130%);animation:foil 1.1s ease 1.15s forwards}
-.slotcard:not(.flipped){animation:nudge 2.6s ease-in-out infinite}
+.slotcard:not(.opened){animation:nudge 2.6s ease-in-out infinite}
 @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .spread.receded{transform:translateY(34px) scale(.84);opacity:.26;pointer-events:none}
 .spread{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .9s ease}
@@ -305,11 +312,6 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .spcard.taken .front::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.4) 50%,transparent 68%);
   transform:translateX(-130%);animation:foil 1.1s ease 1.35s forwards}
-.drawpanel{opacity:0;transform:translateY(12px);transition:opacity .7s ease,transform .7s ease}
-.drawpanel.show{opacity:1;transform:none}
-.istory{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--ivory)}
-.imean{margin-top:13px;color:var(--mut);font-size:13.5px;line-height:1.75}
-.imean strong{color:var(--goldb);font-weight:500}
 
 /* ===== DEEPEN — paywall ===== */
 .paywall{background:linear-gradient(165deg,#1e1829,var(--card));border-color:var(--hair2);text-align:center}
@@ -462,7 +464,6 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <p class="sub" id="drawSub">Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình</p>
   <div class="slots" id="slots"></div>
   <div class="spread" id="spread"></div>
-  <div class="panel drawpanel" id="drawRead" style="display:none"></div>
   <button class="btn" id="toAsk" style="display:none" onclick="show('sAsk')">Tiếp tục</button>
 </section>
 
@@ -856,15 +857,14 @@ function buildSpread(){
     sp.appendChild(b);
   });
   document.getElementById("spread").classList.remove("receded");
-  const d=document.getElementById("drawRead");d.style.display="none";d.classList.remove("show");
   document.getElementById("toAsk").style.display="none";
   updateDrawHead();
 }
 function updateDrawHead(){
   const n=state.drawn.length;
   const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
-  if(n>=3){st.textContent="Interpret · ba lá đã mở";t.textContent="Ba lá của bạn";s.textContent="Đọc lại từng lá phía trên, rồi đi tiếp khi bạn sẵn sàng";return}
-  st.textContent=n===0?"Spread · chọn lá của bạn":"Draw · rút lá tiếp theo";
+  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm vào từng lá phía trên để mở và nghe lá ấy nói";return}
+  st.textContent=n===0?"Spread · chọn lá của bạn":"Spread · chọn lá tiếp theo";
   t.textContent="Chọn lá cho "+POS[n];
   s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
 }
@@ -874,59 +874,33 @@ function pickSpread(i,el){
   const c=spreadPool[i],slot=state.drawn.length;
   state.drawn.push(c);
   if(navigator.vibrate)navigator.vibrate(12);
-  /* bay lên đúng ô — vẫn úp mặt */
-  const tRect=document.getElementById("slot"+slot).getBoundingClientRect();
-  const fRect=el.getBoundingClientRect();
+  /* bay lên và ĐÁP đúng vào ô — vẫn úp mặt, không mờ đi giữa đường */
+  const t=document.getElementById("slot"+slot).getBoundingClientRect();
+  const f=el.getBoundingClientRect();
   el.style.transformOrigin="50% 50%";
   el.style.zIndex="40";
-  el.style.transition="transform .8s cubic-bezier(.3,.75,.25,1),opacity .25s .62s";
-  el.style.transform=`translateX(-50%) translate(${(tRect.left+tRect.width/2)-(fRect.left+fRect.width/2)}px,`
-    +`${(tRect.top+tRect.height/2)-(fRect.top+fRect.height/2)}px) scale(${tRect.width/fRect.width})`;
-  el.style.opacity="0";
+  el.style.transition="transform .82s cubic-bezier(.3,.75,.25,1)";
+  el.style.transform=`translateX(-50%) translate(${(t.left+t.width/2)-(f.left+f.width/2)}px,`
+    +`${(t.top+t.height/2)-(f.top+f.height/2)}px) scale(${t.width/f.width})`;
   setTimeout(()=>{
-    fillSlot(slot,c);
-    el.classList.add("gone");
+    fillSlot(slot,c);          /* lá thật vào ô, trùng vị trí & cỡ */
+    el.style.display="none";    /* đổi chỗ vô hình, không nháy */
     updateDrawHead();
     if(state.drawn.length===3){
       document.getElementById("spread").classList.add("receded");
-      const t=document.getElementById("toAsk");t.textContent="Tiếp tục →";t.style.display="block";
+      const b=document.getElementById("toAsk");b.textContent="Tiếp tục →";b.style.display="block";
     }
-  },720);
+  },830);
 }
 function fillSlot(i,c){
   const s=document.getElementById("slot"+i);
   s.classList.add("filled");
-  s.innerHTML=`<button class="slotcard" onclick="flipSlot(${i})" aria-label="Lật lá ${POS[i]}">
+  s.innerHTML=`<button class="slotcard" onclick="openDrawCard(${i},this)" aria-label="Mở lá ${POS[i]}">
     <div class="card-inner"><div class="face back"></div>
     <div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div>
     <div class="cname">${escapeHtml(c.n)}</div><div class="cpos">${POS[i]}</div></div></div></button>`;
 }
-function flipSlot(i){
-  const el=document.querySelector("#slot"+i+" .slotcard");
-  if(!el)return;
-  if(el.classList.contains("flipped")){showInterpret(state.drawn[i],i);return}
-  el.classList.add("flipped");
-  if(navigator.vibrate)navigator.vibrate(10);
-  setTimeout(()=>showInterpret(state.drawn[i],i),1050);
-}
-function updateDrawHead(){
-  const n=state.drawn.length;
-  const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
-  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm vào từng lá phía trên để lật và nghe lá ấy nói";return}
-  st.textContent=n===0?"Spread · chọn lá của bạn":"Spread · chọn lá tiếp theo";
-  t.textContent="Chọn lá cho "+POS[n];
-  s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
-}
-function showInterpret(c,slot){
-  const box=document.getElementById("drawRead"),pos=POS[slot];
-  const mean=[c.past,c.now,c.next][slot];
-  box.style.display="block";
-  box.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ${pos}</div>
-   <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
-   <p class="imean">Ở vị trí <strong>${pos}</strong>, lá này nói về ${escapeHtml(mean)}.</p>`;
-  box.classList.remove("show");void box.offsetWidth;box.classList.add("show");
-  setTimeout(()=>{try{box.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},120);
-}
+function openDrawCard(i,el){openCard(i,el,"draw")}
 
 /* ---------- DEEPEN — hỏi thêm, free câu đầu ---------- */
 const KEY_ASKN="lro_ask_used",KEY_PRO="lro_pro";
@@ -988,12 +962,12 @@ function renderResultCards(){
     const btn=document.createElement("button");
     btn.className="minicard";btn.setAttribute("aria-label","Mở lá "+c.n);
     btn.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div>`;
-    btn.onclick=()=>openCard(i,btn);
+    btn.onclick=()=>openCard(i,btn,"result");
     row.appendChild(btn);
   });
 }
 /* morph: lá nhỏ nở dần thành lá lớn, và thu ngược lại khi đóng */
-let modalSrc=null,modalBusy=false;
+let modalSrc=null,modalBusy=false,modalMode="result",modalIdx=-1;
 function morphFrom(src,card){
   const to=card.getBoundingClientRect(),from=src.getBoundingClientRect();
   if(!to.width||!from.width)return "none";
@@ -1016,20 +990,36 @@ function buildMagic(){
   }
   m.innerHTML=html;
 }
-function openCard(i,srcEl){
+function openCard(i,srcEl,mode){
   if(modalBusy)return;
   buildMagic();
-  const c=state.drawn[i],modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
+  modalMode=mode||"result";modalIdx=i;
+  const c=state.drawn[i];
+  const modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
+  const art=document.getElementById("bcArt"),story=document.getElementById("bcStory");
   modalSrc=srcEl;
-  document.getElementById("bcArt").innerHTML=
-    `<div class="bglyph">${SUIT_ICONS[c.s]}</div><div class="bname">${escapeHtml(c.n)}</div>
-     <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật · chạm ra ngoài để đóng</div>`;
-  document.getElementById("bcStory").innerHTML=
-    `<div class="ai-label">✦ Câu chuyện trong tranh</div><p>${escapeHtml(STORY[c.n]||"")}</p>
-     <div class="bhint">Chạm để lật lại · chạm ra ngoài để đóng</div>`;
-  card.classList.remove("flipped");
+  if(modalMode==="draw"){
+    art.className="bigface art asback";
+    art.innerHTML=`<div class="bmark">✦</div><div class="bhint">Chạm vào lá để lật</div>`;
+    story.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ${POS[i]}</div>
+      <div class="bglyph mini">${SUIT_ICONS[c.s]}</div>
+      <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
+      <p class="imean">Ở vị trí <strong>${POS[i]}</strong>, lá này nói về ${escapeHtml([c.past,c.now,c.next][i])}.</p>
+      <div class="bhint">Chạm ra ngoài để đóng</div>`;
+  }else{
+    art.className="bigface art";
+    art.innerHTML=`<div class="bglyph">${SUIT_ICONS[c.s]}</div><div class="bname">${escapeHtml(c.n)}</div>
+      <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật · chạm ra ngoài để đóng</div>`;
+    story.innerHTML=`<div class="ai-label">✦ Câu chuyện trong tranh</div><p>${escapeHtml(STORY[c.n]||"")}</p>
+      <div class="bhint">Chạm để lật lại · chạm ra ngoài để đóng</div>`;
+  }
+  card.classList.remove("flipped","nofx");
   card.style.transition="none";card.style.transform="none";
   modal.classList.add("open");
+  if(modalMode==="draw"&&srcEl.classList.contains("opened")){
+    card.classList.add("nofx","flipped");
+    setTimeout(()=>card.classList.remove("nofx"),60);
+  }
   card.style.transform=morphFrom(srcEl,card);
   srcEl.style.visibility="hidden";
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -1039,9 +1029,15 @@ function openCard(i,srcEl){
   }));
 }
 function flipBig(){
-  document.getElementById("bigCard").classList.toggle("flipped");
+  const card=document.getElementById("bigCard");
+  card.classList.toggle("flipped");
   const m=document.getElementById("magic");
   m.classList.remove("burst");void m.offsetWidth;m.classList.add("burst");
+  if(navigator.vibrate)navigator.vibrate(10);
+  if(modalMode==="draw"&&card.classList.contains("flipped")){
+    const s=document.querySelector("#slot"+modalIdx+" .slotcard");
+    if(s)s.classList.add("flipped","opened");
+  }
 }
 function closeCard(e){
   if(e&&e.target.closest&&e.target.closest(".bigcard"))return;
