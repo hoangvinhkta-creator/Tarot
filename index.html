@@ -84,7 +84,8 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
 .chip.mask{animation:maskIn .7s cubic-bezier(.3,.6,.2,1) both}
 @keyframes maskIn{from{clip-path:inset(0 100% 0 0);opacity:1}to{clip-path:inset(0 0 0 0);opacity:1}}
 .chip.mask:hover{transform:rotate(1deg)}
-.chip.picked{transform:scale(1.02);border-color:var(--goldb)}
+.chip.picked{transform:scale(1.02);border-color:var(--goldb);background:rgba(201,162,74,.08)}
+.tcustom{max-width:420px;margin:18px auto 0;display:block;text-align:center}
 
 /* ===== bộ bài (Reveal) ===== */
 .deckwrap{display:flex;justify-content:center;margin:36px 0}
@@ -237,14 +238,14 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .breathwrap{display:flex;flex-direction:column;align-items:center;gap:20px;margin:34px 0 6px}
 .breathe{position:relative;width:clamp(148px,42vw,190px);aspect-ratio:1;border-radius:50%;
   border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;
-  animation:breath 10s ease-in-out infinite}
+  animation:breath 6.4s ease-in-out infinite}
 .breathe::before{content:"";position:absolute;inset:-15%;border-radius:50%;border:1px solid var(--hair);opacity:.45;
-  animation:breath 10s ease-in-out infinite reverse}
+  animation:breath 6.4s ease-in-out infinite reverse}
 @keyframes breath{0%,100%{transform:scale(.74);box-shadow:0 0 0 rgba(201,162,74,0)}
   45%,55%{transform:scale(1.05);box-shadow:0 0 46px rgba(201,162,74,.24)}}
 .bt{position:absolute;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--goldb)}
-.bt1{animation:btA 10s ease-in-out infinite}
-.bt2{animation:btB 10s ease-in-out infinite}
+.bt1{animation:btA 6.4s ease-in-out infinite}
+.bt2{animation:btB 6.4s ease-in-out infinite}
 @keyframes btA{0%,38%{opacity:1}48%,100%{opacity:0}}
 @keyframes btB{0%,44%{opacity:0}54%,94%{opacity:1}100%{opacity:0}}
 .bcount{font-size:10.5px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase;min-height:14px}
@@ -267,7 +268,22 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .slot{width:clamp(74px,22vw,100px);aspect-ratio:130/214;border-radius:11px;border:1px dashed rgba(201,162,74,.28);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:8px 5px;
   color:var(--mut);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;transition:border-color .5s,background .5s}
-.slot.filled{border-style:solid;border-color:var(--hair2);background:var(--card);animation:slotIn .55s ease}
+.slot.filled{border:none;padding:0;background:none;animation:slotIn .55s ease}
+.slotcard{width:100%;height:100%;background:none;border:none;padding:0;cursor:pointer;perspective:900px;-webkit-tap-highlight-color:transparent}
+.slotcard .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 1.2s cubic-bezier(.34,.06,.2,1)}
+.slotcard.flipped .card-inner{transform:rotateY(180deg)}
+.slotcard .face{border-radius:11px}
+.slotcard .back::after{font-size:22px}
+.slotcard .front .glyph svg{width:clamp(20px,6vw,26px)}
+.slotcard .front .cname{font-size:clamp(10px,2.8vw,12px)}
+.slotcard .front .cpos{font-size:8px}
+.slotcard.flipped .front::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.4) 50%,transparent 68%);
+  transform:translateX(-130%);animation:foil 1.1s ease 1.15s forwards}
+.slotcard:not(.flipped){animation:nudge 2.6s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.spread.receded{transform:translateY(34px) scale(.84);opacity:.26;pointer-events:none}
+.spread{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .9s ease}
 @keyframes slotIn{from{transform:scale(.88);opacity:.25}to{transform:none;opacity:1}}
 .slot .glyph{line-height:0}
 .slot .glyph svg{width:clamp(20px,6vw,26px);height:auto}
@@ -297,7 +313,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 
 /* ===== DEEPEN — paywall ===== */
 .paywall{background:linear-gradient(165deg,#1e1829,var(--card));border-color:var(--hair2);text-align:center}
-.pw-price{font-family:var(--serif);font-size:23px;color:var(--goldb);margin:8px 0 2px}
+.pw-price{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.6;color:var(--goldb);margin:8px 0 12px}
 .pw-note{font-size:12px;color:var(--mut);line-height:1.7}
 .freetag{display:inline-block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
   border:1px solid var(--hair);border-radius:999px;padding:4px 11px;margin-bottom:14px}
@@ -327,12 +343,19 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 @keyframes draw{to{stroke-dashoffset:0}}
 .ihero{margin-top:36px;opacity:0;transform:translateY(20px);animation:heroIn 1.4s cubic-bezier(.25,.7,.25,1) 2.8s forwards}
 @keyframes heroIn{to{opacity:1;transform:none}}
-#intro.exit .ihero{animation:heroOut .8s ease forwards}
-@keyframes heroOut{to{opacity:0;transform:translateY(-46px) scale(.88)}}
-.ihero-card{width:clamp(92px,26vw,120px);aspect-ratio:130/214;border-radius:12px;position:relative;
+#intro.exit .ihero-card{animation:swipeOff .72s cubic-bezier(.4,0,.5,1) forwards}
+#intro.exit .ihero-card.k1{animation-delay:0s}
+#intro.exit .ihero-card.k2{animation-delay:.1s}
+#intro.exit .ihero-card.k3{animation-delay:.2s}
+@keyframes swipeOff{to{opacity:0;transform:translateX(135%) rotate(24deg)}}
+.ihero-stack{position:relative;width:clamp(92px,26vw,120px);aspect-ratio:130/214}
+.ihero-card{position:absolute;inset:0;width:100%;height:100%;border-radius:12px;
   background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--hair2);
   box-shadow:0 16px 44px rgba(0,0,0,.6),0 0 30px rgba(201,162,74,.14);
-  display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold);animation:breathe 8s ease-in-out infinite}
+  display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold)}
+.ihero-card.k1{animation:breathe 8s ease-in-out infinite}
+.ihero-card.k2{transform:translate(6px,5px) rotate(3deg);opacity:.75}
+.ihero-card.k3{transform:translate(-7px,8px) rotate(-4deg);opacity:.5}
 .ihero-card::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
 .ibegin{margin-top:40px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:11px;-webkit-tap-highlight-color:transparent}
 .ibegin .bl{width:0;height:1px;background:var(--gold);animation:bline .7s ease 3.5s forwards}
@@ -372,7 +395,9 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <div class="iline"></div>
   <div class="ilogo">Life Reflection OS</div>
   <div class="isub">Tarot là tấm gương — không phải lời tiên tri</div>
-  <div class="ihero"><div class="ihero-card">✦</div></div>
+  <div class="ihero"><div class="ihero-stack">
+    <div class="ihero-card k3"></div><div class="ihero-card k2"></div><div class="ihero-card k1">✦</div>
+  </div></div>
   <button class="ibegin" onclick="beginRitual()" aria-label="Bắt đầu"><span class="bl"></span><span class="bt">Bắt đầu nghi thức</span></button>
 </div>
 <button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 11.5 L12 4.5 L20 11.5 M6.5 10 V19 H17.5 V10" stroke="#c9a24a" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -405,17 +430,17 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <h2>Hôm nay bạn cảm thấy thế nào?</h2>
   <p class="sub">Chọn một trạng thái gần nhất — hoặc bỏ qua, không bắt buộc</p>
   <div class="choices" id="moods"></div>
-  <button class="btn ghost" onclick="state.mood=null;buildTopics();show('s2')">Bỏ qua, kể chuyện luôn →</button>
+  <button class="btn ghost" onclick="state.mood=null;buildTopics();show('s2')">Mình chưa gọi tên được — cứ bắt đầu nhé</button>
 </section>
 
 <section class="step" id="s2">
   <div class="stage">Intention · điều muốn khám phá</div>
   <h2>Điều gì đang khiến bạn băn khoăn?</h2>
-  <p class="sub">Chủ đề giúp chọn cách đọc bài phù hợp</p>
   <div class="choices" id="topics"></div>
-  <h2 style="margin-top:34px;font-size:20px">Kể thêm cho lá bài nghe (không bắt buộc)</h2>
-  <p class="sub">Chỉ dùng khi bạn bật Đọc sâu bằng AI</p>
-  <textarea id="story" placeholder="Ví dụ: Mình đang phân vân có nên nhận lời mời làm việc ở công ty mới..."></textarea>
+  <input type="text" id="topicCustom" class="tcustom" style="display:none" placeholder="Điều bạn đang mang trong lòng...">
+  <h2 style="margin-top:36px;font-size:20px">Mở lòng sâu hơn</h2>
+  <textarea id="story" placeholder="Hãy nói hết ra..."></textarea>
+  <button class="btn" id="toShuffle" style="display:none" onclick="goShuffle()">Tiếp tục</button>
 </section>
 
 <section class="step" id="sShuffle">
@@ -442,12 +467,12 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 </section>
 
 <section class="step" id="sAsk">
-  <div class="stage">Deepen · điều còn nặng lòng</div>
-  <h2>Còn điều gì bạn muốn hỏi thêm?</h2>
-  <p class="sub">Ba lá đã nói phần của chúng. Nếu còn điều gì đang nặng lòng, hỏi ở đây — hoặc bỏ qua để xem tổng hợp.</p>
+  <div class="stage">Thổ lộ · điều còn trong lòng</div>
+  <h2>Còn điều gì chưa nói ra?</h2>
+  <p class="sub">Ba lá đã nói phần của chúng. Giờ đến lượt bạn.</p>
   <div id="askFree"></div>
-  <textarea id="askText" placeholder="Ví dụ: Mình vẫn lo nếu nghỉ việc bây giờ thì gia đình sẽ nghĩ sao..."></textarea>
-  <button class="btn" id="askBtn" onclick="askAI()">Hỏi lá bài ✦</button>
+  <textarea id="askText" placeholder="Hãy nói hết ra..."></textarea>
+  <button class="btn" id="askBtn" onclick="askAI()">Thổ lộ cùng lá bài ✦</button>
   <div class="panel ai-panel" id="askOut" style="display:none"></div>
   <button class="btn ghost" onclick="toSynth()">Xem tổng hợp →</button>
 </section>
@@ -508,7 +533,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 <script>
 /* ---------- data ---------- */
 const MOODS=[["calm","Bình yên"],["ok","Ổn"],["lost","Bối rối"],["sad","Buồn"],["anx","Lo âu"],["fire","Quyết tâm"]];
-const TOPICS=[["heart","Tình cảm"],["work","Công việc"],["self","Bản thân"],["coin","Tài chính"]];
+const TOPICS=[["heart","Tình cảm"],["work","Công việc"],["self","Bản thân"],["coin","Tài chính"],["other","Điều khác"]];
 const POS=["Quá khứ","Hiện tại","Hướng đi"];
 const REFLECT={
  "Tình cảm":"Điều gì trong mối quan hệ này nằm trong tầm kiểm soát của bạn — và điều gì không?",
@@ -731,6 +756,7 @@ const UI_ICONS={
  heart:`<svg viewBox="0 0 48 48"><path d="M24 38 C10 29 8 19 14 14 C18 11 23 13 24 17 C25 13 30 11 34 14 C40 19 38 29 24 38 Z" ${UIC}/></svg>`,
  work:`<svg viewBox="0 0 48 48"><rect x="9" y="17" width="30" height="20" rx="3" ${UIC}/><path d="M19 17 V13.5 A2.5 2.5 0 0 1 21.5 11 H26.5 A2.5 2.5 0 0 1 29 13.5 V17" ${UIC}/><path d="M9 25 H39" ${UIC}/></svg>`,
  self:`<svg viewBox="0 0 48 48"><ellipse cx="24" cy="19" rx="10" ry="12.5" ${UIC}/><path d="M24 31.5 V39" ${UIC}/><path d="M17 41.5 H31" ${UIC}/><path d="M20 13 C18.5 15 18 18 18.5 21" ${UIC}/></svg>`,
+ other:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14.5" ${UIC}/><circle cx="17" cy="24" r="1.9" fill="#c9a24a" stroke="none"/><circle cx="24" cy="24" r="1.9" fill="#c9a24a" stroke="none"/><circle cx="31" cy="24" r="1.9" fill="#c9a24a" stroke="none"/></svg>`,
  coin:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="14.5" ${UIC}/><path d="M24 17 C25.2 20.8 27.2 22.8 31 24 C27.2 25.2 25.2 27.2 24 31 C22.8 27.2 20.8 25.2 17 24 C20.8 22.8 22.8 20.8 24 17 Z" fill="#c9a24a" stroke="none"/></svg>`
 };
 function buildMoods(){
@@ -749,16 +775,31 @@ function buildMoods(){
     el.appendChild(b);
   });
 }
+function goShuffle(){
+  const ci=document.getElementById("topicCustom");
+  if(ci.style.display!=="none"){
+    const v=ci.value.trim();
+    if(!v){ci.focus();return}
+    state.topic=v;
+  }
+  if(!state.topic)return;
+  resetShuffle();show("sShuffle");
+}
 function buildTopics(){
   const el=document.getElementById("topics");el.innerHTML="";el.dataset.lock="";
+  const ci=document.getElementById("topicCustom");if(ci){ci.style.display="none";ci.value=""}
+  const nx=document.getElementById("toShuffle");if(nx)nx.style.display="none";
+  state.topic=null;
   TOPICS.forEach(([icon,label],i)=>{
     const b=document.createElement("button");b.className="chip mask";b.style.animationDelay=(i*110)+"ms";
     b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
     b.onclick=()=>{
-      if(el.dataset.lock)return;el.dataset.lock="1";
+      [...el.children].forEach(x=>x.classList.remove("picked"));
       b.classList.add("picked");
-      state.topic=label;resetShuffle();
-      setTimeout(()=>show("sShuffle"),550);
+      const ci=document.getElementById("topicCustom");
+      if(icon==="other"){ci.style.display="block";state.topic="";setTimeout(()=>ci.focus(),80)}
+      else{ci.style.display="none";ci.value="";state.topic=label}
+      document.getElementById("toShuffle").style.display="block";
     };
     el.appendChild(b);
   });
@@ -771,7 +812,7 @@ function beginRitual(){
 }
 buildMoods();buildTopics();
 (function(){const el=document.getElementById("bCount");if(!el)return;let n=1;
-setInterval(()=>{n=n%3+1;el.textContent="Nhịp "+n+" / 3"},10000)})();
+setInterval(()=>{n=n%3+1;el.textContent="Nhịp "+n+" / 3"},6400)})();
 
 /* ---------- SHUFFLE ---------- */
 let shufN=0,spreadPool=[];
@@ -779,15 +820,15 @@ function resetShuffle(){
   shufN=0;
   document.getElementById("shufCount").textContent="";
   document.getElementById("shufNext").style.display="none";
+  [...document.getElementById("shufDeck").children].forEach(el=>{el.style.transition="";el.style.transform=""});
 }
 function doShuffle(){
   const dk=document.getElementById("shufDeck");
   shufN++;
   [...dk.children].forEach((el,i)=>{
-    const dx=(Math.random()*2-1)*66,dy=(Math.random()*2-1)*28,r=(Math.random()*2-1)*24;
-    el.style.transition="transform .3s cubic-bezier(.3,.7,.3,1)";
+    const dx=(Math.random()*2-1)*26,dy=(Math.random()*2-1)*17,r=(Math.random()*2-1)*19;
+    el.style.transition="transform .5s cubic-bezier(.25,.8,.3,1) "+(i*22)+"ms";
     el.style.transform=`translate(${dx}px,${dy}px) rotate(${r}deg)`;
-    setTimeout(()=>{el.style.transform="";},320+i*28);
   });
   if(navigator.vibrate)navigator.vibrate(10);
   const c=document.getElementById("shufCount");
@@ -814,6 +855,7 @@ function buildSpread(){
     b.onclick=()=>pickSpread(i,b);
     sp.appendChild(b);
   });
+  document.getElementById("spread").classList.remove("receded");
   const d=document.getElementById("drawRead");d.style.display="none";d.classList.remove("show");
   document.getElementById("toAsk").style.display="none";
   updateDrawHead();
@@ -831,21 +873,49 @@ function pickSpread(i,el){
   el.dataset.taken="1";
   const c=spreadPool[i],slot=state.drawn.length;
   state.drawn.push(c);
-  el.querySelector(".cpos").textContent=POS[slot];
-  el.classList.add("taken");
   if(navigator.vibrate)navigator.vibrate(12);
+  /* bay lên đúng ô — vẫn úp mặt */
+  const tRect=document.getElementById("slot"+slot).getBoundingClientRect();
+  const fRect=el.getBoundingClientRect();
+  el.style.transformOrigin="50% 50%";
+  el.style.zIndex="40";
+  el.style.transition="transform .8s cubic-bezier(.3,.75,.25,1),opacity .25s .62s";
+  el.style.transform=`translateX(-50%) translate(${(tRect.left+tRect.width/2)-(fRect.left+fRect.width/2)}px,`
+    +`${(tRect.top+tRect.height/2)-(fRect.top+fRect.height/2)}px) scale(${tRect.width/fRect.width})`;
+  el.style.opacity="0";
   setTimeout(()=>{
-    showInterpret(c,slot);
-    const sEl=document.getElementById("slot"+slot);
-    sEl.classList.add("filled");
-    sEl.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${escapeHtml(c.n)}</div><div class="cpos">${POS[slot]}</div>`;
+    fillSlot(slot,c);
     el.classList.add("gone");
     updateDrawHead();
     if(state.drawn.length===3){
-      const t=document.getElementById("toAsk");
-      t.textContent="Tiếp tục →";t.style.display="block";
+      document.getElementById("spread").classList.add("receded");
+      const t=document.getElementById("toAsk");t.textContent="Tiếp tục →";t.style.display="block";
     }
-  },1600);
+  },720);
+}
+function fillSlot(i,c){
+  const s=document.getElementById("slot"+i);
+  s.classList.add("filled");
+  s.innerHTML=`<button class="slotcard" onclick="flipSlot(${i})" aria-label="Lật lá ${POS[i]}">
+    <div class="card-inner"><div class="face back"></div>
+    <div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div>
+    <div class="cname">${escapeHtml(c.n)}</div><div class="cpos">${POS[i]}</div></div></div></button>`;
+}
+function flipSlot(i){
+  const el=document.querySelector("#slot"+i+" .slotcard");
+  if(!el)return;
+  if(el.classList.contains("flipped")){showInterpret(state.drawn[i],i);return}
+  el.classList.add("flipped");
+  if(navigator.vibrate)navigator.vibrate(10);
+  setTimeout(()=>showInterpret(state.drawn[i],i),1050);
+}
+function updateDrawHead(){
+  const n=state.drawn.length;
+  const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
+  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm vào từng lá phía trên để lật và nghe lá ấy nói";return}
+  st.textContent=n===0?"Spread · chọn lá của bạn":"Spread · chọn lá tiếp theo";
+  t.textContent="Chọn lá cho "+POS[n];
+  s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
 }
 function showInterpret(c,slot){
   const box=document.getElementById("drawRead"),pos=POS[slot];
@@ -855,7 +925,7 @@ function showInterpret(c,slot){
    <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
    <p class="imean">Ở vị trí <strong>${pos}</strong>, lá này nói về ${escapeHtml(mean)}.</p>`;
   box.classList.remove("show");void box.offsetWidth;box.classList.add("show");
-  try{box.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}
+  setTimeout(()=>{try{box.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},120);
 }
 
 /* ---------- DEEPEN — hỏi thêm, free câu đầu ---------- */
@@ -864,17 +934,20 @@ function askUsed(){return +(localStorage.getItem(KEY_ASKN)||0)}
 function isPro(){return localStorage.getItem(KEY_PRO)==="1"}
 function renderAskFree(){
   const el=document.getElementById("askFree");
-  el.innerHTML=isPro()?'<div class="freetag">Đã mở khóa · hỏi không giới hạn</div>'
-    :(askUsed()<1?'<div class="freetag">Câu hỏi đầu tiên miễn phí</div>':'');
+  el.innerHTML=isPro()?'<div class="freetag">Lá bài luôn sẵn lòng nghe bạn</div>'
+    :(askUsed()<1?'<div class="freetag">Lời tâm sự đầu tiên luôn được đón nhận</div>':'');
 }
 function showPaywall(){
   const out=document.getElementById("askOut");
   out.style.display="block";out.className="panel paywall";
-  out.innerHTML=`<div class="ai-label">✦ Đọc sâu không giới hạn</div>
-   <div class="pw-price">49.000đ / tháng</div>
-   <p class="pw-note">Bạn đã dùng câu hỏi miễn phí. Mở khóa để hỏi thêm bao nhiêu tùy ý,<br>và giữ lại toàn bộ mảnh ký ức của mình.</p>
-   <button class="btn" onclick="unlockPro()">Mở khóa (demo)</button>
-   <button class="btn ghost" onclick="toSynth()">Để sau — xem tổng hợp</button>`;
+  out.innerHTML=`<div class="ai-label">✦ Lá bài cần một khoảng lặng</div>
+   <div class="pw-price">Đêm nay, lá bài đã lắng nghe bạn một lần</div>
+   <p class="pw-note">Mỗi lời tâm sự đều cần thời gian để thấm.<br>
+   Hãy để những gì vừa nghe được ở lại với bạn thêm chút nữa.<br><br>
+   Còn nếu lòng bạn vẫn chưa yên và muốn có người đồng hành lâu dài,<br>
+   cánh cửa này luôn mở sẵn.</p>
+   <button class="btn" onclick="unlockPro()">Mở cánh cửa đồng hành ✦</button>
+   <button class="btn ghost" onclick="toSynth()">Để lòng lắng lại — xem tổng hợp</button>`;
 }
 function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();document.getElementById("askOut").style.display="none";document.getElementById("askOut").className="panel ai-panel";}
 async function askAI(){
@@ -889,8 +962,8 @@ async function askAI(){
   const [a,b,c]=state.drawn;
   const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu, giọng tiếng Việt ấm áp. KHÔNG phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu người hỏi có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng khuyên tìm người thân hoặc chuyên gia. Trả lời NGẮN, 90-140 từ: thừa nhận điều họ đang nặng lòng, soi nó qua ba lá đã rút, rồi kết bằng một câu hỏi tự vấn. Không lặp lại phần đọc bài trước đó.`;
   const usr=`Chủ đề: ${state.topic}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\nĐiều họ còn nặng lòng: ${q}`;
-  out.innerHTML=`<div class="ai-label">✦ Lời đáp riêng cho điều bạn hỏi</div><div id="askTextOut"><span class="cursor">▌</span></div>`;
-  const te=document.getElementById("askTextOut");let acc="";
+  out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askTextOut"><span class="cursor">▌</span></div>`;
+  const te=document.getElementById("askTextOut");typeStart(te,34);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
@@ -901,11 +974,11 @@ async function askAI(){
     while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
       let nl;while((nl=buf.indexOf("\n"))>=0){const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
         if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
-        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){acc+=d;renderStream(te,acc)}}catch(_){}}}
-    te.innerHTML=acc?fmtBody(acc):"(Không nhận được nội dung.)";
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d)typePush(d)}catch(_){}}}
+    await typeFinish(te);
     localStorage.setItem(KEY_ASKN,askUsed()+1);renderAskFree();
     btn.disabled=false;btn.textContent="Hỏi điều khác ✦";
-  }catch(err){te.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}.`;btn.disabled=false;btn.textContent="Thử lại ✦"}
+  }catch(err){clearInterval(tTimer);te.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}.`;btn.disabled=false;btn.textContent="Thử lại ✦"}
 }
 function toSynth(){showReading()}
 
@@ -1020,6 +1093,22 @@ function memorySummary(){
   }).join("\n");
 }
 function fmtBody(s){return escapeHtml(s).replace(/\n{2,}/g,"</p><p style='margin-top:12px'>").replace(/\n/g,"<br>").replace(/^/,"<p>")+"</p>";}
+let tQ="",tShown="",tTimer=null;
+function typeStart(el,speed){
+  tQ="";tShown="";clearInterval(tTimer);
+  tTimer=setInterval(()=>{
+    if(tShown.length<tQ.length){tShown=tQ.slice(0,tShown.length+1);renderStream(el,tShown)}
+  },speed||30);
+}
+function typePush(s){tQ+=s}
+function typeFinish(el){
+  return new Promise(res=>{
+    const tick=()=>{
+      if(tShown.length>=tQ.length){clearInterval(tTimer);el.innerHTML=tQ?fmtBody(tQ):"(Không nhận được nội dung.)";res()}
+      else setTimeout(tick,80);
+    };tick();
+  });
+}
 function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+'<span class="cursor">▌</span>'+h.slice(i):h;}
 async function aiRead(){
   const key=localStorage.getItem(KEY_API);
