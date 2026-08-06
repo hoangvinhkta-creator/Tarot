@@ -168,6 +168,11 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .btn.ghost:hover{color:var(--ivory);border-color:var(--mut);background:none}
 .ai-panel{border-color:var(--hair2);background:linear-gradient(165deg,#191623,var(--card))}
 .ai-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+/* mạch trò chuyện nhiều lượt — lời của bạn và lời đáp nằm cùng một dòng chảy */
+.ex+.ex{margin-top:22px;padding-top:20px;border-top:1px solid rgba(201,162,74,.16)}
+.ex .youline{font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.75;
+  color:var(--mut);border-left:2px solid var(--hair);padding-left:12px;margin-bottom:14px}
+.panel.closing{background:linear-gradient(165deg,#1a1725,var(--card));border-color:var(--hair2);text-align:center}
 .throwback{border:1px solid var(--hair2);border-radius:14px;padding:20px 24px;margin:18px 0;background:var(--card);box-shadow:var(--shadow)}
 .throwback .tb-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .throwback .tb-quote{font-family:var(--serif);font-style:italic;font-size:16.5px;line-height:1.6;color:var(--ivory)}
@@ -936,6 +941,7 @@ function show(id){
     if(t){t.style.display="block";t.value=""}if(bt){bt.style.display="block";bt.disabled=false;bt.textContent="Thổ lộ cùng lá bài ✦"}
     if(o){o.style.display="none";o.className="panel ai-panel";o.innerHTML=""}
     if(m){m.innerHTML="";m.className=""}if(h)h.style.display="block";if(sk)sk.style.display="block";
+    resetAskThread();
   }
   const go=()=>{
     nx.classList.add("active");
@@ -1206,64 +1212,135 @@ function showPaywall(){
   out.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();const m=document.getElementById("askMore");m.className="";renderAskAgain();}
-async function askAI(){
-  const q=document.getElementById("askText").value.trim();
+/* mạch trò chuyện: giữ nguyên ngữ cảnh nhiều lượt để lời đáp không quay vòng */
+let askThread=[],askClosed=false,askCloseTimer=null;
+function resetAskThread(){askThread=[];askClosed=false;clearTimeout(askCloseTimer);
+  const t=document.getElementById("askThreadEl");if(t)t.innerHTML=""}
+/* độ trùng ý giữa hai lời đáp — tiếng Việt đơn âm nên so theo cặp âm tiết liền nhau */
+function askOverlap(a,b){
+  const gr=s=>{const w=String(s).toLowerCase().replace(/[^\p{L}\s]/gu," ").split(/\s+/).filter(Boolean),g=new Set();
+    for(let i=0;i<w.length-1;i++)g.add(w[i]+" "+w[i+1]);return g};
+  const A=gr(a),B=gr(b);if(A.size<8||B.size<8)return 0;
+  let n=0;A.forEach(x=>{if(B.has(x))n++});
+  return n/Math.min(A.size,B.size);
+}
+function askSystem(){
+  const [a,b,c]=state.drawn;
+  const story=(document.getElementById("story")||{}).value||"";
+  return `Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi và trò chuyện NHIỀU LƯỢT với họ.
+
+BỐI CẢNH (chỉ để bạn hiểu ngầm, KHÔNG được kể lại):
+- Điều họ đang bận tâm: ${state.topic||"chưa gọi tên"}
+- Họ tự kể lúc đầu: ${story.trim()||"(không kể thêm)"}
+- Ba lá đã rút: ${a?a.n:"-"} / ${b?b.n:"-"} / ${c?c.n:"-"}
+
+QUY TẮC BẮT BUỘC
+1. TUYỆT ĐỐI không liệt kê, không giải nghĩa ba lá bài. Không viết "Lá X cho thấy...", "Với Y, bạn đang...", "Hướng đi với Z...". Cả cuộc trò chuyện nhiều nhất một lần bạn được mượn MỘT hình ảnh trong lá, và câu đó vẫn phải nói về đời họ chứ không về lá.
+2. Bám vào CHI TIẾT CỤ THỂ họ vừa kể. Nhắc lại đúng chi tiết ấy bằng lời của bạn để họ biết bạn thật sự nghe.
+3. Mỗi lượt phải MỚI. Không lặp lại ý, hình ảnh hay lời khuyên đã nói ở lượt trước. Không tóm tắt lại những gì đã trao đổi.
+4. Nói thẳng và rõ. Đưa một nhận định cụ thể (kiểu "mình nghĩ thứ đang giữ bạn lại không phải A mà là B") và MỘT việc làm được trong tuần này — một câu để nói ra, một ranh giới để đặt, một thứ để thử, một hạn để tự cho mình.
+5. Hỏi lại nhiều nhất MỘT câu, và chỉ khi câu hỏi đó mở ra hướng thật sự mới. Không có gì mới thì đừng hỏi.
+6. KHI MẠCH CHUYỆN ĐI VÒNG — họ lặp lại điều đã nói, hoặc bạn không còn gì mới để thêm — thì đừng hỏi nữa. Hãy nói một lời khép lại rõ ràng và ấm: điều gì đã sáng tỏ, điều gì nên để thời gian trả lời, rồi kết thúc tin nhắn bằng đúng chuỗi [[KHEP]] ở dòng cuối cùng.
+
+GIỌNG: tiếng Việt tự nhiên, ấm, thẳng thắn như một người bạn thân. Không sáo rỗng, không "hãy tích cực lên", không phán định mệnh, không đánh số, không tiêu đề. Viết liền mạch 110-170 từ.
+An toàn: không khuyên y tế, pháp lý hay đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.`;
+}
+function askTurnNote(n){
+  if(n<=1)return "Đây là lượt đầu tiên. Hãy gọi đúng tên điều họ đang mang, rồi cho một hướng cụ thể.";
+  if(n===2)return "Đây là lượt thứ hai. Đi sâu và cụ thể hơn lượt trước. Tuyệt đối không nhắc lại ý cũ, không hỏi lại kiểu câu đã hỏi.";
+  if(n===3)return "Đây là lượt thứ ba — cuộc trò chuyện nên bắt đầu hội tụ. Nếu bạn không còn gì thật sự mới để thêm, hãy khép lại theo quy tắc 6.";
+  return "Đây là lượt cuối. Không hỏi thêm nữa. Hãy khép lại theo quy tắc 6 và kết thúc bằng [[KHEP]].";
+}
+async function askAI(qIn){
+  const inputEl=document.getElementById("askText");
+  const q=(qIn!==undefined?qIn:inputEl.value).trim();
   const out=document.getElementById("askOut"),btn=document.getElementById("askBtn");
-  if(!q){document.getElementById("askText").focus();return}
+  if(!q){if(qIn===undefined)inputEl.focus();return}
   if(askUsed()>=1&&!isPro()){showPaywall();return}
   const key=localStorage.getItem(KEY_API);
-  out.style.display="block";out.className="panel ai-panel";
-  if(!key){out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
+  out.style.display="block";
+  if(!key){out.className="panel ai-panel";
+    out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
   btn.disabled=true;
-  const [a,b,c]=state.drawn;
-  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot. Giọng tiếng Việt ấm áp, tự nhiên. Người ta vừa thổ lộ một điều đang nặng lòng — hãy đáp như một người thật sự lắng nghe.\n\n- Trước hết, thừa nhận điều họ đang mang, gọi đúng tên nó.\n- Soi nó qua ba lá đã rút, nhưng nói về chuyện của họ chứ đừng giảng về lá bài.\n- Cho một điều cụ thể họ có thể làm hoặc nghĩ khác đi.\n- Khép lại bằng một câu hỏi nhẹ để họ tự ngẫm.\n\nViết liền mạch 120-180 từ, không đánh số, không lặp lại phần đọc bài trước đó. Không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.`
-  const usr=`Chủ đề: ${state.topic}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\nĐiều họ còn nặng lòng: ${q}`;
-  document.getElementById("askText").style.display="none";
-  document.getElementById("askBtn").style.display="none";
+  inputEl.style.display="none";btn.style.display="none";
   const hint=document.getElementById("askHint");if(hint)hint.style.display="none";
   document.getElementById("askSkip").style.display="none";
+  /* mạch trò chuyện nối tiếp, lượt cũ vẫn còn trên màn hình */
+  if(!document.getElementById("askThreadEl")){
+    out.className="panel ai-panel";
+    out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askThreadEl"></div>`;
+  }
+  const thread=document.getElementById("askThreadEl");
+  const turn=askThread.filter(m=>m.role==="user").length+1;
+  const ex=document.createElement("div");ex.className="ex";
+  ex.innerHTML=`<p class="youline">${escapeHtml(q)}</p><div class="reply"><span class="tw">✦</span></div>`;
+  thread.appendChild(ex);
+  const te=ex.querySelector(".reply");
   out.classList.add("live");
-  out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askTextOut"><span class="tw">✦</span></div>`;
-  const te=document.getElementById("askTextOut");typeStart(te,34);
+  try{ex.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}
+  typeStart(te,34);
+  const msgs=[{role:"system",content:askSystem()},...askThread,
+    {role:"system",content:askTurnNote(turn)},{role:"user",content:q}];
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:aiModel(),max_tokens:650,temperature:.85,stream:true,
-        messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
+      body:JSON.stringify({model:aiModel(),max_tokens:650,temperature:.8,
+        presence_penalty:.6,frequency_penalty:.35,stream:true,messages:msgs})});
     if(!r.ok||!r.body){let m="HTTP "+r.status;try{const e=await r.json();m=e.error?.message||m}catch(_){}throw new Error(m)}
-    const rd=r.body.getReader(),dec=new TextDecoder();let buf="";
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="",raw="";
     while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
       let nl;while((nl=buf.indexOf("\n"))>=0){const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
         if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
-        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d)typePush(d)}catch(_){}}}
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){raw+=d;typePush(d)}}catch(_){}}}
     await typeFinish(te);
     out.classList.remove("live");
+    const clean=stripMark(raw);
+    const prev=askThread.filter(m=>m.role==="assistant").map(m=>m.content);
+    askThread.push({role:"user",content:q},{role:"assistant",content:clean});
     localStorage.setItem(KEY_ASKN,askUsed()+1);renderAskFree();
     btn.disabled=false;
-    renderAskAgain();
+    const looping=prev.some(t=>askOverlap(t,clean)>=.45);
+    if(/\[+\s*KHEP/i.test(raw)||looping||turn>=4)closeAskThread();
+    else renderAskAgain();
   }catch(err){clearInterval(tTimer);out.classList.remove("live");
     te.innerHTML=`Chưa kết nối được: ${escapeHtml(err.message)}.`;
     btn.disabled=false;btn.style.display="block";btn.textContent="Thử lại ✦";
-    document.getElementById("askText").style.display="block";
+    inputEl.style.display="block";inputEl.value=q;
     document.getElementById("askSkip").style.display="block";}
 }
 function renderAskAgain(){
+  if(askClosed)return;
   const m=document.getElementById("askMore");
+  m.className="";
   m.innerHTML=`<p class="hintline">Nếu trong lòng còn điều gì nữa,<br>lá bài vẫn ở đây.</p>
    <textarea id="askText2" placeholder="Hãy nói tiếp..."></textarea>
    <button class="btn" onclick="askMore()">Nói tiếp ✦</button>
    <button class="btn ghost" onclick="toSynth()">Đã đủ cho hôm nay →</button>`;
   m.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
+/* khi mạch chuyện bắt đầu quay vòng: khép lại tử tế rồi tự bước sang phần tổng hợp */
+function closeAskThread(){
+  askClosed=true;
+  const m=document.getElementById("askMore");
+  m.className="panel closing";
+  m.innerHTML=`<div class="ai-label">✦ Đến đây là vừa đủ</div>
+   <p class="pw-price">Có những điều không cần thêm lời — chỉ cần thời gian</p>
+   <p class="pw-note">Những gì cần sáng tỏ thì đã sáng tỏ.<br>
+   Phần còn lại không nằm ở lá bài nữa, mà ở những ngày sắp tới của bạn.</p>
+   <button class="btn" onclick="toSynth()">Xem tổng hợp →</button>`;
+  try{m.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}
+  clearTimeout(askCloseTimer);
+  askCloseTimer=setTimeout(()=>{
+    if(document.getElementById("sAsk").classList.contains("active"))toSynth();
+  },8000);
+}
 function askMore(){
-  const v=(document.getElementById("askText2")||{}).value||"";
-  if(!v.trim()){document.getElementById("askText2").focus();return}
+  const el=document.getElementById("askText2");
+  const v=(el||{}).value||"";
+  if(!v.trim()){if(el)el.focus();return}
   if(!isPro()){showPaywall();return}
-  document.getElementById("askText").value=v;
   document.getElementById("askMore").innerHTML="";
-  document.getElementById("askText").style.display="block";
-  document.getElementById("askBtn").style.display="block";
-  askAI();
+  askAI(v);
 }
 function toSynth(){showReading()}
 
@@ -1408,7 +1485,9 @@ function memorySummary(){
     return `- ${d}: ${e.mood?`cảm xúc "${e.mood}", `:""}chủ đề "${e.topic}", bài: ${e.cards.join(", ")}${t?`, ghi chú: "${t}"`:""}`;
   }).join("\n");
 }
-function fmtBody(s){return escapeHtml(s).replace(/\n{2,}/g,"</p><p style='margin-top:12px'>").replace(/\n/g,"<br>").replace(/^/,"<p>")+"</p>";}
+function fmtBody(s){return escapeHtml(stripMark(s)).replace(/\n{2,}/g,"</p><p style='margin-top:12px'>").replace(/\n/g,"<br>").replace(/^/,"<p>")+"</p>";}
+/* dấu hiệu nội bộ để biết mạch chuyện nên khép lại — không bao giờ hiện ra cho người đọc */
+function stripMark(s){return String(s).replace(/\[+\s*KHEP\s*\]*/gi,"").replace(/\[\[[^\]]*$/,"").replace(/\s+$/,"")}
 let tQ="",tShown="",tTimer=null;
 function typeStart(el,speed){
   tQ="";tShown="";clearInterval(tTimer);
@@ -1434,7 +1513,9 @@ async function aiRead(){
   const story=document.getElementById("story").value.trim();
   const [a,b,c]=state.drawn;
   const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Giọng tiếng Việt ấm áp, tự nhiên như đang trò chuyện — không trịnh trọng, không sách vở.\n\nNgười ta tìm đến tarot khi trong lòng có gì đó chưa yên. Việc của bạn là làm họ nhẹ lòng hơn và thấy rõ mình có thể làm gì tiếp theo.\n\nCÁCH VIẾT:\n- Gọi tên cảm xúc bạn nghe được trong câu chuyện của họ, chân thành và cụ thể. Đừng nói sáo kiểu 'tôi hiểu bạn'.\n- Dùng ba lá bài như chất liệu để soi CÂU CHUYỆN CỦA HỌ, không phải để giảng giải về lá bài. Tuyệt đối không viết kiểu 'lá này nghĩa là...'. Hãy nói về đời họ, thỉnh thoảng mượn một hình ảnh trong lá.\n- Chỉ ra một góc nhìn họ có thể chưa thấy — cụ thể, gắn với chi tiết họ kể.\n- Đưa 1-2 việc nhỏ, cụ thể, làm được ngay hôm nay hoặc tuần này. Không khuyên chung chung kiểu 'hãy tích cực lên'.\n- Khép lại bằng một câu hỏi để họ tự ngẫm.\n\nViết liền mạch 200-280 từ, chia đoạn tự nhiên, KHÔNG đánh số, KHÔNG in tiêu đề mục.\nKhông phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.\nNếu phần Lịch sử bên dưới KHÔNG rỗng, câu ĐẦU TIÊN bắt buộc nhắc lại một chi tiết cũ để họ thấy bạn còn nhớ.`
-  const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`;
+  const said=askThread.filter(m=>m.role==="assistant").map(m=>m.content).join("\n---\n");
+  const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`
+    +(said?`\n\nNhững điều ĐÃ NÓI với họ hôm nay — tuyệt đối không lặp lại ý, hình ảnh hay lời khuyên nào trong đây, hãy nói phần còn thiếu:\n${said}`:"");
   out.style.display="block";
   out.innerHTML=`<div class="ai-label">✦ Lời của lá bài · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
   const textEl=document.getElementById("aiText");
