@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-labelledby="lro-title">
   <title id="lro-title">Life Reflection OS</title>
-  <g stroke="#7F77DD" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none">
-    <rect x="12" y="5" width="24" height="38" rx="6" fill="#ffffff"/>
-    <path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#7F77DD" stroke="none"/>
+  <g stroke="#c9a24a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none">
+    <rect x="12" y="5" width="24" height="38" rx="6" fill="#14121a"/>
+    <path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#c9a24a" stroke="none"/>
   </g>
 </svg>

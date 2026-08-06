@@ -3,111 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#241f4d">
+<meta name="theme-color" content="#0b0a10">
 <title>Life Reflection OS — Demo</title>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="manifest" href="manifest.json">
 <style>
+/* ===== LUXURY MINIMAL TAROT — đen · vàng kim · giấy ===== */
 :root{
-  --night:#f7f7f5; --nebula:rgba(255,255,255,.6); --veil:rgba(255,255,255,.55);
-  --moon:#111827; --gold:#1d5bea; --rose:#7F77DD; --mist:#56637f;
-  --navy:#2b3a75; --blue-d:#1544b8;
-  --glass:rgba(255,255,255,.55); --glass-strong:rgba(255,255,255,.78);
-  --blur:blur(22px) saturate(150%); --shadow:0 8px 32px rgba(17,24,39,.14);
+  --ink:#0b0a10; --card:#16141d; --card2:#1c1a24;
+  --gold:#c9a24a; --goldb:#e8c87e; --ivory:#efe9dc; --mut:#9b91a6;
+  --hair:rgba(201,162,74,.3); --hair2:rgba(201,162,74,.55);
+  --serif:Georgia,'Times New Roman',serif;
+  --shadow:0 14px 40px rgba(0,0,0,.5);
+  /* alias giữ tương thích tên biến cũ trong vài chỗ */
+  --moon:var(--ivory); --mist:var(--mut); --navy:var(--ivory); --rose:var(--gold);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:#241f4d;color:var(--moon);font-family:'Segoe UI',system-ui,-apple-system,Roboto,'Be Vietnam Pro',Arial,sans-serif;font-weight:400;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#241f4d 0%,#3c3277 28%,#5d4a9e 52%,#7c62b8 76%,#2e2660 100%)}
-#stars{display:none}
+body{background:var(--ink);color:var(--ivory);font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+/* vignette thở ±2% */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 10%,rgba(201,162,74,.07),transparent 55%),
+             radial-gradient(150% 120% at 50% 112%,rgba(0,0,0,.65),transparent 60%);
+  animation:vig 12s ease-in-out infinite}
+@keyframes vig{0%,100%{opacity:.92}50%{opacity:1}}
+/* hạt giấy sống, trôi rất chậm */
+body::after{content:"";position:fixed;inset:-40px;z-index:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/></svg>");
+  animation:grain 18s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-12px,8px)}50%{transform:translate(8px,-10px)}75%{transform:translate(-6px,-6px)}100%{transform:translate(0,0)}}
+/* sacred geometry nền, scale 100→101% trong 25s */
+#geo{position:fixed;left:50%;top:50%;width:min(150vw,900px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.05;animation:geo 25s ease-in-out infinite}
+#geo svg{width:100%;height:100%}
+@keyframes geo{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.01)}}
+/* tint 5% theo tâm trạng */
+#tint{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.4s ease,background 1.4s ease}
+body[data-tint] #tint{opacity:.05}
+body[data-tint="Bình yên"] #tint{background:#e8c87e}
+body[data-tint="Ổn"] #tint{background:#d9b26a}
+body[data-tint="Bối rối"] #tint{background:#8f7bd8}
+body[data-tint="Buồn"] #tint{background:#5f7fd8}
+body[data-tint="Lo âu"] #tint{background:#5fa8a0}
+body[data-tint="Quyết tâm"] #tint{background:#d8763f}
+
 .wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 20px 80px}
-header{text-align:center;padding:56px 0 8px}
-.brand{display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(21px,5vw,30px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#f3efff;text-shadow:0 2px 10px rgba(0,0,0,.35)}
-.brand .mark{width:clamp(34px,8vw,44px);height:auto;line-height:0;flex:none;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
-.tag{color:#d9d2f0;font-size:13px;margin-top:6px;letter-spacing:.08em;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+header{text-align:center;padding:52px 0 8px}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--serif);font-size:clamp(19px,4.4vw,27px);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory)}
+.brand .mark{width:clamp(28px,6.6vw,36px);height:auto;line-height:0;flex:none}
+/* đường kim tuyến dưới brand + ánh vàng quét qua mỗi 8s */
+.hline{position:relative;width:150px;height:1px;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent);overflow:hidden}
+.hline::after{content:"";position:absolute;top:-1px;left:-30%;width:30%;height:3px;filter:blur(1px);
+  background:linear-gradient(90deg,transparent,rgba(232,200,126,.95),transparent);animation:glint 8s ease-in-out infinite}
+@keyframes glint{0%,55%{left:-30%}78%{left:100%}100%{left:100%}}
+.tag{color:var(--mut);font-size:12px;margin-top:12px;letter-spacing:.2em}
+nav{display:flex;gap:10px;justify-content:center;margin-top:28px}
+nav button{background:none;border:none;border-bottom:1px solid transparent;color:var(--mut);font-family:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:8px 10px;-webkit-tap-highlight-color:transparent}
+nav button.on{color:var(--goldb);border-bottom-color:var(--hair2)}
+
+.stage{font-size:10.5px;letter-spacing:.34em;color:var(--gold);text-transform:uppercase;text-align:center;margin-top:42px}
+h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-align:center;margin:42px 0 8px;color:var(--ivory);letter-spacing:.02em}
+.stage+h2{margin-top:10px}
+.sub{color:var(--mut);text-align:center;font-size:13.5px;margin-bottom:26px}
+
 .step{display:none;animation:fade .6s ease both}
 .step.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){.step{animation:none}.card-inner{transition:none!important}.card,.panel .cardline,#aiZone,.late{animation:none;opacity:1}}
-h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3efff;letter-spacing:-.01em;text-shadow:0 2px 10px rgba(0,0,0,.4)}
-.sub{color:#d9d2f0;text-align:center;font-size:14px;margin-bottom:26px;text-shadow:0 1px 4px rgba(0,0,0,.35)}
+
+/* ===== chips (Reflect / Focus) ===== */
 .choices{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-.chip{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--moon);border-radius:999px;padding:12px 22px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 18px rgba(17,24,39,.08);transition:border-color .25s,transform .2s}
-.chip:hover,.chip:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
-.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.cards{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;margin:28px 0;perspective:1200px;flex-wrap:wrap}
-.card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent;opacity:0}
-.card:nth-child(1){animation:dealL 1.5s cubic-bezier(.22,.72,.28,1) .25s both}
-.card:nth-child(2){animation:dealT 1.5s cubic-bezier(.22,.72,.28,1) 1.15s both}
-.card:nth-child(3){animation:dealR 1.5s cubic-bezier(.22,.72,.28,1) 2.05s both}
-@keyframes dealL{from{opacity:1;transform:translateX(-120vw) translateY(9vh) rotate(-22deg)}to{opacity:1;transform:none}}
-@keyframes dealT{from{opacity:1;transform:translateY(-115vh) rotate(12deg)}to{opacity:1;transform:none}}
-@keyframes dealR{from{opacity:1;transform:translateX(120vw) translateY(9vh) rotate(22deg)}to{opacity:1;transform:none}}
+.chip{position:relative;background:var(--card);border:1px solid var(--hair);color:var(--ivory);border-radius:12px;padding:14px 22px;font-family:inherit;font-size:14.5px;font-weight:400;letter-spacing:.04em;cursor:pointer;
+  opacity:0;animation:chipIn .6s ease both;transition:border-color .35s,opacity .5s,transform .5s;-webkit-tap-highlight-color:transparent}
+@keyframes chipIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.chip:hover,.chip:focus-visible{border-color:var(--gold);outline:none}
+.chip .ci{margin-right:8px}
+.chip.dim{opacity:.25;pointer-events:none}
+.chip.sel{border-color:var(--goldb);transform:translateY(-6px)}
+.chip.mask{animation:maskIn .7s cubic-bezier(.3,.6,.2,1) both}
+@keyframes maskIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.chip.mask:hover{transform:rotate(1deg)}
+.chip.picked{transform:scale(1.02);border-color:var(--goldb)}
+
+/* ===== bộ bài (Reveal) ===== */
+.deckwrap{display:flex;justify-content:center;margin:36px 0}
+.deckwrap.hidden{display:none}
+.deck{position:relative;width:clamp(96px,30vw,140px);aspect-ratio:130/214;background:none;border:none;cursor:pointer;animation:breathe 8s ease-in-out infinite;-webkit-tap-highlight-color:transparent}
+@keyframes breathe{0%,100%{transform:rotate(-.3deg)}50%{transform:rotate(.3deg)}}
+.deck:hover{filter:drop-shadow(0 10px 28px rgba(201,162,74,.2))}
+.deck.shiver{animation:shiver .4s ease}
+@keyframes shiver{0%,100%{transform:rotate(0)}25%{transform:rotate(1deg)}60%{transform:rotate(-1deg)}}
+.deck .d{position:absolute;inset:0;border-radius:12px;background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--hair);box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.deck .d:nth-child(1){transform:translate(-7px,6px) rotate(-3.2deg)}
+.deck .d:nth-child(2){transform:translate(5px,4px) rotate(2.2deg)}
+.deck .d:nth-child(3){transform:translate(-3px,2px) rotate(-1.2deg)}
+.deck .d:nth-child(4){transform:translate(2px,1px) rotate(.8deg)}
+.deck .d:last-child::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
+.deck .d:last-child::after{content:'✦';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold)}
+
+.cards{display:flex;gap:clamp(10px,3vw,16px);justify-content:center;margin:28px 0;perspective:1400px;flex-wrap:wrap}
+.card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transform:rotate(var(--rot,0deg));transition:transform .35s ease}
+.card:nth-child(1){--rot:-3.5deg}
+.card:nth-child(3){--rot:3.5deg}
+.card.fan{animation:fanout .9s cubic-bezier(.22,.75,.3,1) both}
+.card:nth-child(1).fan{--fx:calc(100% + 14px);animation-delay:.02s}
+.card:nth-child(2).fan{--fx:0px;animation-delay:.14s}
+.card:nth-child(3).fan{--fx:calc(-100% - 14px);animation-delay:.26s}
+@keyframes fanout{from{transform:translateX(var(--fx,0)) translateY(-6px) rotate(0)}to{transform:translateX(0) rotate(var(--rot,0deg))}}
+.card.pick{transform:rotate(var(--rot,0deg)) translateY(-16px)}
 .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
 .card.flipped .card-inner{transform:rotateY(180deg)}
-.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
-.back{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow)}
-.back::after{content:'✦';font-size:34px;color:#7F77DD}
-.front{background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--rose);box-shadow:var(--shadow);transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px;overflow:hidden}
+.back{background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--hair);box-shadow:0 8px 26px rgba(0,0,0,.4)}
+.back::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
+.back::after{content:'✦';font-size:30px;color:var(--gold)}
+.front{background:linear-gradient(165deg,#1a1822,#141219);border:1px solid var(--hair2);box-shadow:0 8px 26px rgba(0,0,0,.4);transform:rotateY(180deg)}
+.front::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px;pointer-events:none}
+/* vàng kim quét qua sau khi lật */
+.card.flipped .front::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.4) 50%,transparent 68%);
+  transform:translateX(-130%);animation:foil 1.1s ease 1.35s forwards}
+@keyframes foil{to{transform:translateX(130%)}}
 .front .glyph{line-height:0;margin-bottom:10px}
-.front .glyph svg{width:clamp(34px,9vw,46px);height:auto}
-.front .cname{font-size:clamp(13px,3.6vw,15px);font-weight:700;color:#5b50c0;line-height:1.25}
-.front .cpos{font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
-.minicards{display:flex;gap:clamp(8px,3vw,14px);justify-content:center;margin:26px 0 10px;flex-wrap:wrap;opacity:0;animation:fadeUp .6s ease .05s forwards}
-.minicard{width:clamp(78px,24vw,108px);aspect-ratio:130/214;border-radius:12px;padding:10px 6px;cursor:pointer;font-family:inherit;
-  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;
-  transition:border-color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
-.minicard:hover,.minicard:focus-visible{border-color:var(--rose);transform:translateY(-2px);outline:none}
-.minicard.on{border-color:var(--rose);border-width:2px;transform:translateY(-2px)}
-.minicard .glyph{line-height:0}
-.minicard .glyph svg{width:clamp(26px,7vw,34px);height:auto}
-.minicard .cname{font-size:clamp(11px,3vw,13px);font-weight:700;color:#5b50c0;line-height:1.2}
-.minicard .cpos{font-size:9.5px;color:var(--mist);letter-spacing:.1em;text-transform:uppercase}
-.taphint{font-size:12.5px;margin-bottom:16px}
-/* Lá bài phóng to, lật ra câu chuyện trong tranh */
-#cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
-  background:rgba(24,19,58,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  opacity:0;transition:opacity .38s ease}
-#cardModal.open{display:flex}
-#cardModal.shown{opacity:1}
-.bigcard{position:relative;width:min(320px,80vw);aspect-ratio:130/214;max-height:76vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;
-  transform-origin:center center;will-change:transform;-webkit-tap-highlight-color:transparent}
-.bigcard-inner{position:relative;z-index:1;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
-/* Hào quang phép thuật quanh lá bài */
-.magic{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease .25s}
-#cardModal.shown .magic{opacity:1}
-.magic .aura{position:absolute;inset:-22%;border-radius:50%;
-  background:radial-gradient(circle,rgba(206,186,255,.85),rgba(150,120,230,.4) 42%,transparent 70%);
-  filter:blur(26px);animation:auraPulse 3.6s ease-in-out infinite}
-@keyframes auraPulse{0%,100%{transform:scale(.92);opacity:.7}50%{transform:scale(1.08);opacity:1}}
-.magic .ring{position:absolute;inset:0;border-radius:18px;border:2px solid rgba(214,200,255,.9);opacity:0}
-.magic.burst .ring{animation:ringOut .95s cubic-bezier(.2,.7,.3,1)}
-@keyframes ringOut{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.34)}}
-.magic .spark{position:absolute;border-radius:50%;transform:translate(-50%,-50%);
-  background:radial-gradient(circle,#fff,rgba(205,189,245,.95) 40%,transparent 72%);
-  box-shadow:0 0 8px rgba(190,168,255,.9);opacity:0;animation:sparkFly 3.2s ease-out infinite}
-@keyframes sparkFly{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
-  22%{opacity:1;transform:translate(calc(-50% + var(--dx)*.35),calc(-50% + var(--dy)*.35)) scale(1)}
-  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.5)}}
-@media (prefers-reduced-motion: reduce){.magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}}
-.bigcard.flipped .bigcard-inner{transform:rotateY(180deg)}
-.bigface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;padding:26px 20px;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;
-  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid rgba(214,200,255,.8);
-  box-shadow:var(--shadow),0 0 32px rgba(178,150,255,.5)}
-.bigface.art{justify-content:center}
-.bigface.art .bglyph{line-height:0}
-.bigface.art .bglyph svg{width:clamp(58px,16vw,76px);height:auto}
-.bigface.art .bname{font-size:clamp(17px,4.6vw,21px);font-weight:700;color:#5b50c0;line-height:1.25}
-.bigface.art .bpos{font-size:11px;color:var(--mist);letter-spacing:.14em;text-transform:uppercase}
-.bigface.story{transform:rotateY(180deg);justify-content:flex-start;border-color:var(--rose);overflow-y:auto}
-.bigface.story p{font-size:clamp(14px,3.7vw,15.5px);line-height:1.75;color:var(--moon);text-align:left}
-.bhint{margin-top:auto;padding-top:12px;font-size:11.5px;color:var(--mist);letter-spacing:.02em}
-.panel{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px;box-shadow:var(--shadow)}
-.panel strong{color:var(--gold);font-weight:500}
+.front .glyph svg{width:clamp(30px,8vw,42px);height:auto}
+.front .cname{font-family:var(--serif);font-size:clamp(12.5px,3.4vw,15px);font-weight:600;color:var(--goldb);line-height:1.3;letter-spacing:.03em}
+.front .cpos{font-size:9.5px;color:var(--mut);margin-top:5px;letter-spacing:.22em;text-transform:uppercase}
+
+/* ===== panel & chữ ===== */
+.panel{position:relative;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:24px;margin:18px 0;line-height:1.8;font-size:14.5px;box-shadow:var(--shadow)}
+.panel strong{color:var(--goldb);font-weight:500}
 .panel .cardline{margin-bottom:14px;opacity:0;animation:fadeUp .65s ease forwards}
 .panel .cardline:nth-child(1){animation-delay:.15s}
 .panel .cardline:nth-child(2){animation-delay:.75s}
@@ -116,58 +140,173 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 #aiZone{opacity:0;animation:fadeUp .65s ease 2s forwards}
 .late{opacity:0;animation:fadeUp .65s ease 2.4s forwards}
-textarea,input[type=password],input[type=text]{width:100%;background:rgba(255,255,255,.86);border:1px solid rgba(17,24,39,.14);border-radius:12px;color:var(--moon);font-family:inherit;font-size:16px;font-weight:400;padding:14px;line-height:1.6}
+
+textarea,input[type=password],input[type=text]{width:100%;background:#121017;border:1px solid var(--hair);border-radius:10px;color:var(--ivory);font-family:inherit;font-size:16px;font-weight:300;padding:14px;line-height:1.6}
 textarea{min-height:120px;resize:vertical}
-textarea:focus,input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(29,91,234,.12)}
-textarea::placeholder,input::placeholder{color:var(--mist)}
-.btn{display:block;margin:22px auto 0;background:linear-gradient(120deg,var(--gold),var(--blue-d));color:#fff;border:none;border-radius:999px;padding:14px 38px;font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.01em;cursor:pointer;box-shadow:0 6px 20px rgba(29,91,234,.28);transition:transform .2s,box-shadow .2s}
-.btn:hover,.btn:focus-visible{transform:translateY(-2px);box-shadow:0 10px 28px rgba(29,91,234,.36)}
-.btn:focus-visible{outline:2px solid var(--moon);outline-offset:2px}
-.btn.ghost{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:#3d4a63;font-weight:600;box-shadow:0 4px 16px rgba(17,24,39,.08)}
-.btn.ghost:hover{border-color:var(--gold);color:var(--navy)}
-.btn:disabled{opacity:.5;cursor:wait;transform:none;box-shadow:none}
-.ai-panel{border:1px solid var(--gold);background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
-.ai-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
-.throwback{border:1px solid var(--rose);border-radius:16px;padding:20px 24px;margin:18px 0;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);box-shadow:var(--shadow)}
-.throwback .tb-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.throwback .tb-quote{font-size:16px;line-height:1.6;font-weight:500;color:var(--navy)}
-.throwback .tb-note{font-size:13px;color:var(--mist);margin-top:10px}
-.journal-item{border-bottom:1px solid var(--veil);padding:14px 0;font-size:14px}
+textarea:focus,input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,74,.12)}
+textarea::placeholder,input::placeholder{color:var(--mut)}
+.btn{display:block;margin:22px auto 0;background:none;color:var(--goldb);border:1px solid var(--hair2);border-radius:999px;padding:13px 36px;font-family:inherit;font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;cursor:pointer;transition:border-color .3s,background .3s;-webkit-tap-highlight-color:transparent}
+.btn:hover,.btn:focus-visible{border-color:var(--goldb);background:rgba(201,162,74,.08);outline:none}
+.btn:disabled{opacity:.4;cursor:wait}
+.btn.ghost{color:var(--mut);border-color:rgba(155,145,166,.32);text-transform:none;letter-spacing:.04em;font-size:13.5px}
+.btn.ghost:hover{color:var(--ivory);border-color:var(--mut);background:none}
+.ai-panel{border-color:var(--hair2);background:linear-gradient(165deg,#191623,var(--card))}
+.ai-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.throwback{border:1px solid var(--hair2);border-radius:14px;padding:20px 24px;margin:18px 0;background:var(--card);box-shadow:var(--shadow)}
+.throwback .tb-label{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.throwback .tb-quote{font-family:var(--serif);font-style:italic;font-size:16.5px;line-height:1.6;color:var(--ivory)}
+.throwback .tb-note{font-size:12.5px;color:var(--mut);margin-top:10px}
+.journal-item{border-bottom:1px solid rgba(201,162,74,.16);padding:14px 0;font-size:13.5px}
 .journal-item:last-child{border-bottom:none}
-.journal-item .jdate{color:var(--gold);font-size:12px;letter-spacing:.06em;margin-bottom:4px}
-.journal-item .jmood{color:var(--rose)}
-.empty{color:var(--mist);text-align:center;font-size:14px;padding:20px 0}
-.note{font-size:12px;color:#cfc7ec;line-height:1.6;margin-top:10px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
-.panel .note{color:var(--mist);text-shadow:none}
-nav{display:flex;gap:8px;justify-content:center;margin-top:34px}
-nav button{background:none;border:none;color:#d9d2f0;font-family:inherit;font-size:13px;cursor:pointer;padding:8px 14px;border-radius:999px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
-nav button.on{color:var(--blue-d);background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);text-shadow:none}
-.homebtn{position:fixed;top:14px;left:14px;z-index:5;width:44px;height:44px;border-radius:50%;background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--gold);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:border-color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
-.homebtn:hover,.homebtn:focus-visible{border-color:var(--gold);transform:translateY(-1px);outline:none}
-.homebtn.hidden{display:none}
-footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:50px;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+.journal-item .jdate{color:var(--gold);font-size:11px;letter-spacing:.12em;margin-bottom:4px;text-transform:uppercase}
+.journal-item .jmood{color:var(--goldb)}
+.empty{color:var(--mut);text-align:center;font-size:13.5px;padding:20px 0}
+.note{font-size:11.5px;color:var(--mut);line-height:1.6;margin-top:10px}
+footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spacing:.16em;margin-top:52px;text-transform:uppercase}
 .spin{display:inline-block;animation:sp 1.1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .cursor{display:inline-block;color:var(--gold);font-weight:400;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .chip,.btn,nav button{-webkit-tap-highlight-color:transparent}
+.homebtn{position:fixed;top:14px;left:14px;z-index:5;width:44px;height:44px;border-radius:50%;background:rgba(22,20,29,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--hair);color:var(--gold);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:border-color .2s;-webkit-tap-highlight-color:transparent}
+.homebtn:hover,.homebtn:focus-visible{border-color:var(--goldb);outline:none}
+.homebtn.hidden{display:none}
+
+/* ===== lá nhỏ màn kết quả ===== */
+.minicards{display:flex;gap:clamp(8px,3vw,14px);justify-content:center;margin:26px 0 10px;flex-wrap:wrap;opacity:0;animation:fadeUp .6s ease .05s forwards}
+.minicard{width:clamp(78px,24vw,108px);aspect-ratio:130/214;border-radius:12px;padding:10px 6px;cursor:pointer;font-family:inherit;
+  background:var(--card);border:1px solid var(--hair);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;
+  transition:border-color .25s,transform .25s;-webkit-tap-highlight-color:transparent}
+.minicard:hover,.minicard:focus-visible{border-color:var(--gold);transform:translateY(-2px);outline:none}
+.minicard .glyph{line-height:0}
+.minicard .glyph svg{width:clamp(26px,7vw,34px);height:auto}
+.minicard .cname{font-family:var(--serif);font-size:clamp(11px,3vw,13px);font-weight:600;color:var(--goldb);line-height:1.25}
+.minicard .cpos{font-size:9px;color:var(--mut);letter-spacing:.18em;text-transform:uppercase}
+.taphint{font-size:12px;margin-bottom:16px}
+
+/* ===== modal lá phóng to ===== */
+#cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(5,4,9,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;transition:opacity .38s ease}
+#cardModal.open{display:flex}
+#cardModal.shown{opacity:1}
+.bigcard{position:relative;width:min(320px,80vw);aspect-ratio:130/214;max-height:76vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;
+  transform-origin:center center;will-change:transform;-webkit-tap-highlight-color:transparent}
+.bigcard-inner{position:relative;z-index:1;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
+.bigcard.flipped .bigcard-inner{transform:rotateY(180deg)}
+.bigface{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:26px 20px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;
+  background:linear-gradient(165deg,#1a1822,#131118);border:1px solid var(--hair2);
+  box-shadow:var(--shadow),0 0 34px rgba(201,162,74,.22)}
+.bigface::before{content:"";position:absolute;inset:9px;border:1px solid var(--hair);border-radius:10px;pointer-events:none}
+.bigface.art{justify-content:center}
+.bigface.art .bglyph{line-height:0}
+.bigface.art .bglyph svg{width:clamp(58px,16vw,76px);height:auto}
+.bigface.art .bname{font-family:var(--serif);font-size:clamp(17px,4.6vw,21px);font-weight:600;color:var(--goldb);line-height:1.3;letter-spacing:.04em}
+.bigface.art .bpos{font-size:10.5px;color:var(--mut);letter-spacing:.26em;text-transform:uppercase}
+.bigface.story{transform:rotateY(180deg);justify-content:flex-start;overflow-y:auto}
+.bigface.story p{font-size:clamp(14px,3.7vw,15.5px);line-height:1.8;color:var(--ivory);text-align:left}
+.bigcard.flipped .story::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.28) 50%,transparent 68%);
+  transform:translateX(-130%);animation:foil 1.1s ease 1.35s forwards}
+.bhint{margin-top:auto;padding-top:12px;font-size:11px;color:var(--mut);letter-spacing:.04em}
+
+/* hào quang phép thuật — vàng kim */
+.magic{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease .25s}
+#cardModal.shown .magic{opacity:1}
+.magic .aura{position:absolute;inset:-22%;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,200,126,.5),rgba(201,162,74,.2) 45%,transparent 70%);
+  filter:blur(26px);animation:auraPulse 3.6s ease-in-out infinite}
+@keyframes auraPulse{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1.08);opacity:1}}
+.magic .ring{position:absolute;inset:0;border-radius:16px;border:2px solid rgba(232,200,126,.9);opacity:0}
+.magic.burst .ring{animation:ringOut .95s cubic-bezier(.2,.7,.3,1)}
+@keyframes ringOut{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.34)}}
+.magic .spark{position:absolute;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,#fff,rgba(232,200,126,.95) 40%,transparent 72%);
+  box-shadow:0 0 8px rgba(232,200,126,.9);opacity:0;animation:sparkFly 3.2s ease-out infinite}
+@keyframes sparkFly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  22%{opacity:1;transform:translate(calc(-50% + var(--dx)*.35),calc(-50% + var(--dy)*.35)) scale(1)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.5)}}
+
+/* ===== ENTER — màn khai mở ===== */
+#intro{position:fixed;inset:0;z-index:80;background:#080709;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;overflow:hidden}
+#intro::after{content:"";position:absolute;inset:-40px;pointer-events:none;opacity:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/></svg>");
+  animation:texIn 1.8s ease 1.5s forwards}
+@keyframes texIn{to{opacity:.05}}
+#intro.exit{animation:introFade .9s ease .15s forwards;pointer-events:none}
+@keyframes introFade{to{opacity:0}}
+.iline{width:min(240px,60vw);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);animation:lineDraw .9s ease .4s forwards}
+@keyframes lineDraw{to{transform:scaleX(1)}}
+.ilogo{margin-top:20px;font-family:var(--serif);font-size:clamp(20px,5.2vw,29px);letter-spacing:.3em;text-transform:uppercase;color:var(--ivory);text-align:center;
+  clip-path:inset(0 50% 0 50%);opacity:0;animation:engrave 1.2s cubic-bezier(.3,.5,.2,1) 1s forwards}
+@keyframes engrave{0%{clip-path:inset(0 50% 0 50%);opacity:.4;text-shadow:0 0 18px rgba(232,200,126,.7)}100%{clip-path:inset(0 0 0 0);opacity:1;text-shadow:0 0 0 rgba(232,200,126,0)}}
+.isub{margin-top:13px;font-size:11px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase;opacity:0;animation:fadeIn 1s ease 1.9s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.orn{position:absolute;width:52px;height:52px;color:var(--gold);opacity:.85}
+.orn path{stroke:currentColor;fill:none;stroke-width:1.5;stroke-dasharray:130;stroke-dashoffset:130;animation:draw 1s ease forwards}
+.orn.tl{top:18px;left:18px}
+.orn.tr{top:18px;right:18px;transform:rotate(90deg)}
+.orn.br{bottom:18px;right:18px;transform:rotate(180deg)}
+.orn.bl{bottom:18px;left:18px;transform:rotate(270deg)}
+.orn.tl path{animation-delay:2s}.orn.tr path{animation-delay:2.15s}.orn.br path{animation-delay:2.3s}.orn.bl path{animation-delay:2.45s}
+@keyframes draw{to{stroke-dashoffset:0}}
+.ihero{margin-top:36px;opacity:0;transform:translateY(20px);animation:heroIn 1.4s cubic-bezier(.25,.7,.25,1) 2.8s forwards}
+@keyframes heroIn{to{opacity:1;transform:none}}
+#intro.exit .ihero{animation:heroOut .8s ease forwards}
+@keyframes heroOut{to{opacity:0;transform:translateY(-46px) scale(.88)}}
+.ihero-card{width:clamp(92px,26vw,120px);aspect-ratio:130/214;border-radius:12px;position:relative;
+  background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--hair2);
+  box-shadow:0 16px 44px rgba(0,0,0,.6),0 0 30px rgba(201,162,74,.14);
+  display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold);animation:breathe 8s ease-in-out infinite}
+.ihero-card::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
+.ibegin{margin-top:40px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:11px;-webkit-tap-highlight-color:transparent}
+.ibegin .bl{width:0;height:1px;background:var(--gold);animation:bline .7s ease 3.5s forwards}
+@keyframes bline{to{width:150px}}
+.ibegin .bt{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--goldb);opacity:0;animation:fadeIn .8s ease 3.9s forwards}
+
 @media (max-width:480px){
   header{padding:40px 54px 6px}
   .wrap{padding:0 16px 64px}
-  h2{font-size:23px;margin:34px 0 6px}
+  h2{font-size:21px}
   .panel{padding:20px}
-  nav button{padding:8px 12px}
-  .btn{padding:14px 30px}
+  nav button{padding:8px 8px}
+  .btn{padding:13px 28px}
+}
+@media (prefers-reduced-motion: reduce){
+  .step,.chip,.card,.panel .cardline,#aiZone,.late,.minicards{animation:none;opacity:1}
+  .card-inner,.bigcard-inner{transition:none!important}
+  body::before,body::after,#geo,.deck,.ihero-card,.hline::after{animation:none}
+  .magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}
+  .card.flipped .front::after,.bigcard.flipped .story::after{animation:none;opacity:0}
+  #intro *{animation:none!important}
+  .iline{transform:scaleX(1)}.ilogo{clip-path:none;opacity:1}.isub,.ibegin .bt{opacity:1}
+  .ibegin .bl{width:150px}.orn path{stroke-dashoffset:0}.ihero{opacity:1;transform:none}
 }
 </style>
 </head>
 <body>
-<canvas id="stars" aria-hidden="true"></canvas>
+<div id="geo" aria-hidden="true"><svg viewBox="0 0 100 100"><g stroke="#c9a24a" fill="none" stroke-width=".25"><circle cx="50" cy="50" r="48"/><circle cx="50" cy="50" r="33"/><path d="M50 2 L50 98 M2 50 L98 50 M15 15 L85 85 M85 15 L15 85"/><rect x="19" y="19" width="62" height="62" transform="rotate(45 50 50)"/></g></svg></div>
+<div id="tint" aria-hidden="true"></div>
+<div id="intro">
+  <svg class="orn tl" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
+  <svg class="orn tr" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
+  <svg class="orn br" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
+  <svg class="orn bl" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
+  <div class="iline"></div>
+  <div class="ilogo">Life Reflection OS</div>
+  <div class="isub">Tarot là tấm gương — không phải lời tiên tri</div>
+  <div class="ihero"><div class="ihero-card">✦</div></div>
+  <button class="ibegin" onclick="beginRitual()" aria-label="Bắt đầu"><span class="bl"></span><span class="bt">Bắt đầu nghi thức</span></button>
+</div>
 <button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ">⌂</button>
 <div class="wrap">
 <header>
-  <div class="brand"><span class="mark"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#cdbdf5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="12" y="5" width="24" height="38" rx="6" fill="rgba(255,255,255,.14)"/><path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#cdbdf5" stroke="none"/></g></svg></span>Life Reflection OS</div>
+  <div class="brand"><span class="mark"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#e8c87e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="12" y="5" width="24" height="38" rx="6" fill="rgba(232,200,126,.1)"/><path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#e8c87e" stroke="none"/></g></svg></span>Life Reflection OS</div>
   <div class="tag">Tarot là tấm gương — không phải lời tiên tri</div>
+  <div class="hline" aria-hidden="true"></div>
   <nav aria-label="Điều hướng">
     <button id="navHome" class="on" onclick="goHome()">Bốc bài</button>
     <button id="navJournal" onclick="showJournal()">Nhật ký</button>
@@ -177,13 +316,15 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 
 <section class="step active" id="s1">
   <div id="throwbackSlot"></div>
+  <div class="stage">Reflect · nhìn vào bên trong</div>
   <h2>Hôm nay bạn cảm thấy thế nào?</h2>
   <p class="sub">Chọn một trạng thái gần nhất — hoặc bỏ qua, không bắt buộc</p>
   <div class="choices" id="moods"></div>
-  <button class="btn ghost" onclick="state.mood=null;show('s2')">Bỏ qua, kể chuyện luôn →</button>
+  <button class="btn ghost" onclick="state.mood=null;buildTopics();show('s2')">Bỏ qua, kể chuyện luôn →</button>
 </section>
 
 <section class="step" id="s2">
+  <div class="stage">Focus · điều muốn khám phá</div>
   <h2>Điều gì đang khiến bạn băn khoăn?</h2>
   <p class="sub">Chủ đề giúp chọn cách đọc bài phù hợp</p>
   <div class="choices" id="topics"></div>
@@ -193,12 +334,19 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 </section>
 
 <section class="step" id="s3">
+  <div class="stage">Reveal · để lá bài trả lời</div>
   <h2>Trải bài Quá khứ — Hiện tại — Hướng đi</h2>
-  <p class="sub">Chạm để lật từng lá bài</p>
+  <p class="sub" id="s3sub">Chạm vào bộ bài để xòe</p>
+  <div class="deckwrap" id="deckWrap">
+    <button class="deck" id="deckBtn" onclick="fanDeck()" aria-label="Xòe bài">
+      <span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span>
+    </button>
+  </div>
   <div class="cards" id="cardRow"></div>
 </section>
 
 <section class="step" id="s4">
+  <div class="stage">Reveal · lời đáp</div>
   <div class="minicards" id="resultCards"></div>
   <p class="sub taphint">Chạm vào từng lá để lật xem câu chuyện trong tranh</p>
   <h2>Lời bài nói với bạn</h2>
@@ -435,14 +583,14 @@ const STORY={
 
 /* ---------- suit icons (phong cách nét viền Tín Phát) ---------- */
 DECK.forEach((c,i)=>{c.s=i<22?"major":i<36?"wands":i<50?"cups":i<64?"swords":"pentacles"});
-const IC='stroke="#7F77DD" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" fill="none"';
+const IC='stroke="#c9a24a" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" fill="none"';
 const SPARK='M24 13 C25.8 19 28 21.2 34 23 C28 24.8 25.8 27 24 33 C22.2 27 20 24.8 14 23 C20 21.2 22.2 19 24 13 Z';
 const SUIT_ICONS={
- major:`<svg viewBox="0 0 48 48"><path d="${SPARK}" fill="#7F77DD"/><circle cx="24" cy="23" r="17" ${IC}/></svg>`,
- wands:`<svg viewBox="0 0 48 48"><path d="M15 39 L31 13" ${IC}/><path d="M31 13 C31.9 16 33 17.1 36 18 C33 18.9 31.9 20 31 23 C30.1 20 29 18.9 26 18 C29 17.1 30.1 16 31 13 Z" fill="#7F77DD"/></svg>`,
+ major:`<svg viewBox="0 0 48 48"><path d="${SPARK}" fill="#c9a24a"/><circle cx="24" cy="23" r="17" ${IC}/></svg>`,
+ wands:`<svg viewBox="0 0 48 48"><path d="M15 39 L31 13" ${IC}/><path d="M31 13 C31.9 16 33 17.1 36 18 C33 18.9 31.9 20 31 23 C30.1 20 29 18.9 26 18 C29 17.1 30.1 16 31 13 Z" fill="#c9a24a"/></svg>`,
  cups:`<svg viewBox="0 0 48 48"><path d="M14 11 H34 V19 C34 26 29.5 30 24 30 C18.5 30 14 26 14 19 Z" ${IC}/><path d="M24 30 V37" ${IC}/><path d="M16 41 H32" ${IC}/></svg>`,
- swords:`<svg viewBox="0 0 48 48"><path d="M24 6 V32" ${IC}/><path d="M15 29 H33" ${IC}/><path d="M24 32 V38" ${IC}/><circle cx="24" cy="41" r="2.4" fill="#7F77DD" stroke="none"/></svg>`,
- pentacles:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" ${IC}/><path d="M24 16 C25.4 20.4 27.6 22.6 32 24 C27.6 25.4 25.4 27.6 24 32 C22.6 27.6 20.4 25.4 16 24 C20.4 22.6 22.6 20.4 24 16 Z" fill="#7F77DD"/></svg>`
+ swords:`<svg viewBox="0 0 48 48"><path d="M24 6 V32" ${IC}/><path d="M15 29 H33" ${IC}/><path d="M24 32 V38" ${IC}/><circle cx="24" cy="41" r="2.4" fill="#c9a24a" stroke="none"/></svg>`,
+ pentacles:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" ${IC}/><path d="M24 16 C25.4 20.4 27.6 22.6 32 24 C27.6 25.4 25.4 27.6 24 32 C22.6 27.6 20.4 25.4 16 24 C20.4 22.6 22.6 20.4 24 16 Z" fill="#c9a24a"/></svg>`
 };
 
 /* ---------- state ---------- */
@@ -462,25 +610,76 @@ function show(id){
   document.getElementById("homeBtn").classList.toggle("hidden",id==="s1");
   scrollTo({top:0,behavior:"smooth"});
 }
-function chips(elId,items,cb){
-  const el=document.getElementById(elId);el.innerHTML="";
-  items.forEach(([icon,label])=>{const b=document.createElement("button");b.className="chip";b.textContent=icon+"  "+label;b.onclick=()=>cb(label);el.appendChild(b)});
+function buildMoods(){
+  const el=document.getElementById("moods");el.innerHTML="";el.dataset.lock="";
+  MOODS.forEach(([icon,label],i)=>{
+    const b=document.createElement("button");b.className="chip";b.style.animationDelay=(i*80)+"ms";
+    b.innerHTML=`<span class="ci">${icon}</span>${label}`;
+    b.onclick=()=>{
+      if(el.dataset.lock)return;el.dataset.lock="1";
+      [...el.children].forEach(x=>{if(x!==b)x.classList.add("dim")});
+      b.classList.add("sel");
+      document.body.dataset.tint=label;
+      state.mood=label;
+      setTimeout(()=>{buildTopics();show("s2")},700);
+    };
+    el.appendChild(b);
+  });
 }
-chips("moods",MOODS,m=>{state.mood=m;show("s2")});
-document.getElementById("topics").addEventListener("click",()=>{});
-chips("topics",TOPICS,t=>{state.topic=t;deal();show("s3")});
+function buildTopics(){
+  const el=document.getElementById("topics");el.innerHTML="";el.dataset.lock="";
+  TOPICS.forEach(([icon,label],i)=>{
+    const b=document.createElement("button");b.className="chip mask";b.style.animationDelay=(i*110)+"ms";
+    b.innerHTML=`<span class="ci">${icon}</span>${label}`;
+    b.onclick=()=>{
+      if(el.dataset.lock)return;el.dataset.lock="1";
+      b.classList.add("picked");
+      state.topic=label;deal();
+      setTimeout(()=>show("s3"),550);
+    };
+    el.appendChild(b);
+  });
+}
+function beginRitual(){
+  const iv=document.getElementById("intro");
+  if(!iv)return;
+  iv.classList.add("exit");
+  setTimeout(()=>iv.remove(),1080);
+}
+buildMoods();buildTopics();
 
 function deal(){
   state.drawn=[...DECK].sort(()=>Math.random()-.5).slice(0,3);
   state.flipped=0;
-  const row=document.getElementById("cardRow");row.innerHTML="";
-  state.drawn.forEach((c,i)=>{
-    const btn=document.createElement("button");
-    btn.className="card";btn.setAttribute("aria-label","Lật lá bài "+POS[i]);
-    btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
-    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,1800)}; /* 1400ms lật xong + 400ms nhịp thở */
-    row.appendChild(btn);
-  });
+  document.getElementById("cardRow").innerHTML="";
+  const dk=document.getElementById("deckBtn");
+  document.getElementById("deckWrap").classList.remove("hidden");
+  dk.classList.remove("shiver");dk.dataset.lock="";
+  document.getElementById("s3sub").textContent="Chạm vào bộ bài để xòe";
+}
+function fanDeck(){
+  const dk=document.getElementById("deckBtn");
+  if(dk.dataset.lock)return;dk.dataset.lock="1";
+  dk.classList.add("shiver");
+  setTimeout(()=>{
+    document.getElementById("deckWrap").classList.add("hidden");
+    document.getElementById("s3sub").textContent="Chạm từng lá để mở";
+    const row=document.getElementById("cardRow");row.innerHTML="";
+    state.drawn.forEach((c,i)=>{
+      const btn=document.createElement("button");
+      btn.className="card fan";btn.setAttribute("aria-label","Mở lá bài "+POS[i]);
+      btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
+      btn.onclick=()=>{
+        if(btn.dataset.done)return;btn.dataset.done="1";
+        btn.classList.add("pick");                 /* trượt ra */
+        setTimeout(()=>{                            /* dừng 400ms rồi lật */
+          btn.classList.add("flipped");
+          if(++state.flipped===3)setTimeout(showReading,1900);
+        },400);
+      };
+      row.appendChild(btn);
+    });
+  },420);
 }
 
 function renderResultCards(){
@@ -686,7 +885,7 @@ function renderThrowback(){
    <div class="tb-quote">"${escapeHtml(pick.text.length>140?pick.text.slice(0,140)+"…":pick.text)}"</div>
    <div class="tb-note">Ngày đó bạn ${moodTxt} chuyện ${pick.topic.toLowerCase()}. Hôm nay nhìn lại, bạn đã đi thêm được ${days} ngày.</div></div>`;
 }
-function goHome(){renderThrowback();show("s1")}
+function goHome(){renderThrowback();buildMoods();delete document.body.dataset.tint;show("s1")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
 renderThrowback();
 </script>
