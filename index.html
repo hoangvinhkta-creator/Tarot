@@ -35,7 +35,17 @@ body::after{content:"";position:fixed;inset:-40px;z-index:0;pointer-events:none;
 @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-12px,8px)}50%{transform:translate(8px,-10px)}75%{transform:translate(-6px,-6px)}100%{transform:translate(0,0)}}
 /* sacred geometry nền, scale 100→101% trong 25s */
 #geo{position:fixed;left:50%;top:50%;width:min(150vw,900px);aspect-ratio:1;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.05;animation:geo 25s ease-in-out infinite}
-#geo svg{width:100%;height:100%}
+#geo svg{width:100%;height:100%;overflow:visible}
+#geo .g-slow{animation:gspin 120s linear infinite;transform-origin:50px 50px}
+#geo .g-rev{animation:gspin 84s linear infinite reverse;transform-origin:50px 50px}
+@keyframes gspin{to{transform:rotate(360deg)}}
+#geo .g-trace,#geo .g-trace2{stroke:#e8c87e;stroke-width:.5;stroke-linecap:round}
+#geo .g-trace{stroke-dasharray:34 224;animation:trace1 16s linear infinite}
+#geo .g-trace2{stroke-dasharray:22 142;animation:trace2 11s linear infinite}
+@keyframes trace1{to{stroke-dashoffset:-258}}
+@keyframes trace2{to{stroke-dashoffset:164}}
+#geo.flare{animation:geoFlare 1.5s ease}
+@keyframes geoFlare{0%{opacity:.05}28%{opacity:.19}100%{opacity:.05}}
 @keyframes geo{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.01)}}
 /* tint 5% theo tâm trạng */
 #tint{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.4s ease,background 1.4s ease}
@@ -57,7 +67,7 @@ header{text-align:center;padding:52px 0 8px}
   background:linear-gradient(90deg,transparent,rgba(232,200,126,.95),transparent);animation:glint 8s ease-in-out infinite}
 @keyframes glint{0%,55%{left:-30%}78%{left:100%}100%{left:100%}}
 .tag{color:var(--mut);font-size:12px;margin-top:12px;letter-spacing:.2em}
-nav{display:flex;gap:10px;justify-content:center;margin-top:28px}
+nav{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:nowrap}
 nav button{background:none;border:none;border-bottom:1px solid transparent;color:var(--mut);font-family:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:8px 10px;-webkit-tap-highlight-color:transparent}
 nav button.on{color:var(--goldb);border-bottom-color:var(--hair2)}
 
@@ -86,6 +96,9 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
 .chip.mask:hover{transform:rotate(1deg)}
 .chip.picked{transform:scale(1.02);border-color:var(--goldb);background:rgba(201,162,74,.08)}
 .tcustom{max-width:420px;margin:18px auto 0;display:block;text-align:center}
+.mrow{display:flex;gap:10px;justify-content:center;margin:20px 0 4px}
+.mopt{opacity:1;animation:none;font-size:13.5px;padding:11px 20px}
+.mopt.on{border-color:var(--goldb);background:rgba(201,162,74,.1);color:var(--goldb)}
 
 /* ===== bộ bài (Reveal) ===== */
 .deckwrap{display:flex;justify-content:center;margin:36px 0}
@@ -304,9 +317,15 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   animation:spIn .85s cubic-bezier(.2,.8,.3,1) both;-webkit-tap-highlight-color:transparent}
 @keyframes spIn{from{transform:translateX(-50%) rotate(0deg) translateY(48px);opacity:0}
   to{transform:translateX(-50%) rotate(var(--a)) translateY(var(--y));opacity:1}}
-.spcard:hover,.spcard:focus-visible{transform:translateX(-50%) rotate(var(--a)) translateY(calc(var(--y) - 14px));outline:none}
+@media (hover:hover){.spcard:hover{transform:translateX(-50%) rotate(var(--a)) translateY(calc(var(--y) - 14px))}}
+.spcard:focus-visible{outline:none;transform:translateX(-50%) rotate(var(--a)) translateY(calc(var(--y) - 14px))}
 .spcard.taken{z-index:30!important;transform:translateX(-50%) rotate(0deg) translateY(-30px) scale(1.14)}
 .spcard.gone{opacity:0;transform:translateX(-50%) rotate(0deg) translateY(-104px) scale(.45);pointer-events:none}
+.flycard{position:fixed;z-index:70;pointer-events:none;transform-origin:50% 50%;will-change:transform}
+.flycard .face{position:absolute;inset:0;border-radius:12px;background:linear-gradient(150deg,var(--card2),var(--card));
+  border:1px solid var(--hair);box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}
+.flycard .face::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
+.flycard .face::after{content:'✦';font-size:26px;color:var(--gold)}
 .spcard .card-inner{transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
 .spcard.taken .card-inner{transform:rotateY(180deg)}
 .spcard.taken .front::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -364,6 +383,13 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 @keyframes bline{to{width:150px}}
 .ibegin .bt{font-size:11.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--goldb);opacity:0;animation:fadeIn .8s ease 3.9s forwards}
 
+/* Header thu gọn khi đã bước vào nghi lễ */
+body.deep header{padding:18px 6px 2px}
+body.deep .brand{font-size:clamp(13px,3.2vw,16px);gap:8px;letter-spacing:.18em}
+body.deep .brand .mark{width:clamp(19px,4.4vw,23px)}
+body.deep .tag,body.deep .hline{display:none}
+body.deep nav{margin-top:14px}
+body.deep .stage{margin-top:26px}
 @media (max-width:480px){
   header{padding:40px 54px 6px}
   .wrap{padding:0 16px 64px}
@@ -377,6 +403,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   .card-inner,.bigcard-inner{transition:none!important}
   body::before,body::after,#geo,.deck,.ihero-card,.hline::after{animation:none}
   .magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}
+  #geo .g-slow,#geo .g-rev,#geo .g-trace,#geo .g-trace2{animation:none}
   .card.flipped .front::after,.bigcard.flipped .story::after,.spcard.taken .front::after{animation:none;opacity:0}
   .breathe,.breathe::before,.bt1,.bt2,.spcard{animation:none}
   .spcard{opacity:1}
@@ -387,7 +414,18 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 </style>
 </head>
 <body>
-<div id="geo" aria-hidden="true"><svg viewBox="0 0 100 100"><g stroke="#c9a24a" fill="none" stroke-width=".25"><circle cx="50" cy="50" r="48"/><circle cx="50" cy="50" r="33"/><path d="M50 2 L50 98 M2 50 L98 50 M15 15 L85 85 M85 15 L15 85"/><rect x="19" y="19" width="62" height="62" transform="rotate(45 50 50)"/></g></svg></div>
+<div id="geo" aria-hidden="true"><svg viewBox="0 0 100 100">
+  <g class="g-slow" stroke="#c9a24a" fill="none" stroke-width=".25">
+    <circle cx="50" cy="50" r="48"/><rect x="19" y="19" width="62" height="62" transform="rotate(45 50 50)"/>
+    <path d="M50 2 L50 98 M2 50 L98 50"/>
+  </g>
+  <g class="g-rev" stroke="#c9a24a" fill="none" stroke-width=".25">
+    <circle cx="50" cy="50" r="33"/><path d="M15 15 L85 85 M85 15 L15 85"/>
+    <polygon points="50,20 76,65 24,65"/>
+  </g>
+  <circle class="g-trace" cx="50" cy="50" r="41" fill="none"/>
+  <circle class="g-trace2" cx="50" cy="50" r="26" fill="none"/>
+</svg></div>
 <div id="tint" aria-hidden="true"></div>
 <div id="intro">
   <svg class="orn tl" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
@@ -514,7 +552,12 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <h2>Cài đặt AI</h2>
   <p class="sub">Dán OpenAI API key để bật tính năng Đọc sâu (mô phỏng bản trả phí)</p>
   <input type="password" id="apiKey" placeholder="sk-...">
-  <button class="btn" onclick="saveKey()">Lưu key</button>
+  <div class="mrow">
+    <button class="chip mopt" data-m="gpt-4o" onclick="pickModel(this)">Sâu sắc</button>
+    <button class="chip mopt" data-m="gpt-4o-mini" onclick="pickModel(this)">Nhanh &amp; nhẹ</button>
+  </div>
+  <p class="note" style="text-align:center">Sâu sắc: lời đọc giàu cảm xúc và cụ thể hơn, tốn nhiều hơn một chút mỗi lượt.</p>
+  <button class="btn" onclick="saveKey()">Lưu</button>
   <p class="note">⚠️ Key lưu trên trình duyệt của chính bạn (localStorage), chỉ dùng để demo cá nhân. <strong style="color:var(--gold)">Không</strong> đưa key vào code khi chia sẻ link công khai — bản sản phẩm thật sẽ gọi API qua server trung gian để giấu key và thu phí.</p>
 </section>
 
@@ -729,7 +772,8 @@ const SUIT_ICONS={
 
 /* ---------- state ---------- */
 let state={mood:null,topic:null,drawn:[],flipped:0};
-const KEY="lro_journal_v1", KEY_API="lro_openai_key";
+const KEY="lro_journal_v1", KEY_API="lro_openai_key", KEY_MODEL="lro_model";
+function aiModel(){return localStorage.getItem(KEY_MODEL)||"gpt-4o"}
 
 /* ---------- stars ---------- */
 /* Nền gradient (Tín Phát style) thay cho hiệu ứng sao — bỏ animation canvas để tiết kiệm pin trên điện thoại */
@@ -742,6 +786,7 @@ function show(id){
   document.getElementById("navJournal").classList.toggle("on",id==="sJournal");
   document.getElementById("navSet").classList.toggle("on",id==="sSet");
   document.getElementById("homeBtn").classList.toggle("hidden",id==="sCenter");
+  document.body.classList.toggle("deep",id!=="sCenter");
   if(id==="sAsk")renderAskFree();
   scrollTo({top:0,behavior:"smooth"});
 }
@@ -839,6 +884,10 @@ function doShuffle(){
 function toSpread(){buildSpread();show("s3")}
 
 /* ---------- SPREAD + DRAW + INTERPRET ---------- */
+function geoFlare(){
+  const g=document.getElementById("geo");
+  if(!g)return;g.classList.remove("flare");void g.offsetWidth;g.classList.add("flare");
+}
 function buildSpread(){
   spreadPool=[...DECK].sort(()=>Math.random()-.5).slice(0,7);
   state.drawn=[];
@@ -874,23 +923,31 @@ function pickSpread(i,el){
   const c=spreadPool[i],slot=state.drawn.length;
   state.drawn.push(c);
   if(navigator.vibrate)navigator.vibrate(12);
-  /* bay lên và ĐÁP đúng vào ô — vẫn úp mặt, không mờ đi giữa đường */
-  const t=document.getElementById("slot"+slot).getBoundingClientRect();
-  const f=el.getBoundingClientRect();
-  el.style.transformOrigin="50% 50%";
-  el.style.zIndex="40";
-  el.style.transition="transform .82s cubic-bezier(.3,.75,.25,1)";
-  el.style.transform=`translateX(-50%) translate(${(t.left+t.width/2)-(f.left+f.width/2)}px,`
-    +`${(t.top+t.height/2)-(f.top+f.height/2)}px) scale(${t.width/f.width})`;
+  geoFlare();
+  /* bay bằng một bản sao có gốc xoay ở tâm — tránh cú nhảy do đổi transform-origin */
+  const f=el.getBoundingClientRect(),t=document.getElementById("slot"+slot).getBoundingClientRect();
+  const ang=el.style.getPropertyValue("--a")||"0deg";
+  const fly=document.createElement("div");
+  fly.className="flycard";
+  fly.style.cssText=`left:${f.left}px;top:${f.top}px;width:${f.width}px;height:${f.height}px;transform:rotate(${ang})`;
+  fly.innerHTML=`<div class="face back"></div>`;
+  document.body.appendChild(fly);
+  el.style.visibility="hidden";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    fly.style.transition="transform .85s cubic-bezier(.3,.72,.25,1)";
+    fly.style.transform=`translate(${(t.left+t.width/2)-(f.left+f.width/2)}px,`
+      +`${(t.top+t.height/2)-(f.top+f.height/2)}px) rotate(0deg) scale(${t.width/f.width})`;
+  }));
   setTimeout(()=>{
-    fillSlot(slot,c);          /* lá thật vào ô, trùng vị trí & cỡ */
-    el.style.display="none";    /* đổi chỗ vô hình, không nháy */
+    fillSlot(slot,c);
+    fly.remove();
+    el.style.display="none";
     updateDrawHead();
     if(state.drawn.length===3){
       document.getElementById("spread").classList.add("receded");
       const b=document.getElementById("toAsk");b.textContent="Tiếp tục →";b.style.display="block";
     }
-  },830);
+  },870);
 }
 function fillSlot(i,c){
   const s=document.getElementById("slot"+i);
@@ -934,14 +991,14 @@ async function askAI(){
   if(!key){out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Chưa có API key. Vào <strong>Cài đặt</strong> để dán OpenAI key (bản demo).`;return}
   btn.disabled=true;
   const [a,b,c]=state.drawn;
-  const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu, giọng tiếng Việt ấm áp. KHÔNG phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu người hỏi có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng khuyên tìm người thân hoặc chuyên gia. Trả lời NGẮN, 90-140 từ: thừa nhận điều họ đang nặng lòng, soi nó qua ba lá đã rút, rồi kết bằng một câu hỏi tự vấn. Không lặp lại phần đọc bài trước đó.`;
+  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot. Giọng tiếng Việt ấm áp, tự nhiên. Người ta vừa thổ lộ một điều đang nặng lòng — hãy đáp như một người thật sự lắng nghe.\n\n- Trước hết, thừa nhận điều họ đang mang, gọi đúng tên nó.\n- Soi nó qua ba lá đã rút, nhưng nói về chuyện của họ chứ đừng giảng về lá bài.\n- Cho một điều cụ thể họ có thể làm hoặc nghĩ khác đi.\n- Khép lại bằng một câu hỏi nhẹ để họ tự ngẫm.\n\nViết liền mạch 120-180 từ, không đánh số, không lặp lại phần đọc bài trước đó. Không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.`
   const usr=`Chủ đề: ${state.topic}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\nĐiều họ còn nặng lòng: ${q}`;
   out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askTextOut"><span class="cursor">▌</span></div>`;
   const te=document.getElementById("askTextOut");typeStart(te,34);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:"gpt-4o-mini",max_tokens:500,temperature:.85,stream:true,
+      body:JSON.stringify({model:aiModel(),max_tokens:650,temperature:.85,stream:true,
         messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
     if(!r.ok||!r.body){let m="HTTP "+r.status;try{const e=await r.json();m=e.error?.message||m}catch(_){}throw new Error(m)}
     const rd=r.body.getReader(),dec=new TextDecoder();let buf="";
@@ -1033,6 +1090,7 @@ function flipBig(){
   card.classList.toggle("flipped");
   const m=document.getElementById("magic");
   m.classList.remove("burst");void m.offsetWidth;m.classList.add("burst");
+  geoFlare();
   if(navigator.vibrate)navigator.vibrate(10);
   if(modalMode==="draw"&&card.classList.contains("flipped")){
     const s=document.querySelector("#slot"+modalIdx+" .slotcard");
@@ -1072,6 +1130,14 @@ function showReading(){
 }
 
 /* ---------- AI reading via OpenAI ---------- */
+function pickModel(b){
+  localStorage.setItem(KEY_MODEL,b.dataset.m);
+  document.querySelectorAll(".mopt").forEach(x=>x.classList.toggle("on",x===b));
+}
+function syncModel(){
+  const m=aiModel();
+  document.querySelectorAll(".mopt").forEach(x=>x.classList.toggle("on",x.dataset.m===m));
+}
 function saveKey(){
   const k=document.getElementById("apiKey").value.trim();
   if(k)localStorage.setItem(KEY_API,k);else localStorage.removeItem(KEY_API);
@@ -1113,18 +1179,7 @@ async function aiRead(){
   btn.disabled=true;
   const story=document.getElementById("story").value.trim();
   const [a,b,c]=state.drawn;
-  const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu (self-reflection), giọng tiếng Việt ấm áp, gần gũi. KHÔNG phán định mệnh, KHÔNG tiên tri chắc chắn về tương lai, không đưa lời khuyên y tế/pháp lý/đầu tư. Tarot là tấm gương giúp người hỏi tự hiểu mình. Nếu người hỏi có dấu hiệu khủng hoảng tâm lý nghiêm trọng, nhẹ nhàng khuyên họ tìm người thân hoặc chuyên gia hỗ trợ.
-
-Tự nhận diện cảm xúc của người hỏi TỪ CÂU CHUYỆN họ kể — đừng hỏi lại, đừng bịa nếu họ không kể gì.
-
-QUAN TRỌNG: Nếu phần "Lịch sử gần đây" bên dưới KHÔNG rỗng, câu ĐẦU TIÊN của bạn BẮT BUỘC phải nhắc lại một chi tiết cũ (chủ đề, cảm xúc hoặc ghi chú của lần trước) để cho thấy bạn nhớ họ — ví dụ "Lần trước bạn băn khoăn về …, hôm nay mình thấy bạn quay lại…". Chỉ sau câu mở đầu đó mới bắt đầu đọc bài.
-
-Trả lời 180-260 từ, theo ĐÚNG thứ tự 5 phần dưới đây, mỗi phần một đoạn ngắn, KHÔNG đánh số và KHÔNG in tiêu đề:
-1) Thừa nhận cảm xúc bạn cảm nhận được từ câu chuyện của họ.
-2) Đọc lần lượt 3 lá (Quá khứ, Hiện tại, Hướng đi) gắn với câu chuyện cụ thể.
-3) Kết nối 3 lá thành một mạch ý nghĩa xuyên suốt.
-4) Một câu hỏi tự vấn để họ suy ngẫm.
-5) Một hành động nhỏ, cụ thể, có thể làm ngay hôm nay.`;
+  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Giọng tiếng Việt ấm áp, tự nhiên như đang trò chuyện — không trịnh trọng, không sách vở.\n\nNgười ta tìm đến tarot khi trong lòng có gì đó chưa yên. Việc của bạn là làm họ nhẹ lòng hơn và thấy rõ mình có thể làm gì tiếp theo.\n\nCÁCH VIẾT:\n- Gọi tên cảm xúc bạn nghe được trong câu chuyện của họ, chân thành và cụ thể. Đừng nói sáo kiểu 'tôi hiểu bạn'.\n- Dùng ba lá bài như chất liệu để soi CÂU CHUYỆN CỦA HỌ, không phải để giảng giải về lá bài. Tuyệt đối không viết kiểu 'lá này nghĩa là...'. Hãy nói về đời họ, thỉnh thoảng mượn một hình ảnh trong lá.\n- Chỉ ra một góc nhìn họ có thể chưa thấy — cụ thể, gắn với chi tiết họ kể.\n- Đưa 1-2 việc nhỏ, cụ thể, làm được ngay hôm nay hoặc tuần này. Không khuyên chung chung kiểu 'hãy tích cực lên'.\n- Khép lại bằng một câu hỏi để họ tự ngẫm.\n\nViết liền mạch 200-280 từ, chia đoạn tự nhiên, KHÔNG đánh số, KHÔNG in tiêu đề mục.\nKhông phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.\nNếu phần Lịch sử bên dưới KHÔNG rỗng, câu ĐẦU TIÊN bắt buộc nhắc lại một chi tiết cũ để họ thấy bạn còn nhớ.`
   const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`;
   out.style.display="block";
   out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
@@ -1135,7 +1190,7 @@ Trả lời 180-260 từ, theo ĐÚNG thứ tự 5 phần dưới đây, mỗi p
     const r=await fetch("https://api.openai.com/v1/chat/completions",{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:"gpt-4o-mini",max_tokens:700,temperature:0.85,stream:true,
+      body:JSON.stringify({model:aiModel(),max_tokens:900,temperature:0.85,stream:true,
         messages:[{role:"system",content:sys},{role:"user",content:usr}]})
     });
     if(!r.ok||!r.body){let m="HTTP "+r.status;try{const e=await r.json();m=e.error?.message||m;}catch(_){}throw new Error(m);}
@@ -1199,6 +1254,7 @@ function renderThrowback(){
 }
 function goHome(){renderThrowback();buildMoods();delete document.body.dataset.tint;show("sCenter")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
+syncModel();
 renderThrowback();
 </script>
 </body>
