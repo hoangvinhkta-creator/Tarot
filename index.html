@@ -232,6 +232,76 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   22%{opacity:1;transform:translate(calc(-50% + var(--dx)*.35),calc(-50% + var(--dy)*.35)) scale(1)}
   100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.5)}}
 
+
+/* ===== CENTER — hít thở ===== */
+.breathwrap{display:flex;flex-direction:column;align-items:center;gap:20px;margin:34px 0 6px}
+.breathe{position:relative;width:clamp(148px,42vw,190px);aspect-ratio:1;border-radius:50%;
+  border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;
+  animation:breath 10s ease-in-out infinite}
+.breathe::before{content:"";position:absolute;inset:-15%;border-radius:50%;border:1px solid var(--hair);opacity:.45;
+  animation:breath 10s ease-in-out infinite reverse}
+@keyframes breath{0%,100%{transform:scale(.74);box-shadow:0 0 0 rgba(201,162,74,0)}
+  45%,55%{transform:scale(1.05);box-shadow:0 0 46px rgba(201,162,74,.24)}}
+.bt{position:absolute;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--goldb)}
+.bt1{animation:btA 10s ease-in-out infinite}
+.bt2{animation:btB 10s ease-in-out infinite}
+@keyframes btA{0%,38%{opacity:1}48%,100%{opacity:0}}
+@keyframes btB{0%,44%{opacity:0}54%,94%{opacity:1}100%{opacity:0}}
+.bcount{font-size:10.5px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase;min-height:14px}
+
+/* ===== SHUFFLE — trộn bài ===== */
+.shufwrap{display:flex;justify-content:center;margin:34px 0 14px;min-height:clamp(150px,48vw,215px);align-items:center}
+.shufdeck{position:relative;width:clamp(102px,31vw,146px);aspect-ratio:130/214;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.shufdeck .d{position:absolute;inset:0;border-radius:12px;background:linear-gradient(150deg,var(--card2),var(--card));
+  border:1px solid var(--hair);box-shadow:0 6px 22px rgba(0,0,0,.45)}
+.shufdeck .d:nth-child(1){transform:translate(-7px,6px) rotate(-3.2deg)}
+.shufdeck .d:nth-child(2){transform:translate(5px,4px) rotate(2.2deg)}
+.shufdeck .d:nth-child(3){transform:translate(-3px,2px) rotate(-1.2deg)}
+.shufdeck .d:nth-child(4){transform:translate(2px,1px) rotate(.8deg)}
+.shufdeck .d:last-child::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
+.shufdeck .d:last-child::after{content:'✦';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold)}
+.shufcount{text-align:center;font-size:10.5px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;min-height:15px}
+
+/* ===== SPREAD + DRAW ===== */
+.slots{display:flex;gap:clamp(7px,2.4vw,12px);justify-content:center;margin:6px 0 2px}
+.slot{width:clamp(74px,22vw,100px);aspect-ratio:130/214;border-radius:11px;border:1px dashed rgba(201,162,74,.28);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:8px 5px;
+  color:var(--mut);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;transition:border-color .5s,background .5s}
+.slot.filled{border-style:solid;border-color:var(--hair2);background:var(--card);animation:slotIn .55s ease}
+@keyframes slotIn{from{transform:scale(.88);opacity:.25}to{transform:none;opacity:1}}
+.slot .glyph{line-height:0}
+.slot .glyph svg{width:clamp(20px,6vw,26px);height:auto}
+.slot .cname{font-family:var(--serif);font-size:clamp(10px,2.8vw,12px);color:var(--goldb);letter-spacing:0;text-transform:none;line-height:1.2}
+.slot .cpos{font-size:8px;color:var(--mut)}
+.spread{position:relative;height:clamp(205px,53vw,275px);margin:20px 0 4px}
+.spcard{position:absolute;left:50%;bottom:0;width:clamp(70px,20vw,98px);aspect-ratio:130/214;
+  background:none;border:none;padding:0;cursor:pointer;transform-origin:50% 152%;perspective:1000px;
+  transform:translateX(-50%) rotate(var(--a)) translateY(var(--y));
+  transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .55s;
+  animation:spIn .85s cubic-bezier(.2,.8,.3,1) both;-webkit-tap-highlight-color:transparent}
+@keyframes spIn{from{transform:translateX(-50%) rotate(0deg) translateY(48px);opacity:0}
+  to{transform:translateX(-50%) rotate(var(--a)) translateY(var(--y));opacity:1}}
+.spcard:hover,.spcard:focus-visible{transform:translateX(-50%) rotate(var(--a)) translateY(calc(var(--y) - 14px));outline:none}
+.spcard.taken{z-index:30!important;transform:translateX(-50%) rotate(0deg) translateY(-30px) scale(1.14)}
+.spcard.gone{opacity:0;transform:translateX(-50%) rotate(0deg) translateY(-104px) scale(.45);pointer-events:none}
+.spcard .card-inner{transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
+.spcard.taken .card-inner{transform:rotateY(180deg)}
+.spcard.taken .front::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.4) 50%,transparent 68%);
+  transform:translateX(-130%);animation:foil 1.1s ease 1.35s forwards}
+.drawpanel{opacity:0;transform:translateY(12px);transition:opacity .7s ease,transform .7s ease}
+.drawpanel.show{opacity:1;transform:none}
+.istory{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.8;color:var(--ivory)}
+.imean{margin-top:13px;color:var(--mut);font-size:13.5px;line-height:1.75}
+.imean strong{color:var(--goldb);font-weight:500}
+
+/* ===== DEEPEN — paywall ===== */
+.paywall{background:linear-gradient(165deg,#1e1829,var(--card));border-color:var(--hair2);text-align:center}
+.pw-price{font-family:var(--serif);font-size:23px;color:var(--goldb);margin:8px 0 2px}
+.pw-note{font-size:12px;color:var(--mut);line-height:1.7}
+.freetag{display:inline-block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--hair);border-radius:999px;padding:4px 11px;margin-bottom:14px}
+
 /* ===== ENTER — màn khai mở ===== */
 #intro{position:fixed;inset:0;z-index:80;background:#080709;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;overflow:hidden}
 #intro::after{content:"";position:absolute;inset:-40px;pointer-events:none;opacity:0;
@@ -282,7 +352,9 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   .card-inner,.bigcard-inner{transition:none!important}
   body::before,body::after,#geo,.deck,.ihero-card,.hline::after{animation:none}
   .magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}
-  .card.flipped .front::after,.bigcard.flipped .story::after{animation:none;opacity:0}
+  .card.flipped .front::after,.bigcard.flipped .story::after,.spcard.taken .front::after{animation:none;opacity:0}
+  .breathe,.breathe::before,.bt1,.bt2,.spcard{animation:none}
+  .spcard{opacity:1}
   #intro *{animation:none!important}
   .iline{transform:scaleX(1)}.ilogo{clip-path:none;opacity:1}.isub,.ibegin .bt{opacity:1}
   .ibegin .bl{width:150px}.orn path{stroke-dashoffset:0}.ihero{opacity:1;transform:none}
@@ -316,9 +388,20 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   </nav>
 </header>
 
-<section class="step active" id="s1">
+<section class="step active" id="sCenter">
   <div id="throwbackSlot"></div>
-  <div class="stage">Reflect · nhìn vào bên trong</div>
+  <div class="stage">Center · lắng lại</div>
+  <h2>Hít thở cùng lá bài</h2>
+  <p class="sub">Ba nhịp thở trước khi bắt đầu — để câu hỏi của bạn lắng xuống</p>
+  <div class="breathwrap">
+    <div class="breathe" aria-hidden="true"><span class="bt bt1">Hít vào</span><span class="bt bt2">Thở ra</span></div>
+    <div class="bcount" id="bCount">Nhịp 1 / 3</div>
+  </div>
+  <button class="btn" onclick="show('s1')">Tôi đã sẵn sàng</button>
+</section>
+
+<section class="step" id="s1">
+  <div class="stage">Center · tâm trạng lúc này</div>
   <h2>Hôm nay bạn cảm thấy thế nào?</h2>
   <p class="sub">Chọn một trạng thái gần nhất — hoặc bỏ qua, không bắt buộc</p>
   <div class="choices" id="moods"></div>
@@ -326,7 +409,7 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 </section>
 
 <section class="step" id="s2">
-  <div class="stage">Focus · điều muốn khám phá</div>
+  <div class="stage">Intention · điều muốn khám phá</div>
   <h2>Điều gì đang khiến bạn băn khoăn?</h2>
   <p class="sub">Chủ đề giúp chọn cách đọc bài phù hợp</p>
   <div class="choices" id="topics"></div>
@@ -335,32 +418,55 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   <textarea id="story" placeholder="Ví dụ: Mình đang phân vân có nên nhận lời mời làm việc ở công ty mới..."></textarea>
 </section>
 
-<section class="step" id="s3">
-  <div class="stage">Reveal · để lá bài trả lời</div>
-  <h2>Trải bài Quá khứ — Hiện tại — Hướng đi</h2>
-  <p class="sub" id="s3sub">Chạm vào bộ bài để xòe</p>
-  <div class="deckwrap" id="deckWrap">
-    <button class="deck" id="deckBtn" onclick="fanDeck()" aria-label="Xòe bài">
+<section class="step" id="sShuffle">
+  <div class="stage">Shuffle · trộn bài</div>
+  <h2>Trộn bài</h2>
+  <p class="sub">Chạm vào bộ bài để trộn — trộn đến khi bạn thấy đủ</p>
+  <div class="shufwrap">
+    <button class="shufdeck" id="shufDeck" onclick="doShuffle()" aria-label="Trộn bài">
       <span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span>
     </button>
   </div>
-  <div class="cards" id="cardRow"></div>
+  <p class="shufcount" id="shufCount"></p>
+  <button class="btn" id="shufNext" style="display:none" onclick="toSpread()">Trải bài</button>
+</section>
+
+<section class="step" id="s3">
+  <div class="stage" id="drawStage">Spread · chọn lá của bạn</div>
+  <h2 id="drawTitle">Chọn lá cho Quá khứ</h2>
+  <p class="sub" id="drawSub">Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình</p>
+  <div class="slots" id="slots"></div>
+  <div class="spread" id="spread"></div>
+  <div class="panel drawpanel" id="drawRead" style="display:none"></div>
+  <button class="btn" id="toAsk" style="display:none" onclick="show('sAsk')">Tiếp tục</button>
+</section>
+
+<section class="step" id="sAsk">
+  <div class="stage">Deepen · điều còn nặng lòng</div>
+  <h2>Còn điều gì bạn muốn hỏi thêm?</h2>
+  <p class="sub">Ba lá đã nói phần của chúng. Nếu còn điều gì đang nặng lòng, hỏi ở đây — hoặc bỏ qua để xem tổng hợp.</p>
+  <div id="askFree"></div>
+  <textarea id="askText" placeholder="Ví dụ: Mình vẫn lo nếu nghỉ việc bây giờ thì gia đình sẽ nghĩ sao..."></textarea>
+  <button class="btn" id="askBtn" onclick="askAI()">Hỏi lá bài ✦</button>
+  <div class="panel ai-panel" id="askOut" style="display:none"></div>
+  <button class="btn ghost" onclick="toSynth()">Xem tổng hợp →</button>
 </section>
 
 <section class="step" id="s4">
-  <div class="stage">Reveal · lời đáp</div>
+  <div class="stage">Synthesize · tổng hợp</div>
   <div class="minicards" id="resultCards"></div>
   <p class="sub taphint">Chạm vào từng lá để lật xem câu chuyện trong tranh</p>
-  <h2>Lời bài nói với bạn</h2>
+  <h2>Ba lá nói gì cùng nhau</h2>
   <div class="panel" id="reading"></div>
   <div id="aiZone">
     <button class="btn" id="aiBtn" onclick="aiRead()">Đọc sâu bằng AI ✦</button>
     <p class="note" style="text-align:center">AI đọc theo câu chuyện riêng của bạn và nhớ những lần trước</p>
     <div class="panel ai-panel" id="aiOut" style="display:none"></div>
   </div>
-  <h2 style="margin-top:34px" class="late">Dành 2 phút nhìn lại</h2>
+  <div class="stage late" style="margin-top:38px">Reflect · nhìn lại</div>
+  <h2 style="margin-top:10px" class="late">Dành 2 phút cho chính bạn</h2>
   <p class="sub late" id="reflectQ"></p>
-  <textarea id="journalText" class="late" placeholder="Viết vài dòng cho chính bạn... Đây sẽ là mảnh ký ức bạn gặp lại trong tương lai."></textarea>
+  <textarea id="journalText" class="late" placeholder="Sau tất cả những gì vừa đọc — bạn thấy trong lòng thế nào? Viết vài dòng cho chính bạn."></textarea>
   <button class="btn late" onclick="saveEntry()">Lưu mảnh ký ức ✦</button>
   <button class="btn ghost late" onclick="goHome()">Để lúc khác — bốc lá mới</button>
 </section>
@@ -609,7 +715,8 @@ function show(id){
   document.getElementById("navHome").classList.toggle("on",!["sJournal","sSet"].includes(id));
   document.getElementById("navJournal").classList.toggle("on",id==="sJournal");
   document.getElementById("navSet").classList.toggle("on",id==="sSet");
-  document.getElementById("homeBtn").classList.toggle("hidden",id==="s1");
+  document.getElementById("homeBtn").classList.toggle("hidden",id==="sCenter");
+  if(id==="sAsk")renderAskFree();
   scrollTo({top:0,behavior:"smooth"});
 }
 /* ---------- icon hệ thống (nét vàng, cùng ngôn ngữ icon 78 lá) ---------- */
@@ -650,8 +757,8 @@ function buildTopics(){
     b.onclick=()=>{
       if(el.dataset.lock)return;el.dataset.lock="1";
       b.classList.add("picked");
-      state.topic=label;deal();
-      setTimeout(()=>show("s3"),550);
+      state.topic=label;resetShuffle();
+      setTimeout(()=>show("sShuffle"),550);
     };
     el.appendChild(b);
   });
@@ -663,40 +770,144 @@ function beginRitual(){
   setTimeout(()=>iv.remove(),1080);
 }
 buildMoods();buildTopics();
+(function(){const el=document.getElementById("bCount");if(!el)return;let n=1;
+setInterval(()=>{n=n%3+1;el.textContent="Nhịp "+n+" / 3"},10000)})();
 
-function deal(){
-  state.drawn=[...DECK].sort(()=>Math.random()-.5).slice(0,3);
-  state.flipped=0;
-  document.getElementById("cardRow").innerHTML="";
-  const dk=document.getElementById("deckBtn");
-  document.getElementById("deckWrap").classList.remove("hidden");
-  dk.classList.remove("shiver");dk.dataset.lock="";
-  document.getElementById("s3sub").textContent="Chạm vào bộ bài để xòe";
+/* ---------- SHUFFLE ---------- */
+let shufN=0,spreadPool=[];
+function resetShuffle(){
+  shufN=0;
+  document.getElementById("shufCount").textContent="";
+  document.getElementById("shufNext").style.display="none";
 }
-function fanDeck(){
-  const dk=document.getElementById("deckBtn");
-  if(dk.dataset.lock)return;dk.dataset.lock="1";
-  dk.classList.add("shiver");
+function doShuffle(){
+  const dk=document.getElementById("shufDeck");
+  shufN++;
+  [...dk.children].forEach((el,i)=>{
+    const dx=(Math.random()*2-1)*66,dy=(Math.random()*2-1)*28,r=(Math.random()*2-1)*24;
+    el.style.transition="transform .3s cubic-bezier(.3,.7,.3,1)";
+    el.style.transform=`translate(${dx}px,${dy}px) rotate(${r}deg)`;
+    setTimeout(()=>{el.style.transform="";},320+i*28);
+  });
+  if(navigator.vibrate)navigator.vibrate(10);
+  const c=document.getElementById("shufCount");
+  c.textContent=shufN===1?"Đã trộn 1 lần":`Đã trộn ${shufN} lần · khi nào thấy đủ thì trải bài`;
+  document.getElementById("shufNext").style.display="block";
+}
+function toSpread(){buildSpread();show("s3")}
+
+/* ---------- SPREAD + DRAW + INTERPRET ---------- */
+function buildSpread(){
+  spreadPool=[...DECK].sort(()=>Math.random()-.5).slice(0,7);
+  state.drawn=[];
+  const sl=document.getElementById("slots");
+  sl.innerHTML=POS.map((p,i)=>`<div class="slot" id="slot${i}"><span>${p}</span></div>`).join("");
+  const sp=document.getElementById("spread");sp.innerHTML="";
+  spreadPool.forEach((c,i)=>{
+    const b=document.createElement("button");
+    b.className="spcard";b.setAttribute("aria-label","Chọn lá thứ "+(i+1));
+    b.style.setProperty("--a",((i-3)*15)+"deg");
+    b.style.setProperty("--y",(Math.abs(i-3)*5)+"px");
+    b.style.animationDelay=(i*75)+"ms";b.style.zIndex=i;
+    b.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front">
+      <div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos"></div></div></div>`;
+    b.onclick=()=>pickSpread(i,b);
+    sp.appendChild(b);
+  });
+  const d=document.getElementById("drawRead");d.style.display="none";d.classList.remove("show");
+  document.getElementById("toAsk").style.display="none";
+  updateDrawHead();
+}
+function updateDrawHead(){
+  const n=state.drawn.length;
+  const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
+  if(n>=3){st.textContent="Interpret · ba lá đã mở";t.textContent="Ba lá của bạn";s.textContent="Đọc lại từng lá phía trên, rồi đi tiếp khi bạn sẵn sàng";return}
+  st.textContent=n===0?"Spread · chọn lá của bạn":"Draw · rút lá tiếp theo";
+  t.textContent="Chọn lá cho "+POS[n];
+  s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
+}
+function pickSpread(i,el){
+  if(el.dataset.taken||state.drawn.length>=3)return;
+  el.dataset.taken="1";
+  const c=spreadPool[i],slot=state.drawn.length;
+  state.drawn.push(c);
+  el.querySelector(".cpos").textContent=POS[slot];
+  el.classList.add("taken");
+  if(navigator.vibrate)navigator.vibrate(12);
   setTimeout(()=>{
-    document.getElementById("deckWrap").classList.add("hidden");
-    document.getElementById("s3sub").textContent="Chạm từng lá để mở";
-    const row=document.getElementById("cardRow");row.innerHTML="";
-    state.drawn.forEach((c,i)=>{
-      const btn=document.createElement("button");
-      btn.className="card fan";btn.setAttribute("aria-label","Mở lá bài "+POS[i]);
-      btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
-      btn.onclick=()=>{
-        if(btn.dataset.done)return;btn.dataset.done="1";
-        btn.classList.add("pick");                 /* trượt ra */
-        setTimeout(()=>{                            /* dừng 400ms rồi lật */
-          btn.classList.add("flipped");
-          if(++state.flipped===3)setTimeout(showReading,1900);
-        },400);
-      };
-      row.appendChild(btn);
-    });
-  },420);
+    showInterpret(c,slot);
+    const sEl=document.getElementById("slot"+slot);
+    sEl.classList.add("filled");
+    sEl.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${escapeHtml(c.n)}</div><div class="cpos">${POS[slot]}</div>`;
+    el.classList.add("gone");
+    updateDrawHead();
+    if(state.drawn.length===3){
+      const t=document.getElementById("toAsk");
+      t.textContent="Tiếp tục →";t.style.display="block";
+    }
+  },1600);
 }
+function showInterpret(c,slot){
+  const box=document.getElementById("drawRead"),pos=POS[slot];
+  const mean=[c.past,c.now,c.next][slot];
+  box.style.display="block";
+  box.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ${pos}</div>
+   <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
+   <p class="imean">Ở vị trí <strong>${pos}</strong>, lá này nói về ${escapeHtml(mean)}.</p>`;
+  box.classList.remove("show");void box.offsetWidth;box.classList.add("show");
+  try{box.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}
+}
+
+/* ---------- DEEPEN — hỏi thêm, free câu đầu ---------- */
+const KEY_ASKN="lro_ask_used",KEY_PRO="lro_pro";
+function askUsed(){return +(localStorage.getItem(KEY_ASKN)||0)}
+function isPro(){return localStorage.getItem(KEY_PRO)==="1"}
+function renderAskFree(){
+  const el=document.getElementById("askFree");
+  el.innerHTML=isPro()?'<div class="freetag">Đã mở khóa · hỏi không giới hạn</div>'
+    :(askUsed()<1?'<div class="freetag">Câu hỏi đầu tiên miễn phí</div>':'');
+}
+function showPaywall(){
+  const out=document.getElementById("askOut");
+  out.style.display="block";out.className="panel paywall";
+  out.innerHTML=`<div class="ai-label">✦ Đọc sâu không giới hạn</div>
+   <div class="pw-price">49.000đ / tháng</div>
+   <p class="pw-note">Bạn đã dùng câu hỏi miễn phí. Mở khóa để hỏi thêm bao nhiêu tùy ý,<br>và giữ lại toàn bộ mảnh ký ức của mình.</p>
+   <button class="btn" onclick="unlockPro()">Mở khóa (demo)</button>
+   <button class="btn ghost" onclick="toSynth()">Để sau — xem tổng hợp</button>`;
+}
+function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();document.getElementById("askOut").style.display="none";document.getElementById("askOut").className="panel ai-panel";}
+async function askAI(){
+  const q=document.getElementById("askText").value.trim();
+  const out=document.getElementById("askOut"),btn=document.getElementById("askBtn");
+  if(!q){document.getElementById("askText").focus();return}
+  if(askUsed()>=1&&!isPro()){showPaywall();return}
+  const key=localStorage.getItem(KEY_API);
+  out.style.display="block";out.className="panel ai-panel";
+  if(!key){out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Chưa có API key. Vào <strong>Cài đặt</strong> để dán OpenAI key (bản demo).`;return}
+  btn.disabled=true;
+  const [a,b,c]=state.drawn;
+  const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu, giọng tiếng Việt ấm áp. KHÔNG phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu người hỏi có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng khuyên tìm người thân hoặc chuyên gia. Trả lời NGẮN, 90-140 từ: thừa nhận điều họ đang nặng lòng, soi nó qua ba lá đã rút, rồi kết bằng một câu hỏi tự vấn. Không lặp lại phần đọc bài trước đó.`;
+  const usr=`Chủ đề: ${state.topic}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\nĐiều họ còn nặng lòng: ${q}`;
+  out.innerHTML=`<div class="ai-label">✦ Lời đáp riêng cho điều bạn hỏi</div><div id="askTextOut"><span class="cursor">▌</span></div>`;
+  const te=document.getElementById("askTextOut");let acc="";
+  try{
+    const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify({model:"gpt-4o-mini",max_tokens:500,temperature:.85,stream:true,
+        messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
+    if(!r.ok||!r.body){let m="HTTP "+r.status;try{const e=await r.json();m=e.error?.message||m}catch(_){}throw new Error(m)}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="";
+    while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let nl;while((nl=buf.indexOf("\n"))>=0){const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
+        if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){acc+=d;renderStream(te,acc)}}catch(_){}}}
+    te.innerHTML=acc?fmtBody(acc):"(Không nhận được nội dung.)";
+    localStorage.setItem(KEY_ASKN,askUsed()+1);renderAskFree();
+    btn.disabled=false;btn.textContent="Hỏi điều khác ✦";
+  }catch(err){te.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}.`;btn.disabled=false;btn.textContent="Thử lại ✦"}
+}
+function toSynth(){showReading()}
 
 function renderResultCards(){
   const row=document.getElementById("resultCards");row.innerHTML="";
@@ -901,7 +1112,7 @@ function renderThrowback(){
    <div class="tb-quote">"${escapeHtml(pick.text.length>140?pick.text.slice(0,140)+"…":pick.text)}"</div>
    <div class="tb-note">Ngày đó bạn ${moodTxt} chuyện ${pick.topic.toLowerCase()}. Hôm nay nhìn lại, bạn đã đi thêm được ${days} ngày.</div></div>`;
 }
-function goHome(){renderThrowback();buildMoods();delete document.body.dataset.tint;show("s1")}
+function goHome(){renderThrowback();buildMoods();delete document.body.dataset.tint;show("sCenter")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
 renderThrowback();
 </script>
