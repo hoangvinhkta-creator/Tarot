@@ -59,7 +59,7 @@ body[data-tint="Quyết tâm"] #tint{background:#d8763f}
 
 .wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 20px 80px}
 header{text-align:center;padding:52px 0 8px}
-.brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--serif);font-size:clamp(19px,4.4vw,27px);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory)}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;white-space:nowrap;font-family:var(--serif);font-size:clamp(15px,3.9vw,27px);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--ivory)}
 .brand .mark{width:clamp(28px,6.6vw,36px);height:auto;line-height:0;flex:none}
 /* đường kim tuyến dưới brand + ánh vàng quét qua mỗi 8s */
 .hline{position:relative;width:150px;height:1px;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent);overflow:hidden}
@@ -254,6 +254,124 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.5)}}
 
 
+
+/* ===== chuyển màn bằng morph ===== */
+.step{display:none;opacity:0;transform:translateY(18px) scale(.986);
+  transition:opacity .6s ease,transform .6s cubic-bezier(.25,.8,.3,1)}
+.step.active{display:block}
+.step.shown{opacity:1;transform:none}
+.step.leaving{opacity:0;transform:translateY(-16px) scale(.986);pointer-events:none}
+.step.active{animation:none}
+
+/* ===== nền phức tạp dần theo giai đoạn ===== */
+#geo{opacity:.04;transition:opacity 1.6s ease}
+body.st-2 #geo{opacity:.06}
+body.st-3 #geo{opacity:.08}
+body.st-4 #geo{opacity:.1}
+body.st-5 #geo{opacity:.115}
+#geo .lay3{opacity:0;transition:opacity 2s ease}
+body.st-3 #geo .lay3,body.st-4 #geo .lay3,body.st-5 #geo .lay3{opacity:1}
+#geo .lay4{opacity:0;transition:opacity 2s ease}
+body.st-4 #geo .lay4,body.st-5 #geo .lay4{opacity:1}
+
+/* ===== quầng thở toàn màn (CENTER) ===== */
+#breathGlow{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+body.at-center #breathGlow{opacity:1}
+#breathGlow i{position:absolute;left:50%;top:50%;width:170vmax;height:170vmax;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,162,74,.3),rgba(201,162,74,.09) 26%,rgba(201,162,74,.03) 45%,transparent 64%);
+  transform:translate(-50%,-50%) scale(.34);animation:bglow 6.4s ease-in-out infinite}
+@keyframes bglow{0%,100%{transform:translate(-50%,-50%) scale(.34);opacity:.55}
+  45%,55%{transform:translate(-50%,-50%) scale(.62);opacity:1}}
+
+/* ===== thẻ huyền bí + morph bay vào / bay ra ===== */
+.chip{position:relative;background:linear-gradient(158deg,#1b1824,#121018);border:1px solid var(--hair);border-radius:14px;
+  padding:15px 22px;opacity:0;animation:chipFly .95s cubic-bezier(.25,.8,.3,1) both}
+.chip::before{content:"";position:absolute;inset:4px;border:1px solid rgba(201,162,74,.16);border-radius:10px;pointer-events:none}
+.chip::after{content:"";position:absolute;top:6px;right:8px;width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:.5}
+@keyframes chipFly{from{opacity:0;transform:translate(var(--fx,0),var(--fy,40px)) scale(.72) rotate(var(--fr,0deg))}
+  to{opacity:1;transform:none}}
+.chip.flyout{animation:chipOut .85s cubic-bezier(.45,0,.6,1) forwards}
+@keyframes chipOut{to{opacity:0;transform:translate(var(--ox,0),var(--oy,-60px)) scale(.7) rotate(var(--orr,0deg))}}
+.chip.sel,.chip.picked{border-color:var(--goldb);background:linear-gradient(158deg,#241f2e,#17131d);
+  box-shadow:0 0 24px rgba(201,162,74,.2)}
+.chip.dim{opacity:.22;pointer-events:none}
+
+/* ===== ENTER: cổng ma thuật ===== */
+.iline{width:min(240px,60vw)}
+.isub{line-height:1.9}
+.iportal{position:relative;margin-top:34px;width:clamp(168px,46vw,208px);aspect-ratio:1;background:none;border:none;padding:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;
+  opacity:0;animation:fadeIn 1.1s ease 3.5s forwards}
+.iportal svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.iportal .pr{fill:none;stroke:var(--gold);stroke-width:.7;opacity:.5}
+.iportal .prA{stroke-dasharray:2 6;animation:gspin 44s linear infinite;transform-origin:60px 60px}
+.iportal .prB{animation:gspin 30s linear infinite reverse;transform-origin:60px 60px;stroke-dasharray:14 10}
+.iportal .prRune{stroke:var(--goldb);stroke-width:.8;opacity:.7;animation:gspin 68s linear infinite;transform-origin:60px 60px}
+.iportal .prBurn{fill:none;stroke:var(--goldb);stroke-width:1.6;stroke-linecap:round;
+  stroke-dasharray:326;stroke-dashoffset:326;opacity:0}
+.iportal .ptext{position:relative;z-index:1;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--goldb);line-height:2.1;text-align:center}
+.iportal:hover .pr,.iportal:focus-visible .pr{opacity:.8;outline:none}
+.iportal.fire .prBurn{opacity:1;animation:burn 1.35s cubic-bezier(.35,0,.5,1) forwards}
+@keyframes burn{0%{stroke-dashoffset:326;filter:drop-shadow(0 0 2px rgba(232,200,126,.5))}
+  100%{stroke-dashoffset:0;filter:drop-shadow(0 0 13px rgba(232,200,126,.95))}}
+.iportal.fire{animation:portalPush 2.6s cubic-bezier(.3,.7,.3,1) forwards}
+@keyframes portalPush{0%{transform:scale(1);opacity:1}52%{transform:scale(1.06);opacity:1}
+  74%{transform:scale(1.16);opacity:.85}100%{transform:scale(1.62);opacity:0}}
+.ihero-card.k1{animation:swayCard 7s ease-in-out infinite}
+.ihero-card.k2{transform:translate(6px,5px) rotate(3deg);opacity:.75;animation:swayCard 7s ease-in-out .5s infinite}
+.ihero-card.k3{transform:translate(-7px,8px) rotate(-4deg);opacity:.5;animation:swayCard 7s ease-in-out 1s infinite}
+@keyframes swayCard{0%,100%{transform:translate(var(--tx,0),var(--ty,0)) rotate(calc(var(--tr,0deg) - 1.6deg))}
+  50%{transform:translate(var(--tx,0),var(--ty,0)) rotate(calc(var(--tr,0deg) + 1.6deg))}}
+.ihero-card.k2{--tx:6px;--ty:5px;--tr:3deg}
+.ihero-card.k3{--tx:-7px;--ty:8px;--tr:-4deg}
+#intro.exit .ihero-card{animation:shiverOut 2.3s cubic-bezier(.3,.6,.3,1) forwards}
+#intro.exit .ihero-card.k1{--ex:-124vw;--er:-26deg;animation-delay:.55s}
+#intro.exit .ihero-card.k2{--ex:128vw;--er:30deg;animation-delay:.75s}
+#intro.exit .ihero-card.k3{--ex:-118vw;--er:-34deg;animation-delay:.95s}
+@keyframes shiverOut{0%{transform:rotate(0)}8%{transform:rotate(2.5deg)}16%{transform:rotate(-2.5deg)}
+  24%{transform:rotate(2deg)}32%{transform:rotate(-2deg)}40%{transform:rotate(0);opacity:1}
+  100%{transform:translateX(var(--ex)) rotate(var(--er));opacity:0}}
+#intro.exit .ilogo,#intro.exit .isub,#intro.exit .iline,#intro.exit .orn{
+  animation:introChromeOut .8s ease forwards}
+@keyframes introChromeOut{to{opacity:0;transform:translateY(-10px)}}
+#intro.exit{animation:introFade 1.1s ease 2.2s forwards;pointer-events:none}
+.ispark{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--goldb);
+  box-shadow:0 0 7px rgba(232,200,126,.9);opacity:0;animation:isp 5s ease-in-out infinite}
+@keyframes isp{0%,100%{opacity:0;transform:scale(.4)}12%{opacity:.95;transform:scale(1)}45%{opacity:0;transform:scale(.5)}}
+
+/* ===== ô rút bài: sáng lên khi lá về chỗ ===== */
+.slot.lit{animation:slotLit 1.8s ease}
+@keyframes slotLit{0%{box-shadow:0 0 0 rgba(201,162,74,0)}
+  25%{box-shadow:0 0 34px rgba(232,200,126,.55)}100%{box-shadow:0 0 0 rgba(201,162,74,0)}}
+.slotcard.lit .face{box-shadow:0 0 26px rgba(232,200,126,.4)}
+.slotspark{position:fixed;width:4px;height:4px;border-radius:50%;background:#fff;
+  box-shadow:0 0 9px rgba(232,200,126,1);z-index:65;pointer-events:none;opacity:0;
+  animation:slotSp 1.5s ease-out forwards}
+@keyframes slotSp{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+  18%{opacity:1;transform:translate(calc(-50% + var(--sx)*.3),calc(-50% + var(--sy)*.3)) scale(1)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--sx)),calc(-50% + var(--sy))) scale(.4)}}
+.spcard.scatter{animation:scatterOut 1.5s cubic-bezier(.35,.1,.4,1) forwards}
+@keyframes scatterOut{to{opacity:0;transform:translateX(-50%) translate(var(--sxx),var(--syy)) rotate(var(--srr)) scale(.55)}}
+#slots.pushdown{transform:translateY(56vh) scale(.7);opacity:0;transition:transform 1s cubic-bezier(.4,0,.5,1),opacity 1s ease}
+#slots{transition:transform .9s cubic-bezier(.25,.8,.3,1),opacity .9s ease}
+
+/* nút mũi tên */
+.btn.arrow{width:56px;height:56px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin:26px auto 0;animation:fadeUp .8s ease both}
+.btn.arrow svg{width:22px;height:22px}
+
+/* ===== bảng thổ lộ: viền chạy sáng + con trỏ huyền bí ===== */
+.ai-panel.live::before{content:"";position:absolute;inset:-1px;border-radius:15px;padding:1px;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.9) 50%,transparent 68%);
+  background-size:320% 100%;animation:edgeRun 3.2s linear infinite;
+  -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);mask-composite:exclude}
+@keyframes edgeRun{to{background-position:-320% 0}}
+.tw{display:inline-block;color:var(--goldb);font-size:.85em;animation:twp 1.6s ease-in-out infinite}
+@keyframes twp{0%,100%{opacity:.35;transform:scale(.85) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(180deg)}}
+.hintline{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.75;color:var(--goldb);
+  text-align:center;margin:2px 0 20px;opacity:.92}
+
 /* ===== CENTER — hít thở ===== */
 .breathwrap{display:flex;flex-direction:column;align-items:center;gap:20px;margin:34px 0 6px}
 .breathe{position:relative;width:clamp(148px,42vw,190px);aspect-ratio:1;border-radius:50%;
@@ -309,12 +427,12 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .slot .glyph svg{width:clamp(20px,6vw,26px);height:auto}
 .slot .cname{font-family:var(--serif);font-size:clamp(10px,2.8vw,12px);color:var(--goldb);letter-spacing:0;text-transform:none;line-height:1.2}
 .slot .cpos{font-size:8px;color:var(--mut)}
-.spread{position:relative;height:clamp(205px,53vw,275px);margin:20px 0 4px}
+.spread{position:relative;height:clamp(205px,53vw,275px);margin:20px 0 40px}
 .spcard{position:absolute;left:50%;bottom:0;width:clamp(70px,20vw,98px);aspect-ratio:130/214;
   background:none;border:none;padding:0;cursor:pointer;transform-origin:50% 152%;perspective:1000px;
   transform:translateX(-50%) rotate(var(--a)) translateY(var(--y));
   transition:transform .5s cubic-bezier(.2,.8,.3,1),opacity .55s;
-  animation:spIn .85s cubic-bezier(.2,.8,.3,1) both;-webkit-tap-highlight-color:transparent}
+  animation:spIn 1.15s cubic-bezier(.2,.8,.3,1) both;-webkit-tap-highlight-color:transparent}
 @keyframes spIn{from{transform:translateX(-50%) rotate(0deg) translateY(48px);opacity:0}
   to{transform:translateX(-50%) rotate(var(--a)) translateY(var(--y));opacity:1}}
 @media (hover:hover){.spcard:hover{transform:translateX(-50%) rotate(var(--a)) translateY(calc(var(--y) - 14px))}}
@@ -345,7 +463,6 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/></svg>");
   animation:texIn 1.8s ease 1.5s forwards}
 @keyframes texIn{to{opacity:.05}}
-#intro.exit{animation:introFade .9s ease .15s forwards;pointer-events:none}
 @keyframes introFade{to{opacity:0}}
 .iline{width:min(240px,60vw);height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);animation:lineDraw .9s ease .4s forwards}
 @keyframes lineDraw{to{transform:scaleX(1)}}
@@ -364,19 +481,11 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 @keyframes draw{to{stroke-dashoffset:0}}
 .ihero{margin-top:36px;opacity:0;transform:translateY(20px);animation:heroIn 1.4s cubic-bezier(.25,.7,.25,1) 2.8s forwards}
 @keyframes heroIn{to{opacity:1;transform:none}}
-#intro.exit .ihero-card{animation:swipeOff .72s cubic-bezier(.4,0,.5,1) forwards}
-#intro.exit .ihero-card.k1{animation-delay:0s}
-#intro.exit .ihero-card.k2{animation-delay:.1s}
-#intro.exit .ihero-card.k3{animation-delay:.2s}
-@keyframes swipeOff{to{opacity:0;transform:translateX(135%) rotate(24deg)}}
 .ihero-stack{position:relative;width:clamp(92px,26vw,120px);aspect-ratio:130/214}
 .ihero-card{position:absolute;inset:0;width:100%;height:100%;border-radius:12px;
   background:linear-gradient(150deg,var(--card2),var(--card));border:1px solid var(--hair2);
   box-shadow:0 16px 44px rgba(0,0,0,.6),0 0 30px rgba(201,162,74,.14);
   display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--gold)}
-.ihero-card.k1{animation:breathe 8s ease-in-out infinite}
-.ihero-card.k2{transform:translate(6px,5px) rotate(3deg);opacity:.75}
-.ihero-card.k3{transform:translate(-7px,8px) rotate(-4deg);opacity:.5}
 .ihero-card::before{content:"";position:absolute;inset:7px;border:1px solid var(--hair);border-radius:8px}
 .ibegin{margin-top:40px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:11px;-webkit-tap-highlight-color:transparent}
 .ibegin .bl{width:0;height:1px;background:var(--gold);animation:bline .7s ease 3.5s forwards}
@@ -404,6 +513,8 @@ body.deep .stage{margin-top:26px}
   body::before,body::after,#geo,.deck,.ihero-card,.hline::after{animation:none}
   .magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}
   #geo .g-slow,#geo .g-rev,#geo .g-trace,#geo .g-trace2{animation:none}
+  .chip,.iportal,.ihero-card,.ispark,#breathGlow i,.tw{animation:none!important;opacity:1}
+  .step{transition:none}
   .card.flipped .front::after,.bigcard.flipped .story::after,.spcard.taken .front::after{animation:none;opacity:0}
   .breathe,.breathe::before,.bt1,.bt2,.spcard{animation:none}
   .spcard{opacity:1}
@@ -423,9 +534,18 @@ body.deep .stage{margin-top:26px}
     <circle cx="50" cy="50" r="33"/><path d="M15 15 L85 85 M85 15 L15 85"/>
     <polygon points="50,20 76,65 24,65"/>
   </g>
+  <g class="lay3 g-slow" stroke="#c9a24a" fill="none" stroke-width=".2">
+    <circle cx="50" cy="50" r="41"/><circle cx="50" cy="50" r="21"/>
+    <polygon points="50,29 68,50 50,71 32,50"/>
+  </g>
+  <g class="lay4 g-rev" stroke="#c9a24a" fill="none" stroke-width=".2">
+    <polygon points="50,9 74,26 74,74 50,91 26,74 26,26"/>
+    <circle cx="50" cy="50" r="12"/>
+  </g>
   <circle class="g-trace" cx="50" cy="50" r="41" fill="none"/>
   <circle class="g-trace2" cx="50" cy="50" r="26" fill="none"/>
 </svg></div>
+<div id="breathGlow" aria-hidden="true"><i></i></div>
 <div id="tint" aria-hidden="true"></div>
 <div id="intro">
   <svg class="orn tl" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
@@ -434,11 +554,24 @@ body.deep .stage{margin-top:26px}
   <svg class="orn bl" viewBox="0 0 52 52" aria-hidden="true"><path d="M4 34 V10 A6 6 0 0 1 10 4 H34 M10 14 H26 M14 10 V26"/></svg>
   <div class="iline"></div>
   <div class="ilogo">Life Reflection OS</div>
-  <div class="isub">Tarot là tấm gương — không phải lời tiên tri</div>
+  <div class="isub">Tarot là tấm gương<br>không phải lời tiên tri</div>
   <div class="ihero"><div class="ihero-stack">
     <div class="ihero-card k3"></div><div class="ihero-card k2"></div><div class="ihero-card k1">✦</div>
   </div></div>
-  <button class="ibegin" onclick="beginRitual()" aria-label="Bắt đầu"><span class="bl"></span><span class="bt">Bắt đầu nghi thức</span></button>
+  <button class="iportal" id="portal" onclick="beginRitual()" aria-label="Bắt đầu nghi thức">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="pr prA" cx="60" cy="60" r="56"/>
+      <circle class="pr prB" cx="60" cy="60" r="48"/>
+      <g class="prRune" stroke="#e8c87e" fill="none" stroke-width=".8" opacity=".7">
+        <path d="M60 8 L60 16 M60 104 L60 112 M8 60 L16 60 M104 60 L112 60"/>
+        <path d="M23 23 L29 29 M91 91 L97 97 M97 23 L91 29 M29 91 L23 97"/>
+        <polygon points="60,14 66,22 60,30 54,22"/>
+        <polygon points="60,90 66,98 60,106 54,98"/>
+      </g>
+      <circle class="prBurn" cx="60" cy="60" r="52"/>
+    </svg>
+    <span class="ptext">Bắt đầu<br>nghi thức</span>
+  </button>
 </div>
 <button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 11.5 L12 4.5 L20 11.5 M6.5 10 V19 H17.5 V10" stroke="#c9a24a" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="wrap">
@@ -453,7 +586,7 @@ body.deep .stage{margin-top:26px}
   </nav>
 </header>
 
-<section class="step active" id="sCenter">
+<section class="step active shown" id="sCenter">
   <div id="throwbackSlot"></div>
   <div class="stage">Center · lắng lại</div>
   <h2>Hít thở cùng lá bài</h2>
@@ -502,7 +635,10 @@ body.deep .stage{margin-top:26px}
   <p class="sub" id="drawSub">Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình</p>
   <div class="slots" id="slots"></div>
   <div class="spread" id="spread"></div>
-  <button class="btn" id="toAsk" style="display:none" onclick="show('sAsk')">Tiếp tục</button>
+  <div class="panel" id="overview" style="display:none"></div>
+  <button class="btn arrow" id="toAsk" style="display:none" onclick="toAsk()" aria-label="Tiếp tục">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e8c87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+  </button>
 </section>
 
 <section class="step" id="sAsk">
@@ -510,10 +646,12 @@ body.deep .stage{margin-top:26px}
   <h2>Còn điều gì chưa nói ra?</h2>
   <p class="sub">Ba lá đã nói phần của chúng. Giờ đến lượt bạn.</p>
   <div id="askFree"></div>
+  <p class="hintline" id="askHint">Lời thì thầm đầu tiên luôn được vũ trụ lắng nghe —<br>đừng để nó trôi qua.</p>
   <textarea id="askText" placeholder="Hãy nói hết ra..."></textarea>
   <button class="btn" id="askBtn" onclick="askAI()">Thổ lộ cùng lá bài ✦</button>
   <div class="panel ai-panel" id="askOut" style="display:none"></div>
-  <button class="btn ghost" onclick="toSynth()">Xem tổng hợp →</button>
+  <div id="askMore"></div>
+  <button class="btn ghost" id="askSkip" onclick="toSynth()">Xem tổng hợp →</button>
 </section>
 
 <section class="step" id="s4">
@@ -523,8 +661,8 @@ body.deep .stage{margin-top:26px}
   <h2>Ba lá nói gì cùng nhau</h2>
   <div class="panel" id="reading"></div>
   <div id="aiZone">
-    <button class="btn" id="aiBtn" onclick="aiRead()">Đọc sâu bằng AI ✦</button>
-    <p class="note" style="text-align:center">AI đọc theo câu chuyện riêng của bạn và nhớ những lần trước</p>
+    <button class="btn" id="aiBtn" onclick="aiRead()">Diễn giải sâu hơn ✦</button>
+    <p class="note" style="text-align:center">Lá bài còn nhớ những lần bạn đã ghé qua</p>
     <div class="panel ai-panel" id="aiOut" style="display:none"></div>
   </div>
   <div class="stage late" style="margin-top:38px">Reflect · nhìn lại</div>
@@ -549,19 +687,19 @@ body.deep .stage{margin-top:26px}
 </section>
 
 <section class="step" id="sSet">
-  <h2>Cài đặt AI</h2>
-  <p class="sub">Dán OpenAI API key để bật tính năng Đọc sâu (mô phỏng bản trả phí)</p>
+  <h2>Kết nối</h2>
+  <p class="sub">Dán khóa kết nối để mở phần diễn giải sâu</p>
   <input type="password" id="apiKey" placeholder="sk-...">
   <div class="mrow">
     <button class="chip mopt" data-m="gpt-4o" onclick="pickModel(this)">Sâu sắc</button>
     <button class="chip mopt" data-m="gpt-4o-mini" onclick="pickModel(this)">Nhanh &amp; nhẹ</button>
   </div>
-  <p class="note" style="text-align:center">Sâu sắc: lời đọc giàu cảm xúc và cụ thể hơn, tốn nhiều hơn một chút mỗi lượt.</p>
+  <p class="note" style="text-align:center">Sâu sắc: lời đọc giàu cảm xúc và cụ thể hơn. Nhanh &amp; nhẹ: gọn gàng, tức thì.</p>
   <button class="btn" onclick="saveKey()">Lưu</button>
-  <p class="note">⚠️ Key lưu trên trình duyệt của chính bạn (localStorage), chỉ dùng để demo cá nhân. <strong style="color:var(--gold)">Không</strong> đưa key vào code khi chia sẻ link công khai — bản sản phẩm thật sẽ gọi API qua server trung gian để giấu key và thu phí.</p>
+  <p class="note">⚠️ Khóa được giữ riêng trên trình duyệt của bạn (localStorage). <strong style="color:var(--gold)">Không</strong> đặt khóa vào mã nguồn khi chia sẻ link công khai.</p>
 </section>
 
-<footer>Bản demo · Bộ bài đủ 78 lá · Đọc sâu AI qua OpenAI API</footer>
+<footer>Bản demo · Bộ bài đủ 78 lá</footer>
 </div>
 
 <div id="cardModal" onclick="closeCard(event)">
@@ -779,16 +917,55 @@ function aiModel(){return localStorage.getItem(KEY_MODEL)||"gpt-4o"}
 /* Nền gradient (Tín Phát style) thay cho hiệu ứng sao — bỏ animation canvas để tiết kiệm pin trên điện thoại */
 
 /* ---------- flow ---------- */
+const STAGE={sCenter:1,s1:2,s2:3,sShuffle:3,s3:4,sAsk:4,s4:5,s5:5,sJournal:2,sSet:2};
 function show(id){
-  document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  const cur=document.querySelector(".step.active"),nx=document.getElementById(id);
+  if(!nx)return;
   document.getElementById("navHome").classList.toggle("on",!["sJournal","sSet"].includes(id));
   document.getElementById("navJournal").classList.toggle("on",id==="sJournal");
   document.getElementById("navSet").classList.toggle("on",id==="sSet");
   document.getElementById("homeBtn").classList.toggle("hidden",id==="sCenter");
   document.body.classList.toggle("deep",id!=="sCenter");
-  if(id==="sAsk")renderAskFree();
-  scrollTo({top:0,behavior:"smooth"});
+  document.body.classList.toggle("at-center",id==="sCenter");
+  document.body.className=document.body.className.replace(/\bst-\d\b/g,"").trim()+" st-"+(STAGE[id]||2);
+  if(id==="sAsk"){
+    renderAskFree();
+    const t=document.getElementById("askText"),bt=document.getElementById("askBtn"),
+          o=document.getElementById("askOut"),m=document.getElementById("askMore"),
+          h=document.getElementById("askHint"),sk=document.getElementById("askSkip");
+    if(t){t.style.display="block";t.value=""}if(bt){bt.style.display="block";bt.disabled=false;bt.textContent="Thổ lộ cùng lá bài ✦"}
+    if(o){o.style.display="none";o.className="panel ai-panel";o.innerHTML=""}
+    if(m){m.innerHTML="";m.className=""}if(h)h.style.display="block";if(sk)sk.style.display="block";
+  }
+  const go=()=>{
+    nx.classList.add("active");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>nx.classList.add("shown")));
+    scrollTo({top:0,behavior:"smooth"});
+  };
+  if(cur&&cur!==nx){
+    cur.classList.remove("shown");cur.classList.add("leaving");
+    setTimeout(()=>{cur.classList.remove("active","leaving");go()},430);
+  }else if(cur===nx){nx.classList.add("shown")}
+  else go();
+}
+function flyIn(b,i,n){
+  const ang=(i/n)*Math.PI*2-Math.PI/2;
+  b.style.setProperty("--fx",(Math.cos(ang)*130).toFixed(0)+"px");
+  b.style.setProperty("--fy",(Math.sin(ang)*110+40).toFixed(0)+"px");
+  b.style.setProperty("--fr",((i%2?1:-1)*11)+"deg");
+  b.style.animationDelay=(i*110)+"ms";
+}
+function flyOutAll(el,after){
+  const kids=[...el.children],n=kids.length;
+  kids.forEach((b,i)=>{
+    const ang=(i/n)*Math.PI*2-Math.PI/2;
+    b.style.setProperty("--ox",(Math.cos(ang)*150).toFixed(0)+"px");
+    b.style.setProperty("--oy",(Math.sin(ang)*130).toFixed(0)+"px");
+    b.style.setProperty("--orr",((i%2?1:-1)*16)+"deg");
+    b.classList.remove("dim");b.style.animationDelay=(i*70)+"ms";
+    b.classList.add("flyout");
+  });
+  setTimeout(after,760+n*70);
 }
 /* ---------- icon hệ thống (nét vàng, cùng ngôn ngữ icon 78 lá) ---------- */
 const UIC='stroke="#c9a24a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
@@ -808,15 +985,35 @@ const UI_ICONS={
 function buildMoods(){
   const el=document.getElementById("moods");el.innerHTML="";el.dataset.lock="";
   MOODS.forEach(([icon,label],i)=>{
-    const b=document.createElement("button");b.className="chip";b.style.animationDelay=(i*80)+"ms";
+    const b=document.createElement("button");b.className="chip";
+    flyIn(b,i,MOODS.length);
     b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
     b.onclick=()=>{
       if(el.dataset.lock)return;el.dataset.lock="1";
-      [...el.children].forEach(x=>{if(x!==b)x.classList.add("dim")});
       b.classList.add("sel");
-      document.body.dataset.tint=label;
-      state.mood=label;
-      setTimeout(()=>{buildTopics();show("s2")},700);
+      document.body.dataset.tint=label;state.mood=label;
+      geoFlare();
+      setTimeout(()=>flyOutAll(el,()=>{buildTopics();show("s2")}),620);
+    };
+    el.appendChild(b);
+  });
+}
+function buildTopics(){
+  const el=document.getElementById("topics");el.innerHTML="";el.dataset.lock="";
+  const ci=document.getElementById("topicCustom");if(ci){ci.style.display="none";ci.value=""}
+  const nx=document.getElementById("toShuffle");if(nx)nx.style.display="none";
+  state.topic=null;
+  TOPICS.forEach(([icon,label],i)=>{
+    const b=document.createElement("button");b.className="chip";
+    flyIn(b,i,TOPICS.length);
+    b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
+    b.onclick=()=>{
+      [...el.children].forEach(x=>x.classList.remove("picked"));
+      b.classList.add("picked");
+      const c=document.getElementById("topicCustom");
+      if(icon==="other"){c.style.display="block";state.topic="";setTimeout(()=>c.focus(),80)}
+      else{c.style.display="none";c.value="";state.topic=label}
+      document.getElementById("toShuffle").style.display="block";
     };
     el.appendChild(b);
   });
@@ -829,34 +1026,18 @@ function goShuffle(){
     state.topic=v;
   }
   if(!state.topic)return;
-  resetShuffle();show("sShuffle");
-}
-function buildTopics(){
-  const el=document.getElementById("topics");el.innerHTML="";el.dataset.lock="";
-  const ci=document.getElementById("topicCustom");if(ci){ci.style.display="none";ci.value=""}
-  const nx=document.getElementById("toShuffle");if(nx)nx.style.display="none";
-  state.topic=null;
-  TOPICS.forEach(([icon,label],i)=>{
-    const b=document.createElement("button");b.className="chip mask";b.style.animationDelay=(i*110)+"ms";
-    b.innerHTML=`<span class="ci">${UI_ICONS[icon]||icon}</span>${label}`;
-    b.onclick=()=>{
-      [...el.children].forEach(x=>x.classList.remove("picked"));
-      b.classList.add("picked");
-      const ci=document.getElementById("topicCustom");
-      if(icon==="other"){ci.style.display="block";state.topic="";setTimeout(()=>ci.focus(),80)}
-      else{ci.style.display="none";ci.value="";state.topic=label}
-      document.getElementById("toShuffle").style.display="block";
-    };
-    el.appendChild(b);
-  });
+  geoFlare();
+  flyOutAll(document.getElementById("topics"),()=>{resetShuffle();show("sShuffle")});
 }
 function beginRitual(){
   const iv=document.getElementById("intro");
   if(!iv)return;
+  const pt=document.getElementById("portal");
+  if(pt)pt.classList.add("fire");
   iv.classList.add("exit");
-  setTimeout(()=>iv.remove(),1080);
+  setTimeout(()=>iv.remove(),3400);
 }
-buildMoods();buildTopics();
+buildMoods();buildTopics();show("sCenter");
 (function(){const el=document.getElementById("bCount");if(!el)return;let n=1;
 setInterval(()=>{n=n%3+1;el.textContent="Nhịp "+n+" / 3"},6400)})();
 
@@ -899,23 +1080,55 @@ function buildSpread(){
     b.className="spcard";b.setAttribute("aria-label","Chọn lá thứ "+(i+1));
     b.style.setProperty("--a",((i-3)*15)+"deg");
     b.style.setProperty("--y",(Math.abs(i-3)*5)+"px");
-    b.style.animationDelay=(i*75)+"ms";b.style.zIndex=i;
+    b.style.animationDelay=(i*130)+"ms";b.style.zIndex=i;
     b.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front">
       <div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos"></div></div></div>`;
     b.onclick=()=>pickSpread(i,b);
     sp.appendChild(b);
   });
-  document.getElementById("spread").classList.remove("receded");
+  const sp0=document.getElementById("spread");sp0.classList.remove("receded");sp0.style.height="";
   document.getElementById("toAsk").style.display="none";
+  const ov=document.getElementById("overview");if(ov){ov.style.display="none";ov.innerHTML=""}
+  document.getElementById("slots").classList.remove("pushdown");
   updateDrawHead();
+}
+function checkAllOpened(){
+  if(document.querySelectorAll("#slots .slotcard.opened").length<3)return;
+  const [a,b,c]=state.drawn,ov=document.getElementById("overview");
+  const moodLine=state.mood?` Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.`:"";
+  ov.innerHTML=`<div class="ai-label">✦ Ba lá nói gì cùng nhau</div>
+   <div class="cardline"><strong>${a.n} · Quá khứ</strong> — Trong chuyện ${state.topic.toLowerCase()}, có dấu ấn của ${a.past}.</div>
+   <div class="cardline"><strong>${b.n} · Hiện tại</strong> — Lúc này, điều nổi bật là ${b.now}.${moodLine}</div>
+   <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}.</div>`;
+  ov.style.display="block";
+  geoFlare();
+  const t=document.getElementById("toAsk");t.style.display="flex";
+  const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
+  st.textContent="Interpret · ba lá đã mở";ti.textContent="Mạch chuyện hiện ra";su.textContent="";
+  setTimeout(()=>{try{ov.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},260);
+}
+function toAsk(){
+  document.getElementById("slots").classList.add("pushdown");
+  setTimeout(()=>show("sAsk"),620);
 }
 function updateDrawHead(){
   const n=state.drawn.length;
   const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
-  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm vào từng lá phía trên để mở và nghe lá ấy nói";return}
+  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm từng lá để nghe lá ấy nói";return}
   st.textContent=n===0?"Spread · chọn lá của bạn":"Spread · chọn lá tiếp theo";
   t.textContent="Chọn lá cho "+POS[n];
   s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
+}
+function sparkAt(rect,n){
+  for(let k=0;k<n;k++){
+    const a=(k/n)*Math.PI*2,d=42+((k*13)%26);
+    const s=document.createElement("i");s.className="slotspark";
+    s.style.left=(rect.left+rect.width/2)+"px";s.style.top=(rect.top+rect.height/2)+"px";
+    s.style.setProperty("--sx",(Math.cos(a)*d).toFixed(0)+"px");
+    s.style.setProperty("--sy",(Math.sin(a)*d).toFixed(0)+"px");
+    s.style.animationDelay=(k*45)+"ms";
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1700);
+  }
 }
 function pickSpread(i,el){
   if(el.dataset.taken||state.drawn.length>=3)return;
@@ -924,30 +1137,41 @@ function pickSpread(i,el){
   state.drawn.push(c);
   if(navigator.vibrate)navigator.vibrate(12);
   geoFlare();
-  /* bay bằng một bản sao có gốc xoay ở tâm — tránh cú nhảy do đổi transform-origin */
   const f=el.getBoundingClientRect(),t=document.getElementById("slot"+slot).getBoundingClientRect();
   const ang=el.style.getPropertyValue("--a")||"0deg";
-  const fly=document.createElement("div");
-  fly.className="flycard";
+  const fly=document.createElement("div");fly.className="flycard";
   fly.style.cssText=`left:${f.left}px;top:${f.top}px;width:${f.width}px;height:${f.height}px;transform:rotate(${ang})`;
   fly.innerHTML=`<div class="face back"></div>`;
   document.body.appendChild(fly);
   el.style.visibility="hidden";
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    fly.style.transition="transform .85s cubic-bezier(.3,.72,.25,1)";
+    fly.style.transition="transform 1.25s cubic-bezier(.32,.72,.25,1)";
     fly.style.transform=`translate(${(t.left+t.width/2)-(f.left+f.width/2)}px,`
       +`${(t.top+t.height/2)-(f.top+f.height/2)}px) rotate(0deg) scale(${t.width/f.width})`;
   }));
   setTimeout(()=>{
     fillSlot(slot,c);
-    fly.remove();
-    el.style.display="none";
+    fly.remove();el.style.display="none";
+    const sEl=document.getElementById("slot"+slot);
+    sEl.classList.add("lit");
+    const sc=sEl.querySelector(".slotcard");if(sc)sc.classList.add("lit");
+    sparkAt(sEl.getBoundingClientRect(),10);
+    setTimeout(()=>{sEl.classList.remove("lit");if(sc)sc.classList.remove("lit")},1900);
     updateDrawHead();
-    if(state.drawn.length===3){
-      document.getElementById("spread").classList.add("receded");
-      const b=document.getElementById("toAsk");b.textContent="Tiếp tục →";b.style.display="block";
-    }
-  },870);
+    if(state.drawn.length===3)scatterRest();
+  },1270);
+}
+function scatterRest(){
+  const rest=[...document.querySelectorAll("#spread .spcard")].filter(x=>!x.dataset.taken);
+  rest.forEach((x,k)=>{
+    const a=(k/Math.max(rest.length,1))*Math.PI*2+.6;
+    x.style.setProperty("--sxx",(Math.cos(a)*140).toFixed(0)+"px");
+    x.style.setProperty("--syy",(Math.sin(a)*150+60).toFixed(0)+"px");
+    x.style.setProperty("--srr",((k%2?1:-1)*38)+"deg");
+    x.style.animationDelay=(k*90)+"ms";
+    x.classList.add("scatter");
+  });
+  setTimeout(()=>{const sp=document.getElementById("spread");if(sp)sp.style.height="0px";},1700);
 }
 function fillSlot(i,c){
   const s=document.getElementById("slot"+i);
@@ -969,8 +1193,8 @@ function renderAskFree(){
     :(askUsed()<1?'<div class="freetag">Lời tâm sự đầu tiên luôn được đón nhận</div>':'');
 }
 function showPaywall(){
-  const out=document.getElementById("askOut");
-  out.style.display="block";out.className="panel paywall";
+  const out=document.getElementById("askMore");
+  out.className="panel paywall";
   out.innerHTML=`<div class="ai-label">✦ Lá bài cần một khoảng lặng</div>
    <div class="pw-price">Đêm nay, lá bài đã lắng nghe bạn một lần</div>
    <p class="pw-note">Mỗi lời tâm sự đều cần thời gian để thấm.<br>
@@ -979,8 +1203,9 @@ function showPaywall(){
    cánh cửa này luôn mở sẵn.</p>
    <button class="btn" onclick="unlockPro()">Mở cánh cửa đồng hành ✦</button>
    <button class="btn ghost" onclick="toSynth()">Để lòng lắng lại — xem tổng hợp</button>`;
+  out.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
-function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();document.getElementById("askOut").style.display="none";document.getElementById("askOut").className="panel ai-panel";}
+function unlockPro(){localStorage.setItem(KEY_PRO,"1");renderAskFree();const m=document.getElementById("askMore");m.className="";renderAskAgain();}
 async function askAI(){
   const q=document.getElementById("askText").value.trim();
   const out=document.getElementById("askOut"),btn=document.getElementById("askBtn");
@@ -988,12 +1213,17 @@ async function askAI(){
   if(askUsed()>=1&&!isPro()){showPaywall();return}
   const key=localStorage.getItem(KEY_API);
   out.style.display="block";out.className="panel ai-panel";
-  if(!key){out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Chưa có API key. Vào <strong>Cài đặt</strong> để dán OpenAI key (bản demo).`;return}
+  if(!key){out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
   btn.disabled=true;
   const [a,b,c]=state.drawn;
   const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot. Giọng tiếng Việt ấm áp, tự nhiên. Người ta vừa thổ lộ một điều đang nặng lòng — hãy đáp như một người thật sự lắng nghe.\n\n- Trước hết, thừa nhận điều họ đang mang, gọi đúng tên nó.\n- Soi nó qua ba lá đã rút, nhưng nói về chuyện của họ chứ đừng giảng về lá bài.\n- Cho một điều cụ thể họ có thể làm hoặc nghĩ khác đi.\n- Khép lại bằng một câu hỏi nhẹ để họ tự ngẫm.\n\nViết liền mạch 120-180 từ, không đánh số, không lặp lại phần đọc bài trước đó. Không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.`
   const usr=`Chủ đề: ${state.topic}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\nĐiều họ còn nặng lòng: ${q}`;
-  out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askTextOut"><span class="cursor">▌</span></div>`;
+  document.getElementById("askText").style.display="none";
+  document.getElementById("askBtn").style.display="none";
+  const hint=document.getElementById("askHint");if(hint)hint.style.display="none";
+  document.getElementById("askSkip").style.display="none";
+  out.classList.add("live");
+  out.innerHTML=`<div class="ai-label">✦ Lá bài đáp lời bạn</div><div id="askTextOut"><span class="tw">✦</span></div>`;
   const te=document.getElementById("askTextOut");typeStart(te,34);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
@@ -1007,9 +1237,33 @@ async function askAI(){
         if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
         try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d)typePush(d)}catch(_){}}}
     await typeFinish(te);
+    out.classList.remove("live");
     localStorage.setItem(KEY_ASKN,askUsed()+1);renderAskFree();
-    btn.disabled=false;btn.textContent="Hỏi điều khác ✦";
-  }catch(err){clearInterval(tTimer);te.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}.`;btn.disabled=false;btn.textContent="Thử lại ✦"}
+    btn.disabled=false;
+    renderAskAgain();
+  }catch(err){clearInterval(tTimer);out.classList.remove("live");
+    te.innerHTML=`Chưa kết nối được: ${escapeHtml(err.message)}.`;
+    btn.disabled=false;btn.style.display="block";btn.textContent="Thử lại ✦";
+    document.getElementById("askText").style.display="block";
+    document.getElementById("askSkip").style.display="block";}
+}
+function renderAskAgain(){
+  const m=document.getElementById("askMore");
+  m.innerHTML=`<p class="hintline">Nếu trong lòng còn điều gì nữa,<br>lá bài vẫn ở đây.</p>
+   <textarea id="askText2" placeholder="Hãy nói tiếp..."></textarea>
+   <button class="btn" onclick="askMore()">Nói tiếp ✦</button>
+   <button class="btn ghost" onclick="toSynth()">Đã đủ cho hôm nay →</button>`;
+  m.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function askMore(){
+  const v=(document.getElementById("askText2")||{}).value||"";
+  if(!v.trim()){document.getElementById("askText2").focus();return}
+  if(!isPro()){showPaywall();return}
+  document.getElementById("askText").value=v;
+  document.getElementById("askMore").innerHTML="";
+  document.getElementById("askText").style.display="block";
+  document.getElementById("askBtn").style.display="block";
+  askAI();
 }
 function toSynth(){showReading()}
 
@@ -1094,7 +1348,7 @@ function flipBig(){
   if(navigator.vibrate)navigator.vibrate(10);
   if(modalMode==="draw"&&card.classList.contains("flipped")){
     const s=document.querySelector("#slot"+modalIdx+" .slotcard");
-    if(s)s.classList.add("flipped","opened");
+    if(s&&!s.classList.contains("opened")){s.classList.add("flipped","opened");checkAllOpened()}
   }
 }
 function closeCard(e){
@@ -1125,7 +1379,7 @@ function showReading(){
   document.getElementById("reflectQ").textContent=REFLECT[state.topic]||REFLECT_FALLBACK;
   document.getElementById("aiOut").style.display="none";
   document.getElementById("aiBtn").disabled=false;
-  document.getElementById("aiBtn").textContent="Đọc sâu bằng AI ✦";
+  document.getElementById("aiBtn").textContent="Diễn giải sâu hơn ✦";
   show("s4");
 }
 
@@ -1171,18 +1425,18 @@ function typeFinish(el){
     };tick();
   });
 }
-function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+'<span class="cursor">▌</span>'+h.slice(i):h;}
+function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+' <span class="tw">✦</span>'+h.slice(i):h;}
 async function aiRead(){
   const key=localStorage.getItem(KEY_API);
   const out=document.getElementById("aiOut"),btn=document.getElementById("aiBtn");
-  if(!key){out.style.display="block";out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Chưa có API key. Vào <strong>Cài đặt</strong> để dán OpenAI key (bản demo). Trong sản phẩm thật, đây là nơi hiện màn hình nâng cấp trả phí.`;return}
+  if(!key){out.style.display="block";out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
   btn.disabled=true;
   const story=document.getElementById("story").value.trim();
   const [a,b,c]=state.drawn;
   const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Giọng tiếng Việt ấm áp, tự nhiên như đang trò chuyện — không trịnh trọng, không sách vở.\n\nNgười ta tìm đến tarot khi trong lòng có gì đó chưa yên. Việc của bạn là làm họ nhẹ lòng hơn và thấy rõ mình có thể làm gì tiếp theo.\n\nCÁCH VIẾT:\n- Gọi tên cảm xúc bạn nghe được trong câu chuyện của họ, chân thành và cụ thể. Đừng nói sáo kiểu 'tôi hiểu bạn'.\n- Dùng ba lá bài như chất liệu để soi CÂU CHUYỆN CỦA HỌ, không phải để giảng giải về lá bài. Tuyệt đối không viết kiểu 'lá này nghĩa là...'. Hãy nói về đời họ, thỉnh thoảng mượn một hình ảnh trong lá.\n- Chỉ ra một góc nhìn họ có thể chưa thấy — cụ thể, gắn với chi tiết họ kể.\n- Đưa 1-2 việc nhỏ, cụ thể, làm được ngay hôm nay hoặc tuần này. Không khuyên chung chung kiểu 'hãy tích cực lên'.\n- Khép lại bằng một câu hỏi để họ tự ngẫm.\n\nViết liền mạch 200-280 từ, chia đoạn tự nhiên, KHÔNG đánh số, KHÔNG in tiêu đề mục.\nKhông phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.\nNếu phần Lịch sử bên dưới KHÔNG rỗng, câu ĐẦU TIÊN bắt buộc nhắc lại một chi tiết cũ để họ thấy bạn còn nhớ.`
   const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`;
   out.style.display="block";
-  out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
+  out.innerHTML=`<div class="ai-label">✦ Lời của lá bài · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
   const textEl=document.getElementById("aiText");
   try{out.scrollIntoView({behavior:"smooth",block:"center"});}catch(_){}
   let acc="";
@@ -1210,9 +1464,9 @@ async function aiRead(){
       }
     }
     textEl.innerHTML=acc?fmtBody(acc):"(Không nhận được nội dung. Thử lại nhé.)";
-    btn.textContent="Đọc lại lần nữa ✦";btn.disabled=false;
+    btn.style.display="none";
   }catch(err){
-    textEl.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}. Kiểm tra key trong Cài đặt hoặc thử lại.`;
+    textEl.innerHTML=`Chưa kết nối được: ${escapeHtml(err.message)}. Kiểm tra key trong Cài đặt hoặc thử lại.`;
     btn.textContent="Thử lại ✦";btn.disabled=false;
   }
 }
