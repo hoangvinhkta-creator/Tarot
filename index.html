@@ -210,15 +210,19 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .perks .pi{flex:none;width:20px;line-height:0;margin-top:1px;opacity:.9}
 .perks .pi svg{width:20px;height:auto}
 
-#signModal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:22px;
+.perks.mini{margin:14px 0 18px}
+.perks.mini li{font-size:12.5px;padding:7px 0}
+#planModal .signcard{max-width:400px;text-align:center}
+#planModal .perks{text-align:left}
+#signModal,#planModal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:22px;
   background:rgba(6,5,9,.82);backdrop-filter:blur(5px);opacity:0;transition:opacity .38s ease}
-#signModal.open{display:flex}
-#signModal.shown{opacity:1}
+#signModal.open,#planModal.open{display:flex}
+#signModal.shown,#planModal.shown{opacity:1}
 .signcard{width:100%;max-width:380px;border-radius:16px;padding:26px 22px;text-align:center;
   background:linear-gradient(165deg,#221b30,var(--card));border:1px solid var(--hair2);
   box-shadow:0 26px 70px rgba(0,0,0,.7),0 0 40px rgba(201,162,74,.12);
   transform:translateY(16px) scale(.96);transition:transform .42s cubic-bezier(.2,.8,.25,1)}
-#signModal.shown .signcard{transform:none}
+#signModal.shown .signcard,#planModal.shown .signcard{transform:none}
 .signcard h3{font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.45;color:var(--ivory);margin-bottom:8px}
 .signwhy{font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.7;color:var(--mut);margin-bottom:18px}
 .signcard input{margin-bottom:11px}
@@ -691,6 +695,7 @@ body.deep .stage{margin-top:26px}
   <div class="slots" id="slots"></div>
   <div class="spread" id="spread"></div>
   <div class="panel" id="overview" style="display:none"></div>
+  <div class="panel ai-panel" id="liveRead" style="display:none"></div>
   <button class="btn arrow" id="toAsk" style="display:none" onclick="toAsk()" aria-label="Tiếp tục">
     <svg viewBox="0 0 24 24" fill="none" stroke="#e8c87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
   </button>
@@ -756,6 +761,10 @@ body.deep .stage{margin-top:26px}
 </section>
 
 <footer>Bản demo · Bộ bài đủ 78 lá</footer>
+</div>
+
+<div id="planModal" onclick="closePlan(event)">
+  <div class="signcard" id="planBody" role="dialog" aria-label="Giao ước đồng hành"></div>
 </div>
 
 <div id="signModal" onclick="closeSign(event)">
@@ -1165,6 +1174,7 @@ function buildSpread(){
   document.getElementById("toAsk").style.display="none";
   const ov=document.getElementById("overview");if(ov){ov.style.display="none";ov.innerHTML=""}
   document.getElementById("slots").classList.remove("pushdown");
+  resetReading();
   updateDrawHead();
 }
 function checkAllOpened(){
@@ -1177,10 +1187,51 @@ function checkAllOpened(){
    <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}.</div>`;
   ov.style.display="block";
   geoFlare();
-  const t=document.getElementById("toAsk");t.style.display="flex";
   const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
   st.textContent="Interpret · ba lá đã mở";ti.textContent="Mạch chuyện hiện ra";su.textContent="";
   setTimeout(()=>{try{ov.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},260);
+  setTimeout(personalRead,900);
+}
+/* Lời đọc riêng cho chính câu chuyện của người hỏi — hiện ra ngay sau khi ba lá mở,
+   trước cả lượt thổ lộ đầu tiên. Đây là phần luôn mở cho tất cả mọi người. */
+async function personalRead(){
+  const t=document.getElementById("toAsk"),out=document.getElementById("liveRead");
+  const showArrow=()=>{t.style.display="flex";
+    setTimeout(()=>{try{t.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}},300)};
+  const key=localStorage.getItem(KEY_API);
+  if(!key||!state.drawn.length){showArrow();return}
+  const [a,b,c]=state.drawn;
+  const story=(document.getElementById("story")||{}).value||"";
+  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Họ vừa mở ba lá và chưa nói thêm gì. Hãy đọc cho họ nghe — về ĐỜI HỌ, không phải về lá bài.
+
+QUY TẮC
+1. TUYỆT ĐỐI không liệt kê hay giải nghĩa ba lá. Không viết "Lá X cho thấy...", "Với Y...", "Hướng đi với Z...". Ba lá chỉ là chất liệu ngầm.
+2. Bám chặt vào chủ đề, tâm trạng và những gì họ đã tự kể. Nhắc lại chi tiết cụ thể của họ bằng lời của bạn.
+3. Cấu trúc tự nhiên, không đánh số, không tiêu đề: gọi tên điều họ đang mang → chỉ ra một mạch ngầm nối quá khứ với hiện tại mà có thể họ chưa nhìn ra → nói thẳng đâu là thứ đang thật sự cản họ → một việc cụ thể làm được trong tuần này.
+4. Khép lại bằng một câu mời họ nói ra điều còn giấu, thật nhẹ.
+5. Nếu họ kể rất ít, hãy đọc theo hướng mở, đưa vài khả năng, đừng bịa chi tiết đời họ.
+
+GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. 180-260 từ, chia đoạn tự nhiên.`;
+  const usr=`Chủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}\nBa lá (ngầm): ${a.n} / ${b.n} / ${c.n}\n\nLịch sử gần đây:\n${memorySummary()}`;
+  out.style.display="block";out.className="panel ai-panel live";
+  out.innerHTML=`<div class="ai-label">✦ Lời đọc dành riêng cho bạn</div><div id="liveReadText"><span class="tw">✦</span></div>`;
+  const te=document.getElementById("liveReadText");typeStart(te,30);
+  try{
+    const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body:JSON.stringify({model:aiModel(),max_tokens:900,temperature:.85,stream:true,
+        messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
+    if(!r.ok||!r.body)throw new Error("HTTP "+r.status);
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="",raw="";
+    while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let nl;while((nl=buf.indexOf("\n"))>=0){const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
+        if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){raw+=d;typePush(d)}}catch(_){}}}
+    await typeFinish(te);
+    openingRead=stripMark(raw);
+  }catch(err){clearInterval(tTimer);out.style.display="none"}
+  out.classList.remove("live");
+  showArrow();
 }
 function toAsk(){
   document.getElementById("slots").classList.add("pushdown");
@@ -1270,16 +1321,22 @@ function fillSlot(i,c){
 function openDrawCard(i,el){openCard(i,el,"draw")}
 
 /* ---------- DEEPEN — hỏi thêm, free câu đầu ---------- */
-const KEY_ASKN="lro_ask_used",KEY_USER="lro_user";
+const KEY_ASKN="lro_ask_used",KEY_USER="lro_user",KEY_PLAN="lro_plan";
 function askUsed(){return +(localStorage.getItem(KEY_ASKN)||0)}
-/* Tài khoản: bản này giữ trên chính thiết bị của bạn. Khi có máy chủ riêng,
-   chỉ cần thay hai hàm member()/doSign() là xong, phần còn lại không đổi. */
+/* Ba bậc: khách qua đường → người đã có tên (đăng nhập) → người giữ giao ước (gói).
+   Cả hai bậc sau đang giữ trên chính thiết bị này. Khi có máy chủ riêng, chỉ cần thay
+   member()/doSign() và hasPlan()/doPlan(), phần còn lại của app không phải sửa gì. */
 function member(){try{return JSON.parse(localStorage.getItem(KEY_USER)||"null")}catch(_){return null}}
 function isMember(){return !!member()}
+function hasPlan(){return localStorage.getItem(KEY_PLAN)==="1"}
+let signedInHere=false;   /* có đăng nhập ngay trong lượt bốc bài này không */
 function askTurns(){return askThread.filter(m=>m.role==="user").length}
+/* Số lượt thổ lộ được mở: ai cũng có một lượt; đăng nhập ngay tại đây mở thêm một lượt;
+   giữ giao ước thì thoải mái (vẫn dừng khi mạch chuyện đi vòng). */
+function askAllowance(){return hasPlan()?99:1+(signedInHere?1:0)}
 function renderAskFree(){
   const el=document.getElementById("askFree");
-  el.innerHTML=isMember()?'<div class="freetag">Lá bài luôn sẵn lòng nghe bạn</div>'
+  el.innerHTML=hasPlan()?'<div class="freetag">Lá bài luôn sẵn lòng nghe bạn</div>'
     :(askTurns()<1?'<div class="freetag">Hôm nay bạn có một lời thì thầm</div>':'');
 }
 /* ---------- cánh cửa đồng hành (đăng nhập) ---------- */
@@ -1306,9 +1363,10 @@ function doSign(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){er.textContent="Email này chưa đúng dạng.";m.focus();return}
   er.textContent="";
   localStorage.setItem(KEY_USER,JSON.stringify({name,mail,since:Date.now()}));
+  signedInHere=true;
   closeSign();
   const fn=signAfter;signAfter=null;
-  setTimeout(()=>{renderAskFree();renderFinalGate();if(fn)fn()},420);
+  setTimeout(()=>{renderAskFree();renderDeepGate();renderFinalGate();if(fn)fn()},420);
 }
 const PERKS=[
   ["calm","Chiêm nghiệm sâu hơn cùng lá bài — không chỉ một lượt"],
@@ -1324,11 +1382,23 @@ function perkList(){
 function renderFinalGate(){
   const el=document.getElementById("finalGate");if(!el)return;
   const u=member();
-  if(u){
+  if(hasPlan()){
     el.className="panel gate";
-    el.innerHTML=`<div class="ai-label">✦ Cánh cửa đã mở</div>
-     <p class="gate-lead">Lá bài đã nhớ bạn, ${escapeHtml(u.name)}</p>
-     <p class="pw-note">Từ giờ mỗi lần bạn ghé qua, nghi thức sẽ bắt đầu từ chỗ bạn đã dừng lại.</p>`;
+    el.innerHTML=`<div class="ai-label">✦ Giao ước đang giữ</div>
+     <p class="gate-lead">Lá bài đi cùng bạn, ${escapeHtml(u?u.name:"bạn")}</p>
+     <p class="pw-note">Hạt ký ức đêm nay đã được nối vào những hạt trước đó.<br>
+     Lần sau bạn ghé qua, nghi thức bắt đầu từ chỗ bạn đã dừng lại.</p>`;
+    return;
+  }
+  if(u){
+    el.className="panel gate strong";
+    el.innerHTML=`<div class="ai-label">✦ Còn một tầng nữa</div>
+     <p class="gate-lead">Lá bài đã biết tên bạn — nhưng chưa đi cùng bạn</p>
+     <p class="pw-note">Đêm nay bạn nghe được tầng thứ nhất.<br>
+     Lời giao ước mở ra phần còn lại, và giữ nó cho những lần sau:</p>
+     <ul class="perks">${PLAN_PERKS.map(([i,t])=>
+       `<li><span class="pi">${UI_ICONS[i]||"✦"}</span>${t}</li>`).join("")}</ul>
+     <button class="btn" onclick="openPlan()">Xem lời giao ước ✦</button>`;
     return;
   }
   el.className="panel gate strong";
@@ -1339,28 +1409,75 @@ function renderFinalGate(){
    ${perkList()}
    <button class="btn" onclick="openSign('Đây là nơi nghi thức thật sự bắt đầu dài hơn một đêm.')">Bước qua cánh cửa ✦</button>`;
 }
-/* Lượt thứ hai trở đi: ô tâm sự vẫn hiện ra nhưng đã khoá mờ,
-   để người ta thấy rõ điều mình đang bỏ lỡ chứ không phải một bức tường trống. */
+const SEAL_SVG=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10" stroke="#e8c87e" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="10.5" rx="3" stroke="#e8c87e" stroke-width="1.6" fill="rgba(232,200,126,.07)"/><circle cx="12" cy="15.2" r="1.5" fill="#e8c87e"/></svg>`;
+function lockField(txt,tall){
+  return `<div class="lockwrap"><div class="lockfield${tall?" tall":""}">${txt}</div>
+   <div class="lockseal">${SEAL_SVG}</div></div>`;
+}
+/* Hết lượt được mở: ô tâm sự vẫn hiện ra nhưng đã khoá mờ, để người ta thấy rõ
+   điều mình đang bỏ lỡ chứ không phải một bức tường trống. Bậc nào thì mời bậc đó. */
 function showAskLock(){
   const out=document.getElementById("askMore");
   out.className="panel lockbox";
-  out.innerHTML=`<p class="hintline">Nếu trong lòng còn điều gì nữa,<br>lá bài vẫn ở đây.</p>
-   <div class="lockwrap">
-     <div class="lockfield">Hãy nói tiếp...</div>
-     <div class="lockseal">
-       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10" stroke="#e8c87e" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="10.5" rx="3" stroke="#e8c87e" stroke-width="1.6" fill="rgba(232,200,126,.07)"/><circle cx="12" cy="15.2" r="1.5" fill="#e8c87e"/></svg>
-     </div>
-   </div>
-   <p class="pw-note">Lời thì thầm đầu tiên, vũ trụ luôn nghe không cần đổi lấy gì.<br>
-   Từ lời thứ hai, lá bài cần biết bạn là ai để còn nhớ bạn lần sau.</p>
-   <button class="btn" onclick="openSign('Bạn còn điều chưa nói hết — cánh cửa này mở ra phần còn lại của đêm nay.',()=>{const m=document.getElementById('askMore');m.className='';renderAskAgain()})">Bước qua cánh cửa ✦</button>
-   <button class="btn ghost" onclick="toSynth()">Hôm nay vậy là đủ →</button>`;
+  if(!isMember()){
+    out.innerHTML=`<p class="hintline">Nếu trong lòng còn điều gì nữa,<br>lá bài vẫn ở đây.</p>
+     ${lockField("Hãy nói tiếp...")}
+     <p class="pw-note">Lời thì thầm đầu tiên, vũ trụ luôn nghe không cần đổi lấy gì.<br>
+     Từ lời thứ hai, lá bài cần biết bạn là ai để còn nhớ bạn lần sau.</p>
+     <button class="btn" onclick="openSign('Bạn còn điều chưa nói hết — cánh cửa này mở ra phần còn lại của đêm nay.',()=>{const m=document.getElementById('askMore');m.className='';renderAskAgain()})">Bước qua cánh cửa ✦</button>
+     <button class="btn ghost" onclick="toSynth()">Hôm nay vậy là đủ →</button>`;
+  }else{
+    const u=member();
+    out.innerHTML=`<p class="hintline">Lòng bạn vẫn còn chuyện chưa cạn,<br>và lá bài biết điều đó.</p>
+     ${lockField("Hãy nói tiếp...")}
+     <p class="pw-note">${escapeHtml(u.name)} ơi, đêm nay lá bài đã nghe bạn hai lần.<br>
+     Đi xa hơn thế là một lời giao ước — không còn đếm lượt nữa.</p>
+     <button class="btn" onclick="openPlan(()=>{const m=document.getElementById('askMore');m.className='';renderAskAgain()})">Xem lời giao ước ✦</button>
+     <button class="btn ghost" onclick="toSynth()">Hôm nay vậy là đủ →</button>`;
+  }
   out.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
+/* ---------- Giao ước đồng hành ---------- */
+const PLAN_PERKS=[
+  ["calm","Chiêm nghiệm sâu — tầng nghĩa thứ hai của mỗi lần bốc bài"],
+  ["heart","Thổ lộ không còn đếm lượt, nói đến khi lòng nhẹ thì thôi"],
+  ["work","Nhật ký theo bạn qua mọi thiết bị, không mất khi đổi máy"],
+  ["coin","Sưu tầm dần đủ bộ 78 lá, mỗi lá một câu chuyện riêng"],
+  ["self","Mở ý nghĩa đặc biệt của từng lá, không chỉ ba lá hôm nay"]
+];
+let planAfter=null;
+function openPlan(after){
+  if(!isMember()){openSign("Trước khi nhận lời giao ước, lá bài cần biết gọi bạn là gì.",()=>openPlan(after));return}
+  planAfter=after||null;
+  const el=document.getElementById("planBody");
+  el.innerHTML=`<div class="ai-label">✦ Giao ước đồng hành</div>
+   <h3>Đi cùng lá bài lâu hơn một đêm</h3>
+   <p class="signwhy">Mỗi lần bốc bài là một lát cắt. Giao ước là sợi chỉ nối những lát cắt ấy lại.</p>
+   <ul class="perks">${PLAN_PERKS.map(([i,t])=>`<li><span class="pi">${UI_ICONS[i]||"✦"}</span>${t}</li>`).join("")}</ul>
+   <button class="btn" onclick="doPlan()">Nhận lời giao ước ✦</button>
+   <button class="btn ghost" onclick="closePlan()">Để lúc khác</button>
+   <p class="note">Giao ước bắt đầu từ lúc bạn nhận, và dừng bất cứ khi nào bạn muốn.</p>`;
+  const m=document.getElementById("planModal");
+  m.classList.add("open");requestAnimationFrame(()=>m.classList.add("shown"));
+}
+function closePlan(e){
+  if(e&&e.target&&e.target.closest&&e.target.closest(".signcard"))return;
+  const m=document.getElementById("planModal");
+  m.classList.remove("shown");setTimeout(()=>m.classList.remove("open"),380);
+}
+function doPlan(){
+  localStorage.setItem(KEY_PLAN,"1");
+  closePlan();
+  const fn=planAfter;planAfter=null;
+  setTimeout(()=>{renderAskFree();renderDeepGate();renderFinalGate();if(fn)fn()},420);
+}
 /* mạch trò chuyện: giữ nguyên ngữ cảnh nhiều lượt để lời đáp không quay vòng */
-let askThread=[],askClosed=false,askCloseTimer=null;
+let askThread=[],askClosed=false,askCloseTimer=null,openingRead="";
 function resetAskThread(){askThread=[];askClosed=false;clearTimeout(askCloseTimer);
   const t=document.getElementById("askThreadEl");if(t)t.innerHTML=""}
+/* mỗi lần bốc bài mới là một lượt sạch: lời đọc mở đầu và quyền lượt tính lại từ đầu */
+function resetReading(){openingRead="";signedInHere=false;
+  const lr=document.getElementById("liveRead");if(lr){lr.style.display="none";lr.innerHTML=""}}
 /* độ trùng ý giữa hai lời đáp — tiếng Việt đơn âm nên so theo cặp âm tiết liền nhau */
 function askOverlap(a,b){
   const gr=s=>{const w=String(s).toLowerCase().replace(/[^\p{L}\s]/gu," ").split(/\s+/).filter(Boolean),g=new Set();
@@ -1378,6 +1495,8 @@ BỐI CẢNH (chỉ để bạn hiểu ngầm, KHÔNG được kể lại):
 - Điều họ đang bận tâm: ${state.topic||"chưa gọi tên"}
 - Họ tự kể lúc đầu: ${story.trim()||"(không kể thêm)"}
 - Ba lá đã rút: ${a?a.n:"-"} / ${b?b.n:"-"} / ${c?c.n:"-"}
+- Lời đọc mở đầu bạn ĐÃ nói với họ (tuyệt đối không lặp lại ý nào trong đây):
+${openingRead||"(chưa có)"}
 
 QUY TẮC BẮT BUỘC
 1. TUYỆT ĐỐI không liệt kê, không giải nghĩa ba lá bài. Không viết "Lá X cho thấy...", "Với Y, bạn đang...", "Hướng đi với Z...". Cả cuộc trò chuyện nhiều nhất một lần bạn được mượn MỘT hình ảnh trong lá, và câu đó vẫn phải nói về đời họ chứ không về lá.
@@ -1401,7 +1520,7 @@ async function askAI(qIn){
   const q=(qIn!==undefined?qIn:inputEl.value).trim();
   const out=document.getElementById("askOut"),btn=document.getElementById("askBtn");
   if(!q){if(qIn===undefined)inputEl.focus();return}
-  if(!isMember()&&askTurns()>=1){showAskLock();return}
+  if(askTurns()>=askAllowance()){showAskLock();return}
   const key=localStorage.getItem(KEY_API);
   out.style.display="block";
   if(!key){out.className="panel ai-panel";
@@ -1446,7 +1565,7 @@ async function askAI(qIn){
     btn.disabled=false;
     const looping=prev.some(t=>askOverlap(t,clean)>=.45);
     if(/\[+\s*KHEP/i.test(raw)||looping||turn>=4)closeAskThread();
-    else if(!isMember())showAskLock();
+    else if(askTurns()>=askAllowance())showAskLock();
     else renderAskAgain();
   }catch(err){clearInterval(tTimer);out.classList.remove("live");
     te.innerHTML=`Chưa kết nối được: ${escapeHtml(err.message)}.`;
@@ -1484,7 +1603,7 @@ function askMore(){
   const el=document.getElementById("askText2");
   const v=(el||{}).value||"";
   if(!v.trim()){if(el)el.focus();return}
-  if(!isMember()){showAskLock();return}
+  if(askTurns()>=askAllowance()){showAskLock();return}
   document.getElementById("askMore").innerHTML="";
   askAI(v);
 }
@@ -1621,26 +1740,27 @@ function renderNote(){
   el.style.display="block";
   el.innerHTML=`<div class="ai-label">✦ Ghi lại để mang về</div>${cards}${talk}`;
 }
-/* Chiêm nghiệm sâu hơn — phần này cần cánh cửa đã mở */
+/* Chiêm nghiệm sâu hơn — tầng nghĩa thứ hai, thuộc về giao ước.
+   Đăng nhập thôi chưa đủ: đây là chỗ giới thiệu giao ước cho người đã có tên. */
 function renderDeepGate(){
   const el=document.getElementById("deepGate");if(!el)return;
-  if(isMember()){
+  if(hasPlan()){
     el.className="";
     el.innerHTML=`<button class="btn" id="aiBtn" onclick="aiRead()">Chiêm nghiệm sâu hơn ✦</button>
      <p class="note" style="text-align:center">Lá bài còn nhớ những lần bạn đã ghé qua</p>`;
     return;
   }
+  const u=member();
   el.className="panel lockbox";
   el.innerHTML=`<div class="ai-label">✦ Chiêm nghiệm sâu hơn</div>
-   <div class="lockwrap">
-     <div class="lockfield tall">Ba lá này còn một tầng nữa chưa mở ra…</div>
-     <div class="lockseal">
-       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10" stroke="#e8c87e" stroke-width="1.6" fill="none" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="10.5" rx="3" stroke="#e8c87e" stroke-width="1.6" fill="rgba(232,200,126,.07)"/><circle cx="12" cy="15.2" r="1.5" fill="#e8c87e"/></svg>
-     </div>
-   </div>
-   <p class="pw-note">Phần này đọc chậm hơn, đi sâu vào chính câu chuyện bạn vừa kể —<br>
-   và chỉ mở ra cho người mà lá bài đã biết tên.</p>
-   <button class="btn" onclick="openSign('Ba lá của bạn còn một tầng nghĩa nữa đang đợi.',()=>{renderDeepGate();renderNote()})">Bước qua cánh cửa ✦</button>`;
+   ${lockField("Ba lá này còn một tầng nữa chưa mở ra…",true)}
+   <p class="pw-note">${u?`${escapeHtml(u.name)} ơi, lá bài đã biết tên bạn rồi.`
+     :"Lời đọc bạn vừa nhận mới là tầng thứ nhất."}<br>
+   Tầng này đọc chậm hơn, nối câu chuyện hôm nay với những lần bạn đã ghé qua —<br>
+   và nó đi cùng lời giao ước.</p>
+   <ul class="perks mini">${PLAN_PERKS.slice(0,3).map(([i,t])=>
+     `<li><span class="pi">${UI_ICONS[i]||"✦"}</span>${t}</li>`).join("")}</ul>
+   <button class="btn" onclick="openPlan(()=>{renderDeepGate();renderNote()})">Xem lời giao ước ✦</button>`;
 }
 
 /* ---------- AI reading via OpenAI ---------- */
@@ -1689,7 +1809,7 @@ function typeFinish(el){
 }
 function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+' <span class="tw">✦</span>'+h.slice(i):h;}
 async function aiRead(){
-  if(!isMember()){renderDeepGate();return}
+  if(!hasPlan()){renderDeepGate();return}
   const key=localStorage.getItem(KEY_API);
   const out=document.getElementById("aiOut"),btn=document.getElementById("aiBtn");
   if(!key){out.style.display="block";out.innerHTML=`<div class="ai-label">✦ Lời của lá bài</div>Chưa có khóa kết nối. Vào <strong>Kết nối</strong> để dán khóa.`;return}
@@ -1697,7 +1817,7 @@ async function aiRead(){
   const story=document.getElementById("story").value.trim();
   const [a,b,c]=state.drawn;
   const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Giọng tiếng Việt ấm áp, tự nhiên như đang trò chuyện — không trịnh trọng, không sách vở.\n\nNgười ta tìm đến tarot khi trong lòng có gì đó chưa yên. Việc của bạn là làm họ nhẹ lòng hơn và thấy rõ mình có thể làm gì tiếp theo.\n\nCÁCH VIẾT:\n- Gọi tên cảm xúc bạn nghe được trong câu chuyện của họ, chân thành và cụ thể. Đừng nói sáo kiểu 'tôi hiểu bạn'.\n- Dùng ba lá bài như chất liệu để soi CÂU CHUYỆN CỦA HỌ, không phải để giảng giải về lá bài. Tuyệt đối không viết kiểu 'lá này nghĩa là...'. Hãy nói về đời họ, thỉnh thoảng mượn một hình ảnh trong lá.\n- Chỉ ra một góc nhìn họ có thể chưa thấy — cụ thể, gắn với chi tiết họ kể.\n- Đưa 1-2 việc nhỏ, cụ thể, làm được ngay hôm nay hoặc tuần này. Không khuyên chung chung kiểu 'hãy tích cực lên'.\n- Khép lại bằng một câu hỏi để họ tự ngẫm.\n\nViết liền mạch 200-280 từ, chia đoạn tự nhiên, KHÔNG đánh số, KHÔNG in tiêu đề mục.\nKhông phán định mệnh, không tiên tri chắc chắn, không khuyên y tế/pháp lý/đầu tư. Nếu có dấu hiệu khủng hoảng nghiêm trọng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.\nNếu phần Lịch sử bên dưới KHÔNG rỗng, câu ĐẦU TIÊN bắt buộc nhắc lại một chi tiết cũ để họ thấy bạn còn nhớ.`
-  const said=askThread.filter(m=>m.role==="assistant").map(m=>m.content).join("\n---\n");
+  const said=[openingRead].concat(askThread.filter(m=>m.role==="assistant").map(m=>m.content)).filter(Boolean).join("\n---\n");
   const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`
     +(said?`\n\nNhững điều ĐÃ NÓI với họ hôm nay — tuyệt đối không lặp lại ý, hình ảnh hay lời khuyên nào trong đây, hãy nói phần còn thiếu:\n${said}`:"");
   out.style.display="block";
