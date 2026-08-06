@@ -73,6 +73,8 @@ nav button.on{color:var(--gold);background:var(--nebula)}
 footer{text-align:center;color:var(--mist);font-size:12px;margin-top:50px;opacity:.7}
 .spin{display:inline-block;animation:sp 1.1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+.cursor{display:inline-block;color:var(--gold);font-weight:400;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
 </style>
 </head>
 <body>
@@ -91,8 +93,9 @@ footer{text-align:center;color:var(--mist);font-size:12px;margin-top:50px;opacit
 <section class="step active" id="s1">
   <div id="throwbackSlot"></div>
   <h2>Hôm nay bạn cảm thấy thế nào?</h2>
-  <p class="sub">Chọn một trạng thái gần nhất với bạn lúc này</p>
+  <p class="sub">Chọn một trạng thái gần nhất — hoặc bỏ qua, không bắt buộc</p>
   <div class="choices" id="moods"></div>
+  <button class="btn ghost" onclick="state.mood=null;show('s2')">Bỏ qua, kể chuyện luôn →</button>
 </section>
 
 <section class="step" id="s2">
@@ -122,6 +125,7 @@ footer{text-align:center;color:var(--mist);font-size:12px;margin-top:50px;opacit
   <p class="sub" id="reflectQ"></p>
   <textarea id="journalText" placeholder="Viết vài dòng cho chính bạn... Đây sẽ là mảnh ký ức bạn gặp lại trong tương lai."></textarea>
   <button class="btn" onclick="saveEntry()">Lưu mảnh ký ức ✦</button>
+  <button class="btn ghost" onclick="goHome()">Để lúc khác — bốc lá mới</button>
 </section>
 
 <section class="step" id="s5">
@@ -287,16 +291,17 @@ function deal(){
     const btn=document.createElement("button");
     btn.className="card";btn.setAttribute("aria-label","Lật lá bài "+POS[i]);
     btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${c.g}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
-    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,900)};
+    btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,400)};
     row.appendChild(btn);
   });
 }
 
 function showReading(){
   const [a,b,c]=state.drawn;
+  const moodLine=state.mood?` Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.`:"";
   document.getElementById("reading").innerHTML=
    `<div class="cardline"><strong>${a.n} · Quá khứ</strong> — Trong chuyện ${state.topic.toLowerCase()}, có dấu ấn của ${a.past}.</div>
-    <div class="cardline"><strong>${b.n} · Hiện tại</strong> — Lúc này, điều nổi bật là ${b.now}. Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.</div>
+    <div class="cardline"><strong>${b.n} · Hiện tại</strong> — Lúc này, điều nổi bật là ${b.now}.${moodLine}</div>
     <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}. Không phải định mệnh — chỉ là một góc nhìn để bạn tự quyết định.</div>`;
   document.getElementById("reflectQ").textContent=REFLECT[state.topic]||REFLECT_FALLBACK;
   document.getElementById("aiOut").style.display="none";
@@ -319,34 +324,62 @@ function memorySummary(){
   return list.map(e=>{
     const d=new Date(e.d).toLocaleDateString("vi-VN");
     const t=(e.text||"").slice(0,120);
-    return `- ${d}: cảm xúc "${e.mood}", chủ đề "${e.topic}", bài: ${e.cards.join(", ")}${t?`, ghi chú: "${t}"`:""}`;
+    return `- ${d}: ${e.mood?`cảm xúc "${e.mood}", `:""}chủ đề "${e.topic}", bài: ${e.cards.join(", ")}${t?`, ghi chú: "${t}"`:""}`;
   }).join("\n");
 }
+function fmtBody(s){return escapeHtml(s).replace(/\n{2,}/g,"</p><p style='margin-top:12px'>").replace(/\n/g,"<br>").replace(/^/,"<p>")+"</p>";}
+function renderStream(el,acc){const h=fmtBody(acc),i=h.lastIndexOf("</p>");el.innerHTML=i>=0?h.slice(0,i)+'<span class="cursor">▌</span>'+h.slice(i):h;}
 async function aiRead(){
   const key=localStorage.getItem(KEY_API);
   const out=document.getElementById("aiOut"),btn=document.getElementById("aiBtn");
   if(!key){out.style.display="block";out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Chưa có API key. Vào <strong>Cài đặt</strong> để dán OpenAI key (bản demo). Trong sản phẩm thật, đây là nơi hiện màn hình nâng cấp trả phí.`;return}
-  btn.disabled=true;btn.innerHTML=`<span class="spin">✦</span> Đang đọc...`;
+  btn.disabled=true;
   const story=document.getElementById("story").value.trim();
   const [a,b,c]=state.drawn;
-  const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu (self-reflection), giọng tiếng Việt ấm áp, gần gũi, KHÔNG phán định mệnh, KHÔNG tiên tri chắc chắn về tương lai, không đưa lời khuyên y tế/pháp lý/đầu tư. Tarot là tấm gương giúp người hỏi tự hiểu mình. Nếu người hỏi có dấu hiệu khủng hoảng tâm lý nghiêm trọng, nhẹ nhàng khuyên tìm người thân hoặc chuyên gia hỗ trợ. Trả lời 150-220 từ, chia 3 đoạn ngắn: (1) đọc 3 lá gắn với câu chuyện cụ thể, (2) một góc nhìn giúp họ thấy điều họ chưa thấy, (3) một hành động nhỏ hôm nay + một câu hỏi tự vấn. Nếu có lịch sử, hãy nhắc lại tinh tế 1 chi tiết cũ để thể hiện sự đồng hành.`;
-  const usr=`Cảm xúc hôm nay: ${state.mood}\nChủ đề: ${state.topic}\nCâu chuyện: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`;
+  const sys=`Bạn là người đọc Tarot theo trường phái tự phản chiếu (self-reflection), giọng tiếng Việt ấm áp, gần gũi. KHÔNG phán định mệnh, KHÔNG tiên tri chắc chắn về tương lai, không đưa lời khuyên y tế/pháp lý/đầu tư. Tarot là tấm gương giúp người hỏi tự hiểu mình. Nếu người hỏi có dấu hiệu khủng hoảng tâm lý nghiêm trọng, nhẹ nhàng khuyên họ tìm người thân hoặc chuyên gia hỗ trợ.
+
+Tự nhận diện cảm xúc của người hỏi TỪ CÂU CHUYỆN họ kể — đừng hỏi lại, đừng bịa nếu họ không kể gì.
+
+QUAN TRỌNG: Nếu phần "Lịch sử gần đây" bên dưới KHÔNG rỗng, câu ĐẦU TIÊN của bạn BẮT BUỘC phải nhắc lại một chi tiết cũ (chủ đề, cảm xúc hoặc ghi chú của lần trước) để cho thấy bạn nhớ họ — ví dụ "Lần trước bạn băn khoăn về …, hôm nay mình thấy bạn quay lại…". Chỉ sau câu mở đầu đó mới bắt đầu đọc bài.
+
+Trả lời 180-260 từ, theo ĐÚNG thứ tự 5 phần dưới đây, mỗi phần một đoạn ngắn, KHÔNG đánh số và KHÔNG in tiêu đề:
+1) Thừa nhận cảm xúc bạn cảm nhận được từ câu chuyện của họ.
+2) Đọc lần lượt 3 lá (Quá khứ, Hiện tại, Hướng đi) gắn với câu chuyện cụ thể.
+3) Kết nối 3 lá thành một mạch ý nghĩa xuyên suốt.
+4) Một câu hỏi tự vấn để họ suy ngẫm.
+5) Một hành động nhỏ, cụ thể, có thể làm ngay hôm nay.`;
+  const usr=`Chủ đề: ${state.topic}\nCâu chuyện người hỏi tự kể: ${story||"(không chia sẻ thêm)"}\nTrải bài: Quá khứ=${a.n}, Hiện tại=${b.n}, Hướng đi=${c.n}\n\nLịch sử gần đây (Memory Summary):\n${memorySummary()}`;
+  out.style.display="block";
+  out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
+  const textEl=document.getElementById("aiText");
+  let acc="";
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{
       method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:"gpt-4o-mini",max_tokens:600,temperature:0.8,
+      body:JSON.stringify({model:"gpt-4o-mini",max_tokens:700,temperature:0.85,stream:true,
         messages:[{role:"system",content:sys},{role:"user",content:usr}]})
     });
-    const data=await r.json();
-    if(data.error)throw new Error(data.error.message||"API error");
-    const text=(data.choices?.[0]?.message?.content||"").trim();
-    out.style.display="block";
-    out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI · dành riêng cho bạn</div>`+escapeHtml(text).replace(/\n{2,}/g,"</p><p style='margin-top:12px'>").replace(/\n/g,"<br>").replace(/^/,"<p>")+"</p>";
+    if(!r.ok||!r.body){let m="HTTP "+r.status;try{const e=await r.json();m=e.error?.message||m;}catch(_){}throw new Error(m);}
+    const reader=r.body.getReader(),dec=new TextDecoder();
+    let buf="";
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      let nl;
+      while((nl=buf.indexOf("\n"))>=0){
+        const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
+        if(!line.startsWith("data:"))continue;
+        const p=line.slice(5).trim();
+        if(p==="[DONE]")continue;
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){acc+=d;renderStream(textEl,acc);}}catch(_){}
+      }
+    }
+    textEl.innerHTML=acc?fmtBody(acc):"(Không nhận được nội dung. Thử lại nhé.)";
     btn.textContent="Đọc lại lần nữa ✦";btn.disabled=false;
   }catch(err){
-    out.style.display="block";
-    out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI</div>Không gọi được API: ${escapeHtml(err.message)}. Kiểm tra key trong Cài đặt hoặc thử lại.`;
+    textEl.innerHTML=`Không gọi được API: ${escapeHtml(err.message)}. Kiểm tra key trong Cài đặt hoặc thử lại.`;
     btn.textContent="Thử lại ✦";btn.disabled=false;
   }
 }
@@ -366,7 +399,7 @@ function showJournal(){
   const list=load().slice().reverse();
   const el=document.getElementById("journalList");
   el.innerHTML=list.length?list.map(e=>
-    `<div class="journal-item"><div class="jdate">${fmt(e.d)} · <span class="jmood">${e.mood}</span> · ${e.topic}</div>
+    `<div class="journal-item"><div class="jdate">${fmt(e.d)}${e.mood?` · <span class="jmood">${e.mood}</span>`:""} · ${e.topic}</div>
      <div style="color:var(--mist);font-size:12px;margin-bottom:6px">${e.cards.join(" · ")}</div>
      <div>${e.text?escapeHtml(e.text):"<em style='color:var(--mist)'>Không ghi chú</em>"}</div></div>`).join("")
    :`<div class="empty">Chưa có mảnh ký ức nào. Hãy bốc bài và viết dòng đầu tiên ✦</div>`;
@@ -381,9 +414,10 @@ function renderThrowback(){
   const old=list.filter(e=>now-e.d>=3*DAY);
   const pick=(old.length?old:list)[0];
   const days=Math.max(1,Math.round((now-pick.d)/DAY));
+  const moodTxt=pick.mood?`thấy ${pick.mood.toLowerCase()} về`:"nghĩ về";
   slot.innerHTML=`<div class="throwback"><div class="tb-label">✦ Mảnh ký ức · ${days} ngày trước</div>
    <div class="tb-quote">"${escapeHtml(pick.text.length>140?pick.text.slice(0,140)+"…":pick.text)}"</div>
-   <div class="tb-note">Ngày đó bạn thấy ${pick.mood.toLowerCase()} về chuyện ${pick.topic.toLowerCase()}. Hôm nay nhìn lại, bạn đã đi thêm được ${days} ngày.</div></div>`;
+   <div class="tb-note">Ngày đó bạn ${moodTxt} chuyện ${pick.topic.toLowerCase()}. Hôm nay nhìn lại, bạn đã đi thêm được ${days} ngày.</div></div>`;
 }
 function goHome(){renderThrowback();show("s1")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
