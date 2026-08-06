@@ -68,12 +68,12 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .taphint{font-size:12.5px;margin-bottom:16px}
 /* Lá bài phóng to, lật ra câu chuyện trong tranh */
 #cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
-  background:rgba(24,19,58,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-#cardModal.open{display:flex;animation:fade .28s ease both}
-.mclose{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;
-  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--navy);
-  display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-.bigcard{width:min(320px,82vw);aspect-ratio:130/205;max-height:78vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  background:rgba(24,19,58,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;transition:opacity .38s ease}
+#cardModal.open{display:flex}
+#cardModal.shown{opacity:1}
+.bigcard{width:min(320px,80vw);aspect-ratio:130/214;max-height:76vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;
+  transform-origin:center center;will-change:transform;-webkit-tap-highlight-color:transparent}
 .bigcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
 .bigcard.flipped .bigcard-inner{transform:rotateY(180deg)}
 .bigface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;padding:26px 20px;overflow:hidden;
@@ -221,7 +221,6 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 </div>
 
 <div id="cardModal" onclick="closeCard(event)">
-  <button class="mclose" onclick="closeCard()" aria-label="Đóng">✕</button>
   <button class="bigcard" id="bigCard" onclick="flipBig()" aria-label="Lật lá bài">
     <div class="bigcard-inner">
       <div class="bigface art" id="bcArt"></div>
@@ -470,25 +469,56 @@ function renderResultCards(){
     const btn=document.createElement("button");
     btn.className="minicard";btn.setAttribute("aria-label","Mở lá "+c.n);
     btn.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div>`;
-    btn.onclick=()=>openCard(i);
+    btn.onclick=()=>openCard(i,btn);
     row.appendChild(btn);
   });
 }
-function openCard(i){
-  const c=state.drawn[i];
+/* morph: lá nhỏ nở dần thành lá lớn, và thu ngược lại khi đóng */
+let modalSrc=null,modalBusy=false;
+function morphFrom(src,card){
+  const to=card.getBoundingClientRect(),from=src.getBoundingClientRect();
+  if(!to.width||!from.width)return "none";
+  return `translate(${(from.left+from.width/2)-(to.left+to.width/2)}px,`
+        +`${(from.top+from.height/2)-(to.top+to.height/2)}px) `
+        +`scale(${from.width/to.width},${from.height/to.height})`;
+}
+function openCard(i,srcEl){
+  if(modalBusy)return;
+  const c=state.drawn[i],modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
+  modalSrc=srcEl;
   document.getElementById("bcArt").innerHTML=
     `<div class="bglyph">${SUIT_ICONS[c.s]}</div><div class="bname">${escapeHtml(c.n)}</div>
-     <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật</div>`;
+     <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật · chạm ra ngoài để đóng</div>`;
   document.getElementById("bcStory").innerHTML=
     `<div class="ai-label">✦ Câu chuyện trong tranh</div><p>${escapeHtml(STORY[c.n]||"")}</p>
-     <div class="bhint">Chạm để lật lại</div>`;
-  document.getElementById("bigCard").classList.remove("flipped");
-  document.getElementById("cardModal").classList.add("open");
+     <div class="bhint">Chạm để lật lại · chạm ra ngoài để đóng</div>`;
+  card.classList.remove("flipped");
+  card.style.transition="none";card.style.transform="none";
+  modal.classList.add("open");
+  card.style.transform=morphFrom(srcEl,card);
+  srcEl.style.visibility="hidden";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    modal.classList.add("shown");
+    card.style.transition="transform .55s cubic-bezier(.2,.8,.25,1)";
+    card.style.transform="none";
+  }));
 }
 function flipBig(){document.getElementById("bigCard").classList.toggle("flipped")}
 function closeCard(e){
   if(e&&e.target.closest&&e.target.closest(".bigcard"))return;
-  document.getElementById("cardModal").classList.remove("open");
+  const modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
+  if(!modal.classList.contains("open")||modalBusy)return;
+  modalBusy=true;
+  const src=modalSrc;
+  card.style.transition="transform .45s cubic-bezier(.4,0,.55,1)";
+  card.style.transform=src?morphFrom(src,card):"scale(.85)";
+  modal.classList.remove("shown");
+  setTimeout(()=>{
+    modal.classList.remove("open");
+    card.style.transition="none";card.style.transform="none";card.classList.remove("flipped");
+    if(src)src.style.visibility="";
+    modalSrc=null;modalBusy=false;
+  },460);
 }
 addEventListener("keydown",e=>{if(e.key==="Escape")closeCard()});
 function showReading(){
