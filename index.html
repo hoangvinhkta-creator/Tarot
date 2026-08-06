@@ -66,10 +66,27 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3e
 .minicard .cname{font-size:clamp(11px,3vw,13px);font-weight:700;color:#5b50c0;line-height:1.2}
 .minicard .cpos{font-size:9.5px;color:var(--mist);letter-spacing:.1em;text-transform:uppercase}
 .taphint{font-size:12.5px;margin-bottom:16px}
-.meaningbox{margin-top:0}
-.meaningbox .mline{font-size:15.5px;line-height:1.65;font-weight:500;color:var(--moon)}
-.meaningbox .mgrid{margin-top:14px;display:grid;gap:9px;font-size:13.5px;line-height:1.6;color:var(--mist)}
-.meaningbox .mgrid b{color:var(--navy);font-weight:700;margin-right:5px}
+/* Lá bài phóng to, lật ra câu chuyện trong tranh */
+#cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(24,19,58,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#cardModal.open{display:flex;animation:fade .28s ease both}
+.mclose{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;font-size:18px;line-height:1;cursor:pointer;
+  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.bigcard{width:min(320px,82vw);aspect-ratio:130/205;max-height:78vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bigcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
+.bigcard.flipped .bigcard-inner{transform:rotateY(180deg)}
+.bigface{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;padding:26px 20px;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;
+  background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow)}
+.bigface.art{justify-content:center}
+.bigface.art .bglyph{line-height:0}
+.bigface.art .bglyph svg{width:clamp(58px,16vw,76px);height:auto}
+.bigface.art .bname{font-size:clamp(17px,4.6vw,21px);font-weight:700;color:#5b50c0;line-height:1.25}
+.bigface.art .bpos{font-size:11px;color:var(--mist);letter-spacing:.14em;text-transform:uppercase}
+.bigface.story{transform:rotateY(180deg);justify-content:flex-start;border-color:var(--rose);overflow-y:auto}
+.bigface.story p{font-size:clamp(14px,3.7vw,15.5px);line-height:1.75;color:var(--moon);text-align:left}
+.bhint{margin-top:auto;padding-top:12px;font-size:11.5px;color:var(--mist);letter-spacing:.02em}
 .panel{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px;box-shadow:var(--shadow)}
 .panel strong{color:var(--gold);font-weight:500}
 .panel .cardline{margin-bottom:14px;opacity:0;animation:fadeUp .65s ease forwards}
@@ -164,8 +181,7 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 
 <section class="step" id="s4">
   <div class="minicards" id="resultCards"></div>
-  <p class="sub taphint">Chạm vào từng lá để xem ý nghĩa gốc của nó</p>
-  <div class="panel meaningbox" id="meaningBox" style="display:none"></div>
+  <p class="sub taphint">Chạm vào từng lá để lật xem câu chuyện trong tranh</p>
   <h2>Lời bài nói với bạn</h2>
   <div class="panel" id="reading"></div>
   <div id="aiZone">
@@ -202,6 +218,16 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 </section>
 
 <footer>Bản demo · Bộ bài đủ 78 lá · Đọc sâu AI qua OpenAI API</footer>
+</div>
+
+<div id="cardModal" onclick="closeCard(event)">
+  <button class="mclose" onclick="closeCard()" aria-label="Đóng">✕</button>
+  <button class="bigcard" id="bigCard" onclick="flipBig()" aria-label="Lật lá bài">
+    <div class="bigcard-inner">
+      <div class="bigface art" id="bcArt"></div>
+      <div class="bigface story" id="bcStory"></div>
+    </div>
+  </button>
 </div>
 
 <script>
@@ -306,86 +332,86 @@ C("💎","King of Pentacles","thành tựu vật chất từ tầm nhìn dài h�
 
 const REFLECT_FALLBACK="Điều gì trong chuyện này nằm trong tầm kiểm soát của bạn?";
 
-/* ---------- ý nghĩa gốc của 78 lá (từ khóa truyền thống) ---------- */
-const MEAN={
-"The Fool":"Khởi đầu mới, ngây thơ, tự do, dám nhảy vào điều chưa biết.",
-"The Magician":"Ý chí, kỹ năng, đủ nguồn lực trong tay để biến ý tưởng thành hiện thực.",
-"The High Priestess":"Trực giác, tri thức ẩn giấu, im lặng để nghe tiếng bên trong.",
-"The Empress":"Nuôi dưỡng, phong nhiêu, sáng tạo, chăm sóc và sinh sôi.",
-"The Emperor":"Quyền lực, cấu trúc, kỷ luật, ranh giới rõ ràng.",
-"The Hierophant":"Truyền thống, học hỏi từ người đi trước, quy tắc và niềm tin chung.",
-"The Lovers":"Tình yêu, sự kết hợp, và một lựa chọn phải trung thành với giá trị của mình.",
-"The Chariot":"Ý chí, chiến thắng nhờ cầm cương được hai lực đối nghịch.",
-"Strength":"Sức mạnh nội tâm, kiên nhẫn, thuần phục bản năng bằng sự dịu dàng.",
-"The Hermit":"Ẩn dật, tự vấn, cầm đèn đi tìm ánh sáng bên trong mình.",
-"Wheel of Fortune":"Chu kỳ, vận may, bước ngoặt — mọi thứ đang xoay chuyển.",
-"Justice":"Công bằng, nhân quả, sự thật, quyết định cần cân nhắc.",
-"The Hanged Man":"Tạm dừng, buông xả, treo ngược để nhìn đời bằng góc khác.",
-"Death":"Kết thúc một chương, chuyển hóa, buông cái cũ để cái mới đến.",
-"Temperance":"Điều độ, cân bằng, pha trộn các thái cực một cách kiên nhẫn.",
-"The Devil":"Ràng buộc, cám dỗ, lệ thuộc — xiềng xích thường do ta tự đeo.",
-"The Tower":"Sụp đổ đột ngột, vỡ ảo tưởng, giải phóng khỏi nền móng sai.",
-"The Star":"Hy vọng, chữa lành, cảm hứng, niềm tin sau giông bão.",
-"The Moon":"Ảo ảnh, mơ hồ, nỗi sợ vô thức — không phải mọi thứ đều như bạn thấy.",
-"The Sun":"Niềm vui, sáng tỏ, sức sống, thành công hiển hiện.",
-"Judgement":"Thức tỉnh, nhìn lại và tự đánh giá, một lời gọi đổi đời.",
-"The World":"Hoàn tất, trọn vẹn, khép một chu kỳ và hòa nhập.",
-"Ace of Wands":"Tia lửa cảm hứng, tiềm năng mới, động lực vừa bùng lên.",
-"Two of Wands":"Lên kế hoạch, tầm nhìn xa, chọn hướng đi trước khi rời bến.",
-"Three of Wands":"Mở rộng, chờ thành quả trở về, nhìn ra chân trời.",
-"Four of Wands":"Ăn mừng, ổn định, mái ấm, một cột mốc đáng ghi nhận.",
-"Five of Wands":"Cạnh tranh, va chạm ý kiến — ồn ào nhưng chưa hẳn ác ý.",
-"Six of Wands":"Chiến thắng, được công nhận, tự tin bước ra ánh sáng.",
-"Seven of Wands":"Giữ vững lập trường, phòng thủ điều mình tin là đúng.",
-"Eight of Wands":"Tăng tốc, tin tức dồn dập, mọi thứ chuyển động rất nhanh.",
-"Nine of Wands":"Kiên trì, mang thương tích nhưng gần đích hơn ta tưởng.",
-"Ten of Wands":"Gánh nặng, ôm đồm quá nhiều, quá tải.",
-"Page of Wands":"Tò mò, nhiệt huyết mới mẻ, sẵn sàng khám phá.",
-"Knight of Wands":"Bốc đồng, nhiệt thành, lao về phía trước không ngoái lại.",
-"Queen of Wands":"Tự tin, sức hút tự nhiên, ấm áp mà quyết đoán.",
-"King of Wands":"Lãnh đạo bằng tầm nhìn, dám nghĩ dám làm.",
-"Ace of Cups":"Cảm xúc mới tuôn trào, tình yêu khởi sinh, trái tim mở ra.",
-"Two of Cups":"Kết nối, đồng điệu, một mối quan hệ hai chiều.",
-"Three of Cups":"Bạn bè, cộng đồng, niềm vui được chia sẻ.",
-"Four of Cups":"Chán chường, thờ ơ, bỏ lỡ điều đang được trao tận tay.",
-"Five of Cups":"Mất mát, tiếc nuối, mải nhìn cốc đổ mà quên cốc còn đầy.",
-"Six of Cups":"Hoài niệm, ký ức tuổi thơ, sự ngây thơ trong trẻo.",
-"Seven of Cups":"Quá nhiều lựa chọn, ảo tưởng, hoa mắt trước viễn cảnh đẹp.",
-"Eight of Cups":"Rời đi khỏi điều đủ đầy nhưng vô nghĩa, đi tìm chiều sâu.",
-"Nine of Cups":"Toại nguyện, hài lòng, điều ước thành sự thật.",
-"Ten of Cups":"Viên mãn, hòa hợp, hạnh phúc trong các mối quan hệ.",
-"Page of Cups":"Thông điệp cảm xúc bất ngờ, nhạy cảm, mộng mơ.",
-"Knight of Cups":"Lãng mạn, lý tưởng, đi theo tiếng gọi trái tim.",
-"Queen of Cups":"Thấu cảm, trực giác sâu, chăm sóc cảm xúc người khác.",
-"King of Cups":"Làm chủ cảm xúc, điềm tĩnh giữa sóng gió, bao dung.",
-"Ace of Swords":"Sự thật lóe sáng, tư duy đột phá, cắt qua sương mù.",
-"Two of Swords":"Bế tắc lựa chọn, né tránh, tự bịt mắt trước sự thật.",
-"Three of Swords":"Tổn thương, đau lòng, sự thật phũ phàng nhưng cần thiết.",
-"Four of Swords":"Nghỉ ngơi, hồi phục, tĩnh lặng để nạp lại sức.",
-"Five of Swords":"Thắng bằng mọi giá — được việc nhưng mất người.",
-"Six of Swords":"Chuyển tiếp, rời vùng nước dữ để đến nơi bình yên hơn.",
-"Seven of Swords":"Lén lút, đi đường vòng, có điều chưa được nói thẳng.",
-"Eight of Swords":"Tự trói mình, bất lực vì niềm tin giới hạn chứ không phải hoàn cảnh.",
-"Nine of Swords":"Lo âu, mất ngủ, nỗi sợ ban đêm phóng đại hơn thực tế.",
-"Ten of Swords":"Kết thúc đau đớn, chạm đáy — nghĩa là chỉ còn đường đi lên.",
-"Page of Swords":"Tò mò sắc bén, ham hỏi, quan sát và kiểm chứng.",
-"Knight of Swords":"Lao nhanh, quyết liệt, hành động trước khi kịp cân nhắc.",
-"Queen of Swords":"Sáng suốt, thẳng thắn, tách bạch cảm xúc khỏi sự thật.",
-"King of Swords":"Lý trí, nguyên tắc, phán đoán chiến lược lạnh và đúng.",
-"Ace of Pentacles":"Cơ hội vật chất, hạt mầm thịnh vượng vừa được trao.",
-"Two of Pentacles":"Cân bằng, xoay xở nhiều vai, linh hoạt trong biến động.",
-"Three of Pentacles":"Hợp tác, tay nghề, cùng nhau xây điều lớn hơn.",
-"Four of Pentacles":"Giữ chặt vì sợ mất — an toàn dần thành gò bó.",
-"Five of Pentacles":"Thiếu thốn, cảm giác bị bỏ lại ngoài cửa dù cửa vẫn mở.",
-"Six of Pentacles":"Cho và nhận, hào phóng, cân bằng lại dòng chảy nguồn lực.",
-"Seven of Pentacles":"Kiên nhẫn, dừng lại đánh giá thành quả trước khi tưới tiếp.",
-"Eight of Pentacles":"Rèn nghề, lặp lại có chủ đích, tinh thông đến từ từ.",
-"Nine of Pentacles":"Độc lập, tự chủ, xứng đáng hưởng thành quả của chính mình.",
-"Ten of Pentacles":"Di sản, nền móng bền vững, của cải vượt khỏi đời mình.",
-"Page of Pentacles":"Học một kỹ năng thực tế, thực dụng, bắt đầu từ điều nhỏ.",
-"Knight of Pentacles":"Bền bỉ, chậm mà chắc, đáng tin cậy đến cùng.",
-"Queen of Pentacles":"Chu toàn, ấm áp và thực tế, chăm lo cả người lẫn của.",
-"King of Pentacles":"Vững vàng tài chính, thành đạt, hào phóng có tính toán."
+/* ---------- câu chuyện trong tranh của 78 lá ---------- */
+const STORY={
+"The Fool":"Chàng trai áo hoa bước tới sát mép vực, mắt ngước lên trời xanh, tay cầm một bông hồng trắng, tay kia vác chiếc túi nhỏ xíu trên đầu gậy. Chú chó trắng nhảy chồm dưới chân — sủa để cảnh báo hay để cổ vũ, chàng không dừng lại để hỏi.",
+"The Magician":"Người đứng trước chiếc bàn bày đủ bốn bảo vật: gậy, cốc, kiếm và đồng xu. Một tay giơ cây đũa lên trời, tay kia chỉ thẳng xuống đất. Trên đầu lơ lửng ký hiệu vô cực; hoa hồng và hoa huệ nở quanh chân bàn.",
+"The High Priestess":"Người nữ ngồi im giữa hai cây cột đen và trắng, tấm màn thêu quả lựu che kín phía sau lưng. Trong lòng bà là cuộn sách khép hờ, dưới chân là vầng trăng lưỡi liềm. Bà không nói một lời nào.",
+"The Empress":"Người nữ ngả mình trên chiếc ghế đệm giữa cánh đồng lúa chín, áo in hoa lựu, đầu đội vương miện mười hai ngôi sao. Rừng cây và dòng suối chảy sau lưng, chiếc khiên hình trái tim dựng nghiêng bên cạnh.",
+"The Emperor":"Vị vua ngồi trên ngai đá khắc bốn đầu cừu, tay nắm quyền trượng, áo giáp lộ ra dưới tấm áo choàng đỏ. Sau lưng ông là dãy núi khô cằn, không một bóng cây nào mọc nổi.",
+"The Hierophant":"Vị giáo chủ ngồi giữa hai cây cột, tay phải giơ lên ban phước, tay trái cầm cây gậy ba tầng. Hai người tu hành quỳ dưới chân ông. Hai chiếc chìa khóa bắt chéo nằm trên nền đá.",
+"The Lovers":"Người nam và người nữ đứng trần dưới vị thiên thần dang cánh trong ánh nắng. Sau lưng nàng là cây tri thức có con rắn quấn quanh, sau lưng chàng là cây lửa. Xa xa một ngọn núi nhô lên giữa hai người.",
+"The Chariot":"Chiến binh đứng trên cỗ xe, áo giáp điểm sao, mui xe là cả bầu trời đêm. Hai con nhân sư đen và trắng nằm phía trước, mỗi con muốn đi một hướng. Chàng không cầm dây cương — trong tay chỉ có một cây gậy.",
+"Strength":"Người nữ đội vòng hoa nhẹ nhàng khép miệng con sư tử bằng hai bàn tay trần. Sư tử ngoan ngoãn cúi đầu, đuôi cụp xuống. Trên đầu nàng cũng là ký hiệu vô cực như của Nhà Ảo Thuật.",
+"The Hermit":"Ông lão khoác áo choàng xám đứng một mình trên đỉnh tuyết, tay giơ chiếc đèn lồng có ngôi sao sáu cánh cháy bên trong, tay kia chống cây gậy. Ông cúi nhìn xuống con đường phía dưới, nơi ông vừa đi qua.",
+"Wheel of Fortune":"Bánh xe lớn khắc đầy chữ lơ lửng giữa trời. Con rắn trượt xuống một bên, sinh vật đầu chó leo lên bên kia, nhân sư cầm kiếm ngồi vững trên đỉnh. Bốn góc tranh là bốn sinh vật có cánh đang cắm cúi đọc sách.",
+"Justice":"Người ngồi thẳng lưng giữa hai cây cột, tay phải cầm thanh kiếm dựng đứng, tay trái nâng cán cân đang thăng bằng. Ánh mắt nhìn thẳng ra trước, không nghiêng về phía nào.",
+"The Hanged Man":"Người đàn ông bị treo ngược một chân trên cây gỗ hình chữ T, chân kia gập lại thành hình số bốn. Hai tay khoanh sau lưng, gương mặt bình thản, quanh đầu tỏa một vầng hào quang vàng.",
+"Death":"Bộ xương mặc giáp đen cưỡi ngựa trắng, tay cầm lá cờ thêu hoa hồng trắng. Nhà vua ngã dưới vó ngựa, vị giám mục chắp tay cầu xin, đứa trẻ dâng hoa lên. Phía chân trời, mặt trời đang mọc giữa hai tòa tháp.",
+"Temperance":"Thiên thần đặt một chân trên đá, một chân chạm mặt nước, rót dòng chảy qua lại giữa hai chiếc cốc mà không rơi lấy một giọt. Con đường phía sau dẫn lên rặng núi có vương miện ánh sáng.",
+"The Devil":"Sinh vật sừng dê ngồi chồm hổm trên bệ đá, tay giơ ngọn đuốc chúc xuống đất. Đôi nam nữ mọc sừng bị xích vào bệ — nhưng vòng xích quàng rất rộng, đủ lỏng để tự tháo ra bất cứ lúc nào.",
+"The Tower":"Tia sét đánh trúng đỉnh tháp đá, chiếc vương miện bật tung khỏi nóc, lửa phun ra từ các ô cửa. Hai người rơi đầu xuống trong đêm đen, quanh họ là hai mươi hai đốm lửa đang bay.",
+"The Star":"Người nữ trần quỳ bên hồ, một chân trên đất một chân dưới nước, rót hai bình nước xuống hồ và lên mặt đất. Trên trời một ngôi sao lớn và bảy ngôi sao nhỏ. Con chim đậu lặng trên cành cây phía sau.",
+"The Moon":"Mặt trăng mang gương mặt người nhỏ những giọt sáng xuống đất. Con chó và con sói cùng ngẩng lên tru; con tôm bò lên từ mặt nước. Con đường nhỏ chạy giữa hai tòa tháp rồi mất hút vào rặng đồi xa.",
+"The Sun":"Đứa trẻ trần truồng cưỡi ngựa trắng, tay cầm lá cờ đỏ, vừa đi ra khỏi bức tường có bốn bông hướng dương vươn cao. Mặt trời với gương mặt hiền hòa chiếu thẳng xuống đầu nó.",
+"Judgement":"Thiên thần thổi kèn giữa trời, lá cờ thêu chữ thập tung bay. Dưới đất, những người đàn ông, đàn bà và trẻ nhỏ đứng dậy khỏi quan tài, giơ tay hướng lên, mặt ngửa về phía tiếng gọi.",
+"The World":"Người nữ khoác dải lụa nhảy múa giữa vòng nguyệt quế hình bầu dục, mỗi tay cầm một cây gậy. Bốn góc tranh là bốn sinh vật: người, đại bàng, sư tử và bò — cùng nhìn vào nàng.",
+"Ace of Wands":"Một bàn tay hiện ra từ đám mây, nắm chặt cây gậy vẫn còn nảy lá non. Vài chiếc lá rơi lả tả xuống. Phía dưới là dòng sông, những ngọn đồi cây và một tòa lâu đài nhỏ trên cao.",
+"Two of Wands":"Người đàn ông đứng trên sân thượng lâu đài, một tay giữ cây gậy đã gắn chặt vào tường, tay kia ôm quả địa cầu nhỏ. Ông nhìn ra biển và những ngọn đồi phía xa, nơi mình chưa từng đặt chân.",
+"Three of Wands":"Người đàn ông đứng quay lưng trên vách đá cao, ba cây gậy cắm quanh chỗ đứng. Ông nhìn xuống vịnh, nơi những con thuyền đang rời bến, chở theo thứ ông đã gửi đi từ trước.",
+"Four of Wands":"Bốn cây gậy dựng thành một chiếc cổng, vòng hoa lá kết ngang trên đỉnh. Hai người giơ bó hoa reo mừng phía trước cổng, sau lưng họ là tòa lâu đài và đám đông đang tụ lại.",
+"Five of Wands":"Năm chàng trai vung gậy loạn xạ, không ai đánh trúng ai. Nhìn kỹ thì đây không phải một trận đánh thật — chỉ là cuộc tranh giành ồn ào mà chưa ai chịu nhường ai.",
+"Six of Wands":"Kỵ sĩ cưỡi ngựa trắng, đầu đội vòng nguyệt quế, cây gậy trong tay cũng gắn một vòng hoa. Đám đông vây quanh giơ gậy lên tung hô khi chàng chậm rãi đi qua.",
+"Seven of Wands":"Người đàn ông đứng trên mỏm đất cao, một mình cầm gậy chống lại sáu cây gậy chĩa lên từ phía dưới. Ông đang đi hai chiếc giày khác nhau — vội đến mức không kịp xỏ cho đúng.",
+"Eight of Wands":"Tám cây gậy bay song song xuyên qua bầu trời quang đãng, chưa cây nào chạm đất. Bên dưới là dòng sông và ngọn đồi yên ả. Không có bóng người nào trong bức tranh này.",
+"Nine of Wands":"Người đàn ông đầu quấn băng tựa vào cây gậy, mắt liếc sang bên đầy cảnh giác. Sau lưng anh là tám cây gậy dựng thành hàng rào — dấu tích của những trận đã qua.",
+"Ten of Wands":"Người đàn ông ôm chặt cả mười cây gậy che kín tầm mắt, lưng còng xuống, bước từng bước nặng nhọc về phía ngôi làng phía trước. Không ai bắt ông phải ôm hết cùng một lúc.",
+"Page of Wands":"Chàng trai mặc áo thêu kỳ nhông đứng giữa sa mạc, hai tay chống cây gậy cao hơn cả người mình, mắt ngước nhìn lên ngọn gậy như đang đọc thấy điều gì đó trên đấy.",
+"Knight of Wands":"Kỵ sĩ mặc áo giáp thêu kỳ nhông thúc ngựa chồm lên, cây gậy nghiêng trên vai. Ngựa hí vang, bờm dựng đứng; phía sau chỉ có cát vàng và ba kim tự tháp.",
+"Queen of Wands":"Nữ hoàng ngồi trên ngai khắc sư tử, tay phải cầm cây gậy đang nở hoa, tay trái cầm một bông hướng dương. Con mèo đen ngồi thẳng lưng dưới chân bà, nhìn chăm chăm ra phía trước.",
+"King of Wands":"Vị vua ngồi nghiêng trên ngai khắc kỳ nhông và sư tử, tay nắm cây gậy vẫn đang nảy lộc. Áo choàng cam rực; con kỳ nhông nhỏ dưới chân ngậm đuôi mình thành một vòng tròn khép kín.",
+"Ace of Cups":"Bàn tay từ đám mây nâng chiếc cốc tràn ra năm dòng nước. Chim bồ câu ngậm bánh thánh bay xuống chạm miệng cốc. Bên dưới là mặt hồ phủ kín hoa súng đang nở.",
+"Two of Cups":"Người nam và người nữ đứng đối diện, trao nhau hai chiếc cốc. Giữa họ là cây trượng quấn hai con rắn, phía trên là đầu sư tử có cánh đang lặng lẽ nhìn xuống.",
+"Three of Cups":"Ba người nữ đứng thành vòng tròn, giơ cốc chạm nhau giữa vườn cây trái chín. Váy áo bay tung, chân nhảy múa trên mảnh đất vừa gặt hái xong.",
+"Four of Cups":"Chàng trai ngồi khoanh tay dưới gốc cây, mắt nhìn ba chiếc cốc trước mặt với vẻ chán chường. Một bàn tay từ mây đang chìa ra chiếc cốc thứ tư — nhưng chàng không hề nhìn thấy.",
+"Five of Cups":"Người khoác áo choàng đen cúi đầu nhìn ba chiếc cốc đổ dưới chân. Sau lưng anh còn hai chiếc cốc vẫn đứng vững, và cây cầu đá dẫn về ngôi nhà bên kia sông.",
+"Six of Cups":"Đứa trẻ lớn trao cho đứa bé hơn chiếc cốc đầy hoa trắng, giữa sân một ngôi nhà cổ. Năm chiếc cốc hoa khác đặt quanh chỗ chúng đứng; người lính gác đang đi khuất về phía xa.",
+"Seven of Cups":"Người đàn ông đứng trong bóng tối nhìn bảy chiếc cốc nổi trên mây: cốc đựng khuôn mặt, cốc đựng tấm vải phủ phát sáng, cốc đựng rắn, tòa lâu đài, châu báu, vòng nguyệt quế, và một con rồng.",
+"Eight of Cups":"Người khoác áo đỏ chống gậy quay lưng bước lên đồi đá, bỏ lại tám chiếc cốc xếp ngay ngắn phía sau. Vầng trăng khuyết soi đường cho anh; không một ai đuổi theo cả.",
+"Nine of Cups":"Người đàn ông béo tốt ngồi khoanh tay trên chiếc ghế thấp, mỉm cười mãn nguyện. Sau lưng ông là chín chiếc cốc xếp thành hàng cong trên chiếc bàn phủ vải xanh.",
+"Ten of Cups":"Đôi vợ chồng dang tay nhìn lên chiếc cầu vồng có mười chiếc cốc. Hai đứa trẻ nắm tay nhau nhảy múa bên cạnh. Xa xa là ngôi nhà nhỏ và dòng sông uốn quanh.",
+"Page of Cups":"Chàng trai áo hoa nâng chiếc cốc lên ngang mặt — trong cốc, một con cá thò đầu ra nhìn chàng. Chàng chỉ hơi nghiêng đầu, không hoảng hốt, chỉ tò mò. Sau lưng là biển gợn sóng.",
+"Knight of Cups":"Kỵ sĩ đội mũ có đôi cánh cưỡi ngựa trắng bước chậm rãi, hai tay nâng chiếc cốc như dâng một lời hứa. Dòng suối nhỏ cắt ngang con đường ngay phía trước.",
+"Queen of Cups":"Nữ hoàng ngồi trên ngai đá bên mép nước, hai tay ôm chiếc cốc có nắp đậy hình nhà nguyện — chiếc cốc duy nhất bị đậy kín trong cả bộ bài. Bà nhìn chăm chăm vào nó, không rời mắt.",
+"King of Cups":"Vị vua ngồi trên ngai đá nổi giữa biển động, một tay cầm cốc, một tay cầm quyền trượng. Con cá nhảy lên phía sau, con thuyền chao đảo phía xa — nhưng chiếc ngai của ông không hề ướt.",
+"Ace of Swords":"Bàn tay từ mây nắm chặt thanh kiếm dựng thẳng, mũi kiếm xuyên qua chiếc vương miện vàng có cành ô liu và lá cọ rủ hai bên. Bên dưới là dãy núi đá lởm chởm.",
+"Two of Swords":"Người nữ bịt mắt ngồi quay lưng ra biển, hai tay bắt chéo giữ hai thanh kiếm nặng. Vầng trăng lưỡi liềm treo trên cao; mặt nước sau lưng nàng rải đầy đá ngầm.",
+"Three of Swords":"Một trái tim đỏ bị ba thanh kiếm xuyên qua, treo lơ lửng giữa trời mưa và mây xám. Không có người nào trong bức tranh này — chỉ có cơn mưa đang rơi xuống.",
+"Four of Swords":"Hiệp sĩ nằm duỗi thẳng trên bia đá trong nhà nguyện, hai tay chắp lại như đang cầu nguyện. Ba thanh kiếm treo trên tường, một thanh nằm dưới lưng ông. Ô cửa kính màu hắt ánh sáng vào.",
+"Five of Swords":"Chàng trai gom ba thanh kiếm vào lòng, nhếch mép nhìn hai người đang quay lưng bỏ đi bên bờ nước. Hai thanh kiếm khác còn nằm dưới đất, chưa ai buồn nhặt lên.",
+"Six of Swords":"Người lái đò chống sào đưa người phụ nữ trùm khăn và đứa trẻ sang bờ bên kia. Sáu thanh kiếm cắm dựng trên mạn thuyền. Mặt nước phía trước phẳng lặng hơn hẳn phía sau.",
+"Seven of Swords":"Người đàn ông rón rén ôm năm thanh kiếm rời khỏi khu trại, ngoái đầu nhìn lại và mỉm cười. Hai thanh kiếm còn cắm lại phía sau; đám đông trong trại chưa ai hay biết gì.",
+"Eight of Swords":"Người nữ bị trói và bịt mắt đứng giữa tám thanh kiếm cắm quanh. Nhưng hàng kiếm ấy không khép kín, dây trói thì lỏng, và mặt đất dưới chân nàng vẫn còn một lối ra.",
+"Nine of Swords":"Người ngồi bật dậy giữa đêm, hai tay ôm lấy mặt. Chín thanh kiếm treo song song trên bức tường tối phía sau. Tấm chăn đắp thêu hoa hồng và các cung hoàng đạo.",
+"Ten of Swords":"Người đàn ông nằm sấp bên bờ nước, mười thanh kiếm cắm dọc sống lưng. Bầu trời đen kịt phía trên — nhưng ở tận chân trời, một vệt vàng đang hé sáng.",
+"Page of Swords":"Chàng trai đứng trên gò đất cao, hai tay giơ thanh kiếm lên, đầu quay nhìn về phía sau. Gió thổi tung tóc và mây bay loạn; một đàn chim bay ngang trời.",
+"Knight of Swords":"Kỵ sĩ cúi rạp người thúc ngựa phi nước đại, thanh kiếm giơ thẳng về phía trước. Cây cối ngả rạp, mây cuộn lại — cả bức tranh nghiêng theo hướng chàng lao tới.",
+"Queen of Swords":"Nữ hoàng ngồi thẳng lưng trên ngai khắc thiên thần, tay phải cầm kiếm dựng đứng, tay trái chìa ra — như đón nhận, mà cũng như đang chặn lại. Mây gom trên cao, một con chim bay đơn độc.",
+"King of Swords":"Vị vua ngồi chính diện trên ngai khắc bướm và trăng non, thanh kiếm nghiêng nhẹ trong tay phải. Mắt ông nhìn thẳng vào người xem; hai đám mây bất động phía sau lưng.",
+"Ace of Pentacles":"Bàn tay từ mây nâng một đồng xu lớn khắc ngôi sao năm cánh. Bên dưới là khu vườn hoa huệ, hàng rào có chiếc cổng vòm phủ hoa dẫn ra dãy núi phía xa.",
+"Two of Pentacles":"Chàng trai nhảy chân sáo tung hứng hai đồng xu nối với nhau bằng dải ruy băng hình số tám. Sau lưng anh, hai con thuyền đang nhấp nhô trên những con sóng lớn.",
+"Three of Pentacles":"Người thợ đá đứng trên chiếc ghế gỗ trong nhà thờ đang xây dở, quay xuống trao đổi với hai người cầm bản vẽ. Ba đồng xu được khắc trên vòm đá ngay phía trên đầu họ.",
+"Four of Pentacles":"Người đàn ông ôm chặt một đồng xu trước ngực, một đồng đội trên đầu, hai đồng dận dưới hai bàn chân. Ông ngồi bất động trước cổng thành, không rời đi mà cũng chẳng buông ra.",
+"Five of Pentacles":"Hai người ăn xin lê bước trong tuyết, một người chống nạng, một người quấn tấm khăn mỏng. Họ đi ngang ô cửa kính màu sáng rực có năm đồng xu — nhưng không ai ngẩng đầu lên nhìn.",
+"Six of Pentacles":"Người thương nhân một tay cầm cán cân, tay kia thả những đồng xu xuống lòng bàn tay hai người ăn xin đang quỳ. Chính ông là người quyết định ai nhận được bao nhiêu.",
+"Seven of Pentacles":"Người nông dân chống cuốc đứng nhìn bụi cây trĩu bảy đồng xu. Anh không hái xuống — chỉ đứng đó, cân nhắc xem công sức bỏ ra có đáng để chờ thêm một mùa nữa.",
+"Eight of Pentacles":"Người thợ ngồi trên ghế gỗ, cặm cụi đục đồng xu thứ tám. Năm đồng đã hoàn thiện treo trên cột, một đồng đặt dưới chân. Thành phố ở phía xa sau lưng, anh không hề ngoái nhìn.",
+"Nine of Pentacles":"Người nữ mặc áo thêu nho đứng trong vườn nho chín, một tay đeo găng đỡ con chim ưng đội mũ trùm đầu. Chín đồng xu nở quanh nàng như hoa; ngôi nhà lớn nằm phía sau.",
+"Ten of Pentacles":"Ông lão áo choàng thêu nho ngồi với hai con chó dưới cổng vòm, nhìn đôi vợ chồng trẻ và đứa nhỏ đang chơi. Mười đồng xu xếp thành hình cây đời phủ khắp bức tranh.",
+"Page of Pentacles":"Chàng trai đứng giữa cánh đồng vừa cày xong, hai tay nâng một đồng xu lên ngang mặt và ngắm nghía chăm chú, như thể chưa từng nhìn vật gì kỹ đến thế.",
+"Knight of Pentacles":"Kỵ sĩ mặc giáp ngồi bất động trên con ngựa cày đen đang đứng yên, tay nâng đồng xu. Đây là kỵ sĩ duy nhất mà con ngựa không nhấc chân — phía trước là cánh đồng đã cày xong.",
+"Queen of Pentacles":"Nữ hoàng ngồi trên ngai khắc trái cây và đầu dê, cúi nhìn đồng xu đặt trong lòng như đang bế một đứa trẻ. Hoa hồng leo kết thành vòm trên đầu; chú thỏ nhảy qua góc tranh.",
+"King of Pentacles":"Vị vua ngồi giữa giàn nho trĩu quả, áo choàng thêu chùm nho, một tay giữ đồng xu, tay kia cầm quyền trượng. Tòa lâu đài ông xây nằm sau lưng; chân ông đặt trên đầu một con bò đá.",
 };
 
 /* ---------- suit icons (phong cách nét viền Tín Phát) ---------- */
@@ -440,31 +466,31 @@ function deal(){
 
 function renderResultCards(){
   const row=document.getElementById("resultCards");row.innerHTML="";
-  const box=document.getElementById("meaningBox");box.style.display="none";box.dataset.open="";
   state.drawn.forEach((c,i)=>{
     const btn=document.createElement("button");
-    btn.className="minicard";btn.setAttribute("aria-label","Xem ý nghĩa gốc lá "+c.n);
+    btn.className="minicard";btn.setAttribute("aria-label","Mở lá "+c.n);
     btn.innerHTML=`<div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div>`;
-    btn.onclick=()=>showMeaning(i,btn);
+    btn.onclick=()=>openCard(i);
     row.appendChild(btn);
   });
 }
-function showMeaning(i,btn){
-  const c=state.drawn[i],box=document.getElementById("meaningBox");
-  const isOpen=box.dataset.open===String(i)&&box.style.display!=="none";
-  document.querySelectorAll("#resultCards .minicard").forEach(x=>x.classList.remove("on"));
-  if(isOpen){box.style.display="none";box.dataset.open="";return}
-  btn.classList.add("on");
-  box.dataset.open=String(i);box.style.display="block";
-  box.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ý nghĩa gốc</div>
-   <div class="mline">${escapeHtml(MEAN[c.n]||"")}</div>
-   <div class="mgrid">
-     <div><b>Khi ở Quá khứ:</b>${escapeHtml(c.past)}</div>
-     <div><b>Khi ở Hiện tại:</b>${escapeHtml(c.now)}</div>
-     <div><b>Khi ở Hướng đi:</b>${escapeHtml(c.next)}</div>
-   </div>
-   <p class="note">Đây là ý nghĩa nền của lá bài. Hãy tự nối nó với câu chuyện của bạn — điều bạn thấy có thể khác điều máy đọc.</p>`;
+function openCard(i){
+  const c=state.drawn[i];
+  document.getElementById("bcArt").innerHTML=
+    `<div class="bglyph">${SUIT_ICONS[c.s]}</div><div class="bname">${escapeHtml(c.n)}</div>
+     <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật</div>`;
+  document.getElementById("bcStory").innerHTML=
+    `<div class="ai-label">✦ Câu chuyện trong tranh</div><p>${escapeHtml(STORY[c.n]||"")}</p>
+     <div class="bhint">Chạm để lật lại</div>`;
+  document.getElementById("bigCard").classList.remove("flipped");
+  document.getElementById("cardModal").classList.add("open");
 }
+function flipBig(){document.getElementById("bigCard").classList.toggle("flipped")}
+function closeCard(e){
+  if(e&&e.target.closest&&e.target.closest(".bigcard"))return;
+  document.getElementById("cardModal").classList.remove("open");
+}
+addEventListener("keydown",e=>{if(e.key==="Escape")closeCard()});
 function showReading(){
   const [a,b,c]=state.drawn;
   renderResultCards();
