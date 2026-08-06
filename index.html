@@ -30,22 +30,22 @@ h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;text-al
 .chip{background:var(--nebula);border:1px solid var(--veil);color:var(--moon);border-radius:999px;padding:12px 22px;font-family:inherit;font-size:15px;cursor:pointer;transition:border-color .25s,transform .2s}
 .chip:hover,.chip:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.cards{display:flex;gap:16px;justify-content:center;margin:28px 0;perspective:1200px;flex-wrap:wrap}
-.card{width:130px;height:214px;cursor:pointer;background:none;border:none;padding:0}
+.cards{display:flex;gap:clamp(8px,3vw,16px);justify-content:center;margin:28px 0;perspective:1200px;flex-wrap:wrap}
+.card{width:clamp(84px,27vw,130px);aspect-ratio:130/214;cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent}
 .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.4,.1,.2,1)}
 .card.flipped .card-inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
 .back{background:radial-gradient(circle at 50% 30%,rgba(201,168,106,.22),transparent 60%),var(--nebula);border:1px solid var(--gold)}
 .back::after{content:'✦';font-size:34px;color:var(--gold)}
 .front{background:linear-gradient(160deg,var(--veil),var(--nebula));border:1px solid var(--rose);transform:rotateY(180deg)}
-.front .glyph{font-size:40px;margin-bottom:10px}
-.front .cname{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold);line-height:1.25}
+.front .glyph{font-size:clamp(30px,8vw,40px);margin-bottom:10px}
+.front .cname{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.6vw,16px);font-weight:600;color:var(--gold);line-height:1.25}
 .front .cpos{font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
 .panel{background:var(--nebula);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px}
 .panel strong{color:var(--gold);font-weight:500}
 .panel .cardline{margin-bottom:14px}
 .panel .cardline:last-child{margin-bottom:0}
-textarea,input[type=password],input[type=text]{width:100%;background:var(--nebula);border:1px solid var(--veil);border-radius:14px;color:var(--moon);font-family:inherit;font-size:15px;font-weight:300;padding:16px;line-height:1.7}
+textarea,input[type=password],input[type=text]{width:100%;background:var(--nebula);border:1px solid var(--veil);border-radius:14px;color:var(--moon);font-family:inherit;font-size:16px;font-weight:300;padding:16px;line-height:1.7}
 textarea{min-height:120px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--gold)}
 textarea::placeholder,input::placeholder{color:var(--mist)}
@@ -75,6 +75,15 @@ footer{text-align:center;color:var(--mist);font-size:12px;margin-top:50px;opacit
 @keyframes sp{to{transform:rotate(360deg)}}
 .cursor{display:inline-block;color:var(--gold);font-weight:400;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
+.chip,.btn,nav button{-webkit-tap-highlight-color:transparent}
+@media (max-width:480px){
+  header{padding:40px 0 6px}
+  .wrap{padding:0 16px 64px}
+  h2{font-size:23px;margin:34px 0 6px}
+  .panel{padding:20px}
+  nav button{padding:8px 12px}
+  .btn{padding:14px 30px}
+}
 </style>
 </head>
 <body>
@@ -261,10 +270,12 @@ const KEY="lro_journal_v1", KEY_API="lro_openai_key";
 /* ---------- stars ---------- */
 const cv=document.getElementById("stars"),cx=cv.getContext("2d");
 let stars=[];
-function initStars(){cv.width=innerWidth;cv.height=innerHeight;stars=Array.from({length:90},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.3+.3,p:Math.random()*Math.PI*2}))}
-function tickStars(t){cx.clearRect(0,0,cv.width,cv.height);for(const s of stars){cx.globalAlpha=.1+.16*Math.sin(t/1400+s.p);cx.fillStyle="#c9a86a";cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill()}requestAnimationFrame(tickStars)}
+function initStars(){cv.width=innerWidth;cv.height=innerHeight;const n=innerWidth<600?45:90;stars=Array.from({length:n},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.3+.3,p:Math.random()*Math.PI*2}))}
+let starsOn=!matchMedia("(prefers-reduced-motion: reduce)").matches;
+function tickStars(t){if(!starsOn)return;cx.clearRect(0,0,cv.width,cv.height);for(const s of stars){cx.globalAlpha=.1+.16*Math.sin(t/1400+s.p);cx.fillStyle="#c9a86a";cx.beginPath();cx.arc(s.x,s.y,s.r,0,7);cx.fill()}requestAnimationFrame(tickStars)}
 initStars();addEventListener("resize",initStars);
-if(!matchMedia("(prefers-reduced-motion: reduce)").matches)requestAnimationFrame(tickStars);
+document.addEventListener("visibilitychange",()=>{if(document.hidden){starsOn=false;}else if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&!starsOn){starsOn=true;requestAnimationFrame(tickStars);}});
+if(starsOn)requestAnimationFrame(tickStars);
 
 /* ---------- flow ---------- */
 function show(id){
@@ -352,6 +363,7 @@ Trả lời 180-260 từ, theo ĐÚNG thứ tự 5 phần dưới đây, mỗi p
   out.style.display="block";
   out.innerHTML=`<div class="ai-label">✦ Đọc sâu bằng AI · dành riêng cho bạn</div><div id="aiText"><span class="cursor">▌</span></div>`;
   const textEl=document.getElementById("aiText");
+  try{out.scrollIntoView({behavior:"smooth",block:"center"});}catch(_){}
   let acc="";
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{
