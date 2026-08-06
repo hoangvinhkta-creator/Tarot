@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#7cc4e8">
+<meta name="theme-color" content="#241f4d">
 <title>Life Reflection OS — Demo</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.json">
 <style>
 :root{
   --night:#f7f7f5; --nebula:rgba(255,255,255,.6); --veil:rgba(255,255,255,.55);
@@ -15,18 +18,20 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:linear-gradient(180deg,#7cc4e8 0%,#a8d8ef 26%,#93cf7d 44%,#4f9b3f 72%,#2c752a 100%) center/cover fixed no-repeat;color:var(--moon);font-family:'Segoe UI',system-ui,-apple-system,Roboto,'Be Vietnam Pro',Arial,sans-serif;font-weight:400;min-height:100vh;overflow-x:hidden}
+body{background:#241f4d;color:var(--moon);font-family:'Segoe UI',system-ui,-apple-system,Roboto,'Be Vietnam Pro',Arial,sans-serif;font-weight:400;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#241f4d 0%,#3c3277 28%,#5d4a9e 52%,#7c62b8 76%,#2e2660 100%)}
 #stars{display:none}
 .wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 20px 80px}
 header{text-align:center;padding:56px 0 8px}
-.brand{font-size:clamp(23px,5.4vw,34px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);text-shadow:0 1px 2px rgba(255,255,255,.4)}
-.tag{color:#3d4a63;font-size:13px;margin-top:6px;letter-spacing:.08em;text-shadow:0 1px 2px rgba(255,255,255,.3)}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(21px,5vw,30px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#f3efff;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.brand .mark{width:clamp(34px,8vw,44px);height:auto;line-height:0;flex:none;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.tag{color:#d9d2f0;font-size:13px;margin-top:6px;letter-spacing:.08em;text-shadow:0 1px 4px rgba(0,0,0,.3)}
 .step{display:none;animation:fade .6s ease both}
 .step.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.step{animation:none}.card-inner{transition:none!important}}
-h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:var(--navy);letter-spacing:-.01em;text-shadow:0 1px 2px rgba(255,255,255,.35)}
-.sub{color:#3d4a63;text-align:center;font-size:14px;margin-bottom:26px;text-shadow:0 1px 2px rgba(255,255,255,.3)}
+h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:#f3efff;letter-spacing:-.01em;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+.sub{color:#d9d2f0;text-align:center;font-size:14px;margin-bottom:26px;text-shadow:0 1px 4px rgba(0,0,0,.35)}
 .choices{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .chip{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--moon);border-radius:999px;padding:12px 22px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 4px 18px rgba(17,24,39,.08);transition:border-color .25s,transform .2s}
 .chip:hover,.chip:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
@@ -37,10 +42,11 @@ h2{font-size:21px;font-weight:700;text-align:center;margin:42px 0 6px;color:var(
 .card.flipped .card-inner{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
 .back{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);box-shadow:var(--shadow)}
-.back::after{content:'✦';font-size:34px;color:var(--gold)}
+.back::after{content:'✦';font-size:34px;color:#7F77DD}
 .front{background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--rose);box-shadow:var(--shadow);transform:rotateY(180deg)}
-.front .glyph{font-size:clamp(30px,8vw,40px);margin-bottom:10px}
-.front .cname{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.6vw,16px);font-weight:600;color:var(--gold);line-height:1.25}
+.front .glyph{line-height:0;margin-bottom:10px}
+.front .glyph svg{width:clamp(34px,9vw,46px);height:auto}
+.front .cname{font-size:clamp(13px,3.6vw,15px);font-weight:700;color:#5b50c0;line-height:1.25}
 .front .cpos{font-size:11px;color:var(--mist);margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
 .panel{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);border-radius:16px;padding:24px;margin:18px 0;line-height:1.75;font-size:15px;box-shadow:var(--shadow)}
 .panel strong{color:var(--gold);font-weight:500}
@@ -67,10 +73,11 @@ textarea::placeholder,input::placeholder{color:var(--mist)}
 .journal-item .jdate{color:var(--gold);font-size:12px;letter-spacing:.06em;margin-bottom:4px}
 .journal-item .jmood{color:var(--rose)}
 .empty{color:var(--mist);text-align:center;font-size:14px;padding:20px 0}
-.note{font-size:12px;color:var(--mist);line-height:1.6;margin-top:10px}
+.note{font-size:12px;color:#cfc7ec;line-height:1.6;margin-top:10px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.panel .note{color:var(--mist);text-shadow:none}
 nav{display:flex;gap:8px;justify-content:center;margin-top:34px}
-nav button{background:none;border:none;color:var(--mist);font-family:inherit;font-size:13px;cursor:pointer;padding:8px 14px;border-radius:999px}
-nav button.on{color:var(--gold);background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+nav button{background:none;border:none;color:#d9d2f0;font-family:inherit;font-size:13px;cursor:pointer;padding:8px 14px;border-radius:999px;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+nav button.on{color:var(--blue-d);background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);text-shadow:none}
 .homebtn{position:fixed;top:14px;left:14px;z-index:5;width:44px;height:44px;border-radius:50%;background:var(--glass-strong);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--veil);color:var(--gold);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:border-color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
 .homebtn:hover,.homebtn:focus-visible{border-color:var(--gold);transform:translateY(-1px);outline:none}
 .homebtn.hidden{display:none}
@@ -81,7 +88,7 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 @keyframes blink{50%{opacity:0}}
 .chip,.btn,nav button{-webkit-tap-highlight-color:transparent}
 @media (max-width:480px){
-  header{padding:40px 0 6px}
+  header{padding:40px 54px 6px}
   .wrap{padding:0 16px 64px}
   h2{font-size:23px;margin:34px 0 6px}
   .panel{padding:20px}
@@ -95,7 +102,7 @@ footer{text-align:center;color:rgba(255,255,255,.85);font-size:12px;margin-top:5
 <button id="homeBtn" class="homebtn hidden" onclick="goHome()" aria-label="Về trang chủ" title="Về trang chủ">⌂</button>
 <div class="wrap">
 <header>
-  <div class="brand">Life Reflection OS</div>
+  <div class="brand"><span class="mark"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#cdbdf5" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="12" y="5" width="24" height="38" rx="6" fill="rgba(255,255,255,.14)"/><path d="M24 15 C25.6 20.4 27.6 22.4 33 24 C27.6 25.6 25.6 27.6 24 33 C22.4 27.6 20.4 25.6 15 24 C20.4 22.4 22.4 20.4 24 15 Z" fill="#cdbdf5" stroke="none"/></g></svg></span>Life Reflection OS</div>
   <div class="tag">Tarot là tấm gương — không phải lời tiên tri</div>
   <nav aria-label="Điều hướng">
     <button id="navHome" class="on" onclick="goHome()">Bốc bài</button>
@@ -268,6 +275,18 @@ C("💎","King of Pentacles","thành tựu vật chất từ tầm nhìn dài h�
 
 const REFLECT_FALLBACK="Điều gì trong chuyện này nằm trong tầm kiểm soát của bạn?";
 
+/* ---------- suit icons (phong cách nét viền Tín Phát) ---------- */
+DECK.forEach((c,i)=>{c.s=i<22?"major":i<36?"wands":i<50?"cups":i<64?"swords":"pentacles"});
+const IC='stroke="#7F77DD" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" fill="none"';
+const SPARK='M24 13 C25.8 19 28 21.2 34 23 C28 24.8 25.8 27 24 33 C22.2 27 20 24.8 14 23 C20 21.2 22.2 19 24 13 Z';
+const SUIT_ICONS={
+ major:`<svg viewBox="0 0 48 48"><path d="${SPARK}" fill="#7F77DD"/><circle cx="24" cy="23" r="17" ${IC}/></svg>`,
+ wands:`<svg viewBox="0 0 48 48"><path d="M15 39 L31 13" ${IC}/><path d="M31 13 C31.9 16 33 17.1 36 18 C33 18.9 31.9 20 31 23 C30.1 20 29 18.9 26 18 C29 17.1 30.1 16 31 13 Z" fill="#7F77DD"/></svg>`,
+ cups:`<svg viewBox="0 0 48 48"><path d="M14 11 H34 V19 C34 26 29.5 30 24 30 C18.5 30 14 26 14 19 Z" ${IC}/><path d="M24 30 V37" ${IC}/><path d="M16 41 H32" ${IC}/></svg>`,
+ swords:`<svg viewBox="0 0 48 48"><path d="M24 6 V32" ${IC}/><path d="M15 29 H33" ${IC}/><path d="M24 32 V38" ${IC}/><circle cx="24" cy="41" r="2.4" fill="#7F77DD" stroke="none"/></svg>`,
+ pentacles:`<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" ${IC}/><path d="M24 16 C25.4 20.4 27.6 22.6 32 24 C27.6 25.4 25.4 27.6 24 32 C22.6 27.6 20.4 25.4 16 24 C20.4 22.6 22.6 20.4 24 16 Z" fill="#7F77DD"/></svg>`
+};
+
 /* ---------- state ---------- */
 let state={mood:null,topic:null,drawn:[],flipped:0};
 const KEY="lro_journal_v1", KEY_API="lro_openai_key";
@@ -300,7 +319,7 @@ function deal(){
   state.drawn.forEach((c,i)=>{
     const btn=document.createElement("button");
     btn.className="card";btn.setAttribute("aria-label","Lật lá bài "+POS[i]);
-    btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${c.g}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
+    btn.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front"><div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos">${POS[i]}</div></div></div>`;
     btn.onclick=()=>{if(btn.classList.contains("flipped"))return;btn.classList.add("flipped");if(++state.flipped===3)setTimeout(showReading,400)};
     row.appendChild(btn);
   });
