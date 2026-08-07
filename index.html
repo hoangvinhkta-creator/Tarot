@@ -67,8 +67,12 @@ header{text-align:center;padding:52px 0 8px}
   background:linear-gradient(90deg,transparent,rgba(232,200,126,.95),transparent);animation:glint 8s ease-in-out infinite}
 @keyframes glint{0%,55%{left:-30%}78%{left:100%}100%{left:100%}}
 .tag{color:var(--mut);font-size:12px;margin-top:12px;letter-spacing:.2em}
-nav{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:nowrap}
-nav button{background:none;border:none;border-bottom:1px solid transparent;color:var(--mut);font-family:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;padding:8px 10px;-webkit-tap-highlight-color:transparent}
+nav{display:flex;gap:2px;justify-content:center;margin-top:28px;flex-wrap:nowrap;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:none;border-bottom:1px solid transparent;color:var(--mut);font-family:inherit;
+  font-size:clamp(9px,2.5vw,11px);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  padding:8px 7px;white-space:nowrap;flex:none;-webkit-tap-highlight-color:transparent}
 nav button.on{color:var(--goldb);border-bottom-color:var(--hair2)}
 
 .stage{font-size:10.5px;letter-spacing:.34em;color:var(--gold);text-transform:uppercase;text-align:center;margin-top:42px}
@@ -209,6 +213,117 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .perks li:first-child{border-top:none}
 .perks .pi{flex:none;width:20px;line-height:0;margin-top:1px;opacity:.9}
 .perks .pi svg{width:20px;height:auto}
+
+/* ===== mạch chuyện: mỗi lá một đoạn, hiện dần theo thứ tự lật ===== */
+.wv{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s cubic-bezier(.25,.8,.3,1)}
+.wv.in{opacity:1;transform:none}
+.wv+.wv{margin-top:22px;padding-top:20px;border-top:1px solid rgba(201,162,74,.16)}
+.wvhead{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap}
+.wvhead .wvglyph{line-height:0;flex:none}
+.wvhead .wvglyph svg{width:22px;height:auto}
+.wvname{font-family:var(--serif);font-size:16px;color:var(--goldb);
+  text-shadow:0 0 16px rgba(232,200,126,.35)}
+.wvpos{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--hair);border-radius:999px;padding:3px 9px}
+.wvbody{font-size:15px;line-height:1.95}
+
+/* ===== cổng lửa: vòng tròn lấp lánh thay vì nét cứng ===== */
+.iportal .prA{stroke-dasharray:1.4 5.5;stroke-linecap:round;opacity:.85;
+  animation:gspin 44s linear infinite,emberA 3.1s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px rgba(232,200,126,.85))}
+.iportal .prB{stroke-dasharray:.9 7;stroke-width:.55;stroke-linecap:round;opacity:.6;
+  animation:gspin 30s linear infinite reverse,emberB 2.3s ease-in-out infinite;
+  filter:drop-shadow(0 0 5px rgba(255,190,90,.8))}
+.iportal .prC{fill:none;stroke:#ffd591;stroke-width:.45;stroke-dasharray:.7 9;stroke-linecap:round;
+  opacity:.45;animation:gspin 19s linear infinite,emberB 1.7s ease-in-out .4s infinite;
+  transform-origin:60px 60px;filter:drop-shadow(0 0 6px rgba(255,200,110,.9))}
+@keyframes emberA{0%,100%{opacity:.5;stroke-width:.75}50%{opacity:1;stroke-width:1.05}}
+@keyframes emberB{0%,100%{opacity:.28}45%{opacity:.9}}
+.iportal .prRune{opacity:.45;filter:drop-shadow(0 0 3px rgba(232,200,126,.6));
+  animation:gspin 68s linear infinite,emberA 4.6s ease-in-out infinite}
+.iportal .prGlow{fill:none;stroke:rgba(255,176,64,.16);stroke-width:7;
+  animation:haze 5.2s ease-in-out infinite;transform-origin:60px 60px}
+@keyframes haze{0%,100%{opacity:.28;stroke-width:5}50%{opacity:.6;stroke-width:9}}
+.iember{position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:#ffca7a;
+  box-shadow:0 0 8px rgba(255,190,90,.95);opacity:0;pointer-events:none;
+  animation:emberFly 4.6s ease-out infinite}
+@keyframes emberFly{0%{opacity:0;transform:translate(0,0) scale(.5)}
+  14%{opacity:1}70%{opacity:.5}100%{opacity:0;transform:translate(var(--ex,0),var(--ey,-46px)) scale(.2)}}
+
+/* nút vào cõi riêng ở màn khai mở — không viền, không nền */
+.ienter{margin-top:26px;background:none;border:none;padding:6px 10px;cursor:pointer;
+  font-family:var(--serif);font-style:italic;font-size:14px;letter-spacing:.06em;
+  color:var(--mut);-webkit-tap-highlight-color:transparent;
+  opacity:0;animation:fadeIn 1s ease 4.2s forwards;transition:color .4s}
+.ienter:hover,.ienter:focus-visible{color:var(--goldb);outline:none}
+.ienter u{text-decoration:none;border-bottom:1px solid rgba(201,162,74,.35);padding-bottom:2px}
+
+/* ===== biểu đồ cảm xúc: một đường, không lưới, mức độ đọc bằng icon ===== */
+.chartwrap{margin-top:6px}
+.moodchart{width:100%;height:auto;display:block;overflow:visible}
+.cyi{line-height:0;opacity:.55}
+.cyi svg{width:16px;height:16px}
+.chartfoot{display:flex;justify-content:space-between;margin-top:4px;padding:0 8px 0 30px;
+  font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.chartempty{font-family:var(--serif);font-style:italic;color:var(--mut);font-size:14px;line-height:1.8;text-align:center;padding:14px 4px}
+.journal-item{margin-top:14px}
+.jdate{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.jmood{color:var(--goldb)}
+.jcards{font-family:var(--serif);font-size:13.5px;color:var(--goldb);opacity:.85;margin-bottom:8px}
+.jtext{font-size:14px;line-height:1.9;color:var(--ivory);opacity:.9}
+.empty{text-align:center;color:var(--mut);font-size:14px;line-height:1.9;padding:10px 4px}
+
+/* ===== kho tàng ===== */
+.coll{margin-top:16px}
+.collhead{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px}
+.collart{flex:none;width:58px;height:90px;border-radius:9px;overflow:hidden;
+  background:linear-gradient(150deg,var(--card2),#100e16);border:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:20px}
+.collart img{width:100%;height:100%;object-fit:cover}
+.collkind{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.collname{font-family:var(--serif);font-size:18px;color:var(--goldb);margin-bottom:6px}
+.collblurb{font-size:12.5px;line-height:1.7;color:var(--mut)}
+.bar{height:4px;border-radius:99px;background:rgba(201,162,74,.14);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),var(--goldb));box-shadow:0 0 12px rgba(232,200,126,.5);
+  transition:width .8s cubic-bezier(.3,.7,.3,1)}
+.barnum{margin-top:7px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
+.collsec{margin:20px 0 8px;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);
+  border-top:1px solid rgba(201,162,74,.16);padding-top:14px}
+.perkline,.secretline{list-style:none}
+.perkline li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:13px;line-height:1.6;
+  color:var(--mut);opacity:.65}
+.perkline li.got{color:var(--ivory);opacity:1}
+.perkline .pm{flex:none;width:36px;font-size:10px;letter-spacing:.1em;color:var(--gold);padding-top:3px}
+.secretline li{padding:11px 0;font-size:13px;line-height:1.6;color:var(--mut);opacity:.7;
+  border-top:1px solid rgba(201,162,74,.1)}
+.secretline li:first-child{border-top:none}
+.secretline li.got{opacity:1;color:var(--ivory)}
+.secretline strong{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--goldb)}
+.secretline .sp{font-size:12.5px;color:var(--mut);line-height:1.7}
+.sr{display:inline-block;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;
+  border:1px solid var(--hair);border-radius:99px;padding:3px 8px;margin-right:9px;color:var(--gold)}
+.sr.r-cực{border-color:rgba(232,200,126,.6);color:var(--goldb)}
+.sr.r-huyền{border-color:#e8c87e;color:#0b0a10;background:linear-gradient(120deg,#e8c87e,#c9a24a)}
+
+/* ===== giao ước ===== */
+.tier{margin-top:16px;text-align:center;position:relative}
+.tier.best{border-color:var(--hair2);background:linear-gradient(165deg,#201a2e,var(--card));
+  box-shadow:0 0 34px rgba(201,162,74,.12)}
+.tierflag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:#0b0a10;
+  background:linear-gradient(120deg,#e8c87e,#c9a24a);border-radius:99px;padding:4px 12px;white-space:nowrap}
+.tiername{font-family:var(--serif);font-size:21px;color:var(--goldb);margin-bottom:6px}
+.tierprice{font-family:var(--serif);font-size:30px;color:var(--ivory)}
+.tierprice span{font-size:12px;color:var(--mut);letter-spacing:.1em}
+.tierlead{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--mut);margin:10px 0 4px;line-height:1.7}
+.tier .perks{text-align:left}
+.boxrow{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+.bbox{text-align:center;padding:20px 16px}
+.bboxn{font-family:var(--serif);font-size:34px;color:var(--goldb);line-height:1}
+.bboxlabel{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-top:2px}
+.bboxprice{font-family:var(--serif);font-size:20px;color:var(--ivory);margin-top:8px}
+.bboxnote{font-size:12.5px;line-height:1.7;color:var(--mut);margin:8px 0 14px}
 
 .perks.mini{margin:14px 0 18px}
 .perks.mini li{font-size:12.5px;padding:7px 0}
@@ -390,7 +505,7 @@ body.at-center #breathGlow{opacity:1}
 @keyframes shiverOut{0%{transform:rotate(0)}8%{transform:rotate(2.5deg)}16%{transform:rotate(-2.5deg)}
   24%{transform:rotate(2deg)}32%{transform:rotate(-2deg)}40%{transform:rotate(0);opacity:1}
   100%{transform:translateX(var(--ex)) rotate(var(--er));opacity:0}}
-#intro.exit .ilogo,#intro.exit .isub,#intro.exit .iline,#intro.exit .orn{
+#intro.exit .ilogo,#intro.exit .isub,#intro.exit .iline,#intro.exit .orn,#intro.exit .ienter{
   animation:introChromeOut .8s ease forwards}
 @keyframes introChromeOut{to{opacity:0;transform:translateY(-10px)}}
 #intro.exit{animation:introFade 1.1s ease 2.2s forwards;pointer-events:none}
@@ -563,7 +678,7 @@ body.deep .stage{margin-top:26px}
   .wrap{padding:0 16px 64px}
   h2{font-size:21px}
   .panel{padding:20px}
-  nav button{padding:8px 8px}
+  nav button{padding:8px 6px}
   .btn{padding:13px 28px}
 }
 @media (prefers-reduced-motion: reduce){
@@ -617,10 +732,13 @@ body.deep .stage{margin-top:26px}
   <div class="ihero"><div class="ihero-stack">
     <div class="ihero-card k3"></div><div class="ihero-card k2"></div><div class="ihero-card k1">✦</div>
   </div></div>
+  <button class="ienter" id="iEnter" onclick="openSign('Cõi riêng giữ lại mọi thứ bạn đã đi qua.')"><u>Cõi riêng của tôi</u></button>
   <button class="iportal" id="portal" onclick="beginRitual()" aria-label="Bắt đầu nghi thức">
     <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="prGlow" cx="60" cy="60" r="52"/>
       <circle class="pr prA" cx="60" cy="60" r="56"/>
       <circle class="pr prB" cx="60" cy="60" r="48"/>
+      <circle class="prC" cx="60" cy="60" r="41"/>
       <g class="prRune" stroke="#e8c87e" fill="none" stroke-width=".8" opacity=".7">
         <path d="M60 8 L60 16 M60 104 L60 112 M8 60 L16 60 M104 60 L112 60"/>
         <path d="M23 23 L29 29 M91 91 L97 97 M97 23 L91 29 M29 91 L23 97"/>
@@ -640,13 +758,14 @@ body.deep .stage{margin-top:26px}
   <div class="hline" aria-hidden="true"></div>
   <nav aria-label="Điều hướng">
     <button id="navHome" class="on" onclick="goHome()">Bốc bài</button>
-    <button id="navJournal" onclick="showJournal()">Nhật ký</button>
+    <button id="navJournal" onclick="showJournal()">Ký ức</button>
+    <button id="navVault" onclick="showVault()">Kho tàng</button>
+    <button id="navPlan" onclick="showPlanTab()">Giao ước</button>
     <button id="navSet" onclick="show('sSet')">Cài đặt</button>
   </nav>
 </header>
 
 <section class="step active shown" id="sCenter">
-  <div id="throwbackSlot"></div>
   <div class="stage">Center · lắng lại</div>
   <h2>Hít thở cùng lá bài</h2>
   <p class="sub">Ba nhịp thở trước khi bắt đầu — để câu hỏi của bạn lắng xuống</p>
@@ -695,7 +814,6 @@ body.deep .stage{margin-top:26px}
   <div class="slots" id="slots"></div>
   <div class="spread" id="spread"></div>
   <div class="panel" id="overview" style="display:none"></div>
-  <div class="panel ai-panel" id="liveRead" style="display:none"></div>
   <button class="btn arrow" id="toAsk" style="display:none" onclick="toAsk()" aria-label="Tiếp tục">
     <svg viewBox="0 0 24 24" fill="none" stroke="#e8c87e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
   </button>
@@ -728,8 +846,7 @@ body.deep .stage{margin-top:26px}
   <div class="stage late" style="margin-top:38px">Reflect · nhìn lại</div>
   <h2 style="margin-top:10px" class="late">Dành 2 phút cho chính bạn</h2>
   <p class="sub late" id="reflectQ"></p>
-  <textarea id="journalText" class="late" placeholder="Sau tất cả những gì vừa đọc — bạn thấy trong lòng thế nào? Viết vài dòng cho chính bạn."></textarea>
-  <button class="btn late" onclick="saveEntry()">Lưu mảnh ký ức ✦</button>
+  <button class="btn late" onclick="saveEntry()">Giữ lại mảnh ký ức ✦</button>
   <button class="btn ghost late" onclick="goHome()">Để lúc khác — bốc lá mới</button>
 </section>
 
@@ -742,9 +859,22 @@ body.deep .stage{margin-top:26px}
 </section>
 
 <section class="step" id="sJournal">
-  <h2>Nhật ký của bạn</h2>
-  <p class="sub">Lưu trên thiết bị này (localStorage) — chưa đồng bộ cloud trong bản demo</p>
-  <div class="panel" id="journalList"></div>
+  <div class="stage">Ký ức · những gì bạn đã đi qua</div>
+  <h2>Mảnh ký ức</h2>
+  <div id="journalBody"></div>
+</section>
+
+<section class="step" id="sVault">
+  <div class="stage">Kho tàng · những gì bạn đang giữ</div>
+  <h2>Kho tàng</h2>
+  <p class="sub">Mỗi bộ sưu tầm đủ sẽ mở ra một phần của nghi thức</p>
+  <div id="vaultBody"></div>
+</section>
+
+<section class="step" id="sPlan">
+  <div class="stage">Giao ước · đi cùng lá bài</div>
+  <h2>Lời giao ước</h2>
+  <div id="planTabBody"></div>
 </section>
 
 <section class="step" id="sSet">
@@ -1000,9 +1130,10 @@ const STAGE={sCenter:1,s1:2,s2:3,sShuffle:3,s3:4,sAsk:4,s4:5,s5:5,sJournal:2,sSe
 function show(id){
   const cur=document.querySelector(".step.active"),nx=document.getElementById(id);
   if(!nx)return;
-  document.getElementById("navHome").classList.toggle("on",!["sJournal","sSet"].includes(id));
-  document.getElementById("navJournal").classList.toggle("on",id==="sJournal");
-  document.getElementById("navSet").classList.toggle("on",id==="sSet");
+  const TABS={sJournal:"navJournal",sVault:"navVault",sPlan:"navPlan",sSet:"navSet"};
+  document.getElementById("navHome").classList.toggle("on",!TABS[id]);
+  Object.entries(TABS).forEach(([sec,btn])=>
+    document.getElementById(btn).classList.toggle("on",id===sec));
   document.getElementById("homeBtn").classList.toggle("hidden",id==="sCenter");
   document.body.classList.toggle("deep",id!=="sCenter");
   document.body.classList.toggle("at-center",id==="sCenter");
@@ -1075,7 +1206,7 @@ function buildMoods(){
     b.onclick=()=>{
       if(el.dataset.lock)return;el.dataset.lock="1";
       b.classList.add("sel");
-      document.body.dataset.tint=label;state.mood=label;
+      document.body.dataset.tint=label;state.mood=label;logMood(label);
       geoFlare();
       setTimeout(()=>flyOutAll(el,()=>{buildTopics();show("s2")}),620);
     };
@@ -1122,6 +1253,16 @@ function beginRitual(){
   setTimeout(()=>iv.remove(),3400);
 }
 buildMoods();buildTopics();show("sCenter");
+/* tàn lửa bay quanh cổng khai mở */
+(function(){const pt=document.getElementById("portal");if(!pt)return;
+  for(let i=0;i<10;i++){const a=(i/10)*Math.PI*2+.4,e=document.createElement("i");
+    e.className="iember";
+    e.style.left=(50+Math.cos(a)*44).toFixed(1)+"%";
+    e.style.top=(50+Math.sin(a)*44).toFixed(1)+"%";
+    e.style.setProperty("--ex",(Math.cos(a)*20).toFixed(0)+"px");
+    e.style.setProperty("--ey",(-26-((i*7)%22))+"px");
+    e.style.animationDelay=((i*0.43)%4.6).toFixed(2)+"s";
+    pt.appendChild(e)}})();
 (function(){const el=document.getElementById("bCount");if(!el)return;let n=1;
 setInterval(()=>{n=n%3+1;el.textContent="Nhịp "+n+" / 3"},6400)})();
 
@@ -1174,64 +1315,98 @@ function buildSpread(){
   document.getElementById("toAsk").style.display="none";
   const ov=document.getElementById("overview");if(ov){ov.style.display="none";ov.innerHTML=""}
   document.getElementById("slots").classList.remove("pushdown");
-  resetReading();
+  resetReading();readQ=[];readBusy=false;weaveSaid=[];
   updateDrawHead();
 }
-function checkAllOpened(){
-  if(document.querySelectorAll("#slots .slotcard.opened").length<3)return;
-  const [a,b,c]=state.drawn,ov=document.getElementById("overview");
-  const moodLine=state.mood?` Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.`:"";
-  ov.innerHTML=`<div class="ai-label">✦ Ba lá nói gì cùng nhau</div>
-   <div class="cardline"><strong>${a.n} · Quá khứ</strong> — Trong chuyện ${state.topic.toLowerCase()}, có dấu ấn của ${a.past}.</div>
-   <div class="cardline"><strong>${b.n} · Hiện tại</strong> — Lúc này, điều nổi bật là ${b.now}.${moodLine}</div>
-   <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}.</div>`;
-  ov.style.display="block";
+/* Mạch chuyện: một bảng duy nhất, mỗi lá một đoạn.
+   Lá lật đến đâu, lời đọc chạy ra đến đấy — không đợi mở đủ ba lá,
+   và vẫn chạy tiếp khi lá đang phóng to trong khung morph. */
+let readQ=[],readBusy=false,weaveSaid=[];
+function weaveOpened(){return document.querySelectorAll("#slots .slotcard.opened").length}
+function onCardOpened(i){
+  const ov=document.getElementById("overview");
+  if(!document.getElementById("weave")){
+    ov.style.display="block";
+    ov.innerHTML='<div class="ai-label">✦ Mạch chuyện của bạn</div><div id="weave"></div>';
+    const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
+    st.textContent="Interpret · mạch chuyện";ti.textContent="Lá mở tới đâu, chuyện hiện tới đó";su.textContent="";
+  }
+  const w=document.getElementById("weave");
+  if(document.getElementById("wv"+i))return;
+  const c=state.drawn[i];
+  const b=document.createElement("div");b.className="wv";b.id="wv"+i;
+  b.innerHTML=`<div class="wvhead"><span class="wvglyph">${SUIT_ICONS[c.s]}</span>
+    <span class="wvname">${escapeHtml(c.n)}</span><span class="wvpos">${POS[i]}</span></div>
+    <div class="wvbody" id="wvb${i}"><span class="tw">✦</span></div>`;
+  w.appendChild(b);
   geoFlare();
-  const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
-  st.textContent="Interpret · ba lá đã mở";ti.textContent="Mạch chuyện hiện ra";su.textContent="";
-  setTimeout(()=>{try{ov.scrollIntoView({behavior:"smooth",block:"center"})}catch(_){}},260);
-  setTimeout(personalRead,900);
+  requestAnimationFrame(()=>b.classList.add("in"));
+  readQ.push(i);runRead();
 }
-/* Lời đọc riêng cho chính câu chuyện của người hỏi — hiện ra ngay sau khi ba lá mở,
-   trước cả lượt thổ lộ đầu tiên. Đây là phần luôn mở cho tất cả mọi người. */
-async function personalRead(){
-  const t=document.getElementById("toAsk"),out=document.getElementById("liveRead");
-  const showArrow=()=>{t.style.display="flex";
-    setTimeout(()=>{try{t.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}},300)};
+function makeTyper(el,speed){
+  let q="",shown="",t=setInterval(()=>{
+    if(shown.length<q.length){shown=q.slice(0,shown.length+1);renderStream(el,shown)}
+  },speed||30);
+  return{push:s=>{q+=s},
+    finish:()=>new Promise(res=>{const tick=()=>{
+      if(shown.length>=q.length){clearInterval(t);el.innerHTML=q?fmtBody(q):"";res()}
+      else setTimeout(tick,80)};tick()}),
+    kill:()=>clearInterval(t)};
+}
+async function runRead(){
+  if(readBusy||!readQ.length)return;
+  readBusy=true;
+  const i=readQ.shift();
+  try{await streamCardRead(i)}catch(_){}
+  readBusy=false;
+  if(readQ.length){runRead();return}
+  if(weaveOpened()>=3&&!readQ.length)showWeaveArrow();
+}
+function showWeaveArrow(){
+  const t=document.getElementById("toAsk");if(!t)return;
+  t.style.display="flex";
+  setTimeout(()=>{try{t.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}},320);
+}
+async function streamCardRead(i){
+  const te=document.getElementById("wvb"+i);if(!te)return;
+  const c=state.drawn[i];
   const key=localStorage.getItem(KEY_API);
-  if(!key||!state.drawn.length){showArrow();return}
-  const [a,b,c]=state.drawn;
+  if(!key){te.innerHTML=`<p>${escapeHtml(["Trong chuyện "+(state.topic||"này").toLowerCase()+", có dấu ấn của "+c.past+".",
+    "Lúc này, điều nổi bật là "+c.now+".","Lá gợi ý: "+c.next+"."][i])}</p>`;return}
   const story=(document.getElementById("story")||{}).value||"";
-  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi. Họ vừa mở ba lá và chưa nói thêm gì. Hãy đọc cho họ nghe — về ĐỜI HỌ, không phải về lá bài.
+  const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi và đọc cho họ nghe từng lá một.
+
+Đây là lá ở vị trí ${POS[i]}. Hãy nói về ĐỜI HỌ ở khía cạnh ${POS[i].toLowerCase()}, không nói về lá bài.
 
 QUY TẮC
-1. TUYỆT ĐỐI không liệt kê hay giải nghĩa ba lá. Không viết "Lá X cho thấy...", "Với Y...", "Hướng đi với Z...". Ba lá chỉ là chất liệu ngầm.
-2. Bám chặt vào chủ đề, tâm trạng và những gì họ đã tự kể. Nhắc lại chi tiết cụ thể của họ bằng lời của bạn.
-3. Cấu trúc tự nhiên, không đánh số, không tiêu đề: gọi tên điều họ đang mang → chỉ ra một mạch ngầm nối quá khứ với hiện tại mà có thể họ chưa nhìn ra → nói thẳng đâu là thứ đang thật sự cản họ → một việc cụ thể làm được trong tuần này.
-4. Khép lại bằng một câu mời họ nói ra điều còn giấu, thật nhẹ.
-5. Nếu họ kể rất ít, hãy đọc theo hướng mở, đưa vài khả năng, đừng bịa chi tiết đời họ.
+1. TUYỆT ĐỐI không giải nghĩa lá bài. Không viết "Lá này cho thấy...", "Với ${c.n}...". Tên lá đã hiện sẵn phía trên rồi.
+2. Bám vào chủ đề, tâm trạng và những gì họ tự kể. Nhắc lại chi tiết cụ thể của họ bằng lời của bạn.
+3. Không lặp lại ý hay hình ảnh đã nói ở đoạn trước.
+4. Đoạn ${POS[i]}: ${i===0?"soi lại điều đã hình thành nên tình cảnh hôm nay, nhẹ nhàng, không phán xét."
+    :i===1?"gọi đúng tên thứ đang thật sự cản họ lúc này — nói thẳng."
+    :"đưa một hướng đi cụ thể, một việc làm được trong tuần này. Khép lại bằng một câu mời họ nói ra điều còn giấu."}
+5. Nếu họ kể rất ít thì đọc theo hướng mở, đừng bịa chi tiết đời họ.
 
-GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. 180-260 từ, chia đoạn tự nhiên.`;
-  const usr=`Chủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}\nBa lá (ngầm): ${a.n} / ${b.n} / ${c.n}\n\nLịch sử gần đây:\n${memorySummary()}`;
-  out.style.display="block";out.className="panel ai-panel live";
-  out.innerHTML=`<div class="ai-label">✦ Lời đọc dành riêng cho bạn</div><div id="liveReadText"><span class="tw">✦</span></div>`;
-  const te=document.getElementById("liveReadText");typeStart(te,30);
+GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH 70-110 từ, một đoạn duy nhất, không đánh số, không tiêu đề.`;
+  const usr=`Chủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}\nBa lá (ngầm, không nhắc tên): ${state.drawn.map(x=>x.n).join(" / ")}\n\nĐã nói ở các đoạn trước:\n${weaveSaid.join("\n---\n")||"(chưa có)"}\n\nLịch sử gần đây:\n${memorySummary()}`;
+  const ty=makeTyper(te,30);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:aiModel(),max_tokens:900,temperature:.85,stream:true,
-        messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
+      body:JSON.stringify({model:aiModel(),max_tokens:400,temperature:.85,stream:true,
+        presence_penalty:.5,messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
     if(!r.ok||!r.body)throw new Error("HTTP "+r.status);
     const rd=r.body.getReader(),dec=new TextDecoder();let buf="",raw="";
     while(true){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
       let nl;while((nl=buf.indexOf("\n"))>=0){const line=buf.slice(0,nl).trim();buf=buf.slice(nl+1);
         if(!line.startsWith("data:"))continue;const p=line.slice(5).trim();if(p==="[DONE]")continue;
-        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){raw+=d;typePush(d)}}catch(_){}}}
-    await typeFinish(te);
-    openingRead=stripMark(raw);
-  }catch(err){clearInterval(tTimer);out.style.display="none"}
-  out.classList.remove("live");
-  showArrow();
+        try{const j=JSON.parse(p);const d=j.choices?.[0]?.delta?.content;if(d){raw+=d;ty.push(d)}}catch(_){}}}
+    await ty.finish();
+    const clean=stripMark(raw);
+    weaveSaid.push(clean);openingRead=weaveSaid.join("\n\n");
+  }catch(err){ty.kill();
+    te.innerHTML=`<p>${escapeHtml(["Trong chuyện "+(state.topic||"này").toLowerCase()+", có dấu ấn của "+c.past+".",
+      "Lúc này, điều nổi bật là "+c.now+".","Lá gợi ý: "+c.next+"."][i])}</p>`;}
 }
 function toAsk(){
   document.getElementById("slots").classList.add("pushdown");
@@ -1476,7 +1651,7 @@ let askThread=[],askClosed=false,askCloseTimer=null,openingRead="";
 function resetAskThread(){askThread=[];askClosed=false;clearTimeout(askCloseTimer);
   const t=document.getElementById("askThreadEl");if(t)t.innerHTML=""}
 /* mỗi lần bốc bài mới là một lượt sạch: lời đọc mở đầu và quyền lượt tính lại từ đầu */
-function resetReading(){openingRead="";signedInHere=false;
+function resetReading(){openingRead="";signedInHere=false;weaveSaid=[];readQ=[];readBusy=false;
   const lr=document.getElementById("liveRead");if(lr){lr.style.display="none";lr.innerHTML=""}}
 /* độ trùng ý giữa hai lời đáp — tiếng Việt đơn âm nên so theo cặp âm tiết liền nhau */
 function askOverlap(a,b){
@@ -1690,7 +1865,7 @@ function flipBig(){
   if(navigator.vibrate)navigator.vibrate(10);
   if(modalMode==="draw"&&card.classList.contains("flipped")){
     const s=document.querySelector("#slot"+modalIdx+" .slotcard");
-    if(s&&!s.classList.contains("opened")){s.classList.add("flipped","opened");checkAllOpened()}
+    if(s&&!s.classList.contains("opened")){s.classList.add("flipped","opened");onCardOpened(modalIdx)}
   }
 }
 function closeCard(e){
@@ -1856,45 +2031,200 @@ async function aiRead(){
   }
 }
 
+/* ============================================================
+   KHO TÀNG — 3 module sưu tầm.
+   Mỗi module để sẵn chỗ cắm file design: `art` là đường dẫn ảnh bìa,
+   `items` là danh sách lá/sắc sẽ nạp từ file thiết kế sau.
+   Phần thưởng xếp từ dễ tới đặc biệt; `secrets` là những mảnh hiếm
+   với lợi ích vượt trội hơn cả mốc 100%.
+   ============================================================ */
+const COLLECTIONS=[
+ {id:"deck-anhkim",kind:"Bộ bài",name:"Ánh Kim Nguyên Bản",total:78,art:null,items:[],
+  blurb:"Bộ khởi thuỷ — nét vàng trên nền mực. Ai cũng bắt đầu từ đây.",
+  perks:[
+    [25,"Thêm một lượt thổ lộ mỗi ngày"],
+    [50,"Mở viền vàng riêng cho lá bài khi trải"],
+    [75,"Bốc bài không giới hạn trong ngày"],
+    [100,"Thổ lộ không giới hạn, và mở tầng nghĩa riêng của bộ này"]],
+  secrets:[
+    {n:"Lá Vô Danh",r:"Hiếm",p:"Mỗi tháng một lần chiêm nghiệm sâu không tính lượt"},
+    {n:"Nguyệt Ấn",r:"Cực hiếm",p:"Vĩnh viễn thêm một lượt thổ lộ mỗi ngày"},
+    {n:"Cửa Sau Thời Gian",r:"Huyền thoại",p:"Mở lại bất kỳ lần bốc nào bạn từng đi qua, và xem mạch cảm xúc trọn năm"}]},
+
+ {id:"deck-hacdieu",kind:"Bộ bài",name:"Hắc Diệu",total:78,art:null,items:[],
+  blurb:"Bộ bài của những câu hỏi hỏi lúc nửa đêm.",
+  perks:[
+    [25,"Mở lối trải bài ban đêm — nền tối sâu hơn"],
+    [50,"Lá bài lật kèm hiệu ứng khói"],
+    [75,"Thêm một lá thứ tư: điều bạn chưa dám hỏi"],
+    [100,"Nghi thức riêng của Hắc Diệu, mở suốt đời"]],
+  secrets:[
+    {n:"Bóng Của Bạn",r:"Hiếm",p:"Một lần mỗi tháng, đọc mặt khuất của chính câu hỏi bạn vừa đặt"},
+    {n:"Khoá Nửa Đêm",r:"Cực hiếm",p:"Bốc bài không giới hạn từ 22h tới 4h sáng"},
+    {n:"Tấm Gương Vỡ",r:"Huyền thoại",p:"Mở toàn bộ tầng nghĩa ẩn của cả 78 lá, ở mọi bộ"}]},
+
+ {id:"theme-mantrang",kind:"Sắc màn",name:"Màn Trăng",total:12,art:null,items:[],
+  blurb:"Không phải bài — là bầu không khí phủ lên toàn bộ nghi thức.",
+  perks:[
+    [25,"Đổi sắc nền cho nghi thức"],
+    [50,"Hiệu ứng lật bài riêng"],
+    [75,"Âm thanh nền cho từng chặng"],
+    [100,"Cổng khai mở mang hình dạng riêng của Màn Trăng"]],
+  secrets:[
+    {n:"Trăng Non",r:"Hiếm",p:"Mỗi đầu tháng âm lịch, một lần bốc bài đặc biệt"},
+    {n:"Trăng Máu",r:"Cực hiếm",p:"Mở sắc màn không ai khác có, kèm khung viền riêng"},
+    {n:"Vô Nguyệt",r:"Huyền thoại",p:"Tự tạo sắc màn của riêng bạn và giữ nó vĩnh viễn"}]}
+];
+const KEY_COLL="lro_collection";
+function collOwned(){try{return JSON.parse(localStorage.getItem(KEY_COLL)||"{}")}catch(_){return{}}}
+function showVault(){
+  const el=document.getElementById("vaultBody"),own=collOwned();
+  el.innerHTML=COLLECTIONS.map(c=>{
+    const n=(own[c.id]&&own[c.id].count)||0,pct=Math.round(n/c.total*100);
+    const perks=c.perks.map(([at,txt])=>
+      `<li class="${pct>=at?"got":""}"><span class="pm">${at}%</span>${txt}</li>`).join("");
+    const secrets=c.secrets.map(sx=>{
+      const has=(own[c.id]&&(own[c.id].secrets||[]).includes(sx.n));
+      return `<li class="${has?"got":""}"><span class="sr r-${sx.r.split(" ")[0].toLowerCase()}">${sx.r}</span>
+        <strong>${sx.n}</strong><br><span class="sp">${sx.p}</span></li>`}).join("");
+    return `<div class="panel coll" data-coll="${c.id}">
+      <div class="collhead">
+        <div class="collart" data-art="${c.id}">${c.art?`<img src="${c.art}" alt="">`:'<span>✦</span>'}</div>
+        <div><div class="collkind">${c.kind}</div><div class="collname">${c.name}</div>
+        <div class="collblurb">${c.blurb}</div></div>
+      </div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="barnum">${n} / ${c.total} · ${pct}%</div>
+      <div class="collsec">Mở dần</div><ul class="perkline">${perks}</ul>
+      <div class="collsec">Mảnh hiếm</div><ul class="secretline">${secrets}</ul>
+    </div>`}).join("");
+  show("sVault");
+}
+
+/* ============================================================
+   GIAO ƯỚC — các bậc theo tháng, và hộp bí ẩn mua lẻ.
+   ============================================================ */
+const TIERS=[
+ {id:"nguyet",name:"Nguyệt Ước",price:"49k",per:"mỗi tháng",
+  lead:"Đủ để lá bài không quên bạn",
+  perks:["Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức giữ qua mọi thiết bị","Biểu đồ cảm xúc theo ngày"]},
+ {id:"tinh",name:"Tinh Ước",price:"99k",per:"mỗi tháng",best:true,
+  lead:"Đi sâu hơn, và bắt đầu sưu tầm",
+  perks:["Tất cả của Nguyệt Ước","Chiêm nghiệm sâu không giới hạn","Một hộp bí ẩn mỗi tháng","Mở sẵn một bộ bài bất kỳ"]},
+ {id:"thien",name:"Thiên Ước",price:"199k",per:"mỗi tháng",
+  lead:"Toàn bộ nghi thức, không còn cánh cửa nào",
+  perks:["Tất cả của Tinh Ước","Ba hộp bí ẩn mỗi tháng","Toàn bộ sắc màn hiện có","Tỉ lệ chạm mảnh hiếm cao hơn","Đọc lại mọi lần bốc đã qua"]}
+];
+const BOXES=[
+ {n:1,price:"39k",note:"Một lá, một bất ngờ"},
+ {n:5,price:"179k",note:"Chắc chắn có ít nhất một mảnh Hiếm"},
+ {n:12,price:"399k",note:"Chắc chắn có ít nhất một mảnh Cực hiếm"}
+];
+function showPlanTab(){
+  const el=document.getElementById("planTabBody");
+  const cur=hasPlan()?`<div class="panel gate"><div class="ai-label">✦ Giao ước đang giữ</div>
+     <p class="pw-note">Bạn đang đi cùng lá bài. Đổi bậc hoặc dừng lại lúc nào cũng được.</p></div>`:"";
+  el.innerHTML=cur+TIERS.map(t=>`
+    <div class="panel tier${t.best?" best":""}">
+      ${t.best?'<div class="tierflag">Được chọn nhiều nhất</div>':""}
+      <div class="tiername">${t.name}</div>
+      <div class="tierprice">${t.price}<span> / ${t.per}</span></div>
+      <p class="tierlead">${t.lead}</p>
+      <ul class="perks">${t.perks.map(p=>`<li><span class="pi">${UI_ICONS.calm}</span>${p}</li>`).join("")}</ul>
+      <button class="btn" onclick="openPlan()">Nhận ${t.name} ✦</button>
+    </div>`).join("")
+    +`<div class="stage" style="margin-top:34px">Hộp bí ẩn</div>
+      <h2 style="margin-top:8px;font-size:21px">Không biết trước lá nào sẽ đến</h2>
+      <p class="sub">Mỗi hộp là một mảnh cho kho tàng của bạn</p>
+      <div class="boxrow">${BOXES.map(b=>`
+        <div class="panel bbox"><div class="bboxn">${b.n}</div>
+        <div class="bboxlabel">hộp</div><div class="bboxprice">${b.price}</div>
+        <p class="bboxnote">${b.note}</p>
+        <button class="btn ghost" onclick="openPlan()">Mở ✦</button></div>`).join("")}</div>`;
+  show("sPlan");
+}
+
 /* ---------- journal & throwback ---------- */
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
 function saveEntry(){
-  const text=document.getElementById("journalText").value.trim();
   const list=load();
-  list.push({d:Date.now(),mood:state.mood,topic:state.topic,cards:state.drawn.map(c=>c.n),text});
+  list.push({d:Date.now(),mood:state.mood,topic:state.topic,cards:state.drawn.map(c=>c.n),
+    text:(weaveSaid[2]||weaveSaid[0]||"")});
   localStorage.setItem(KEY,JSON.stringify(list));
-  document.getElementById("journalText").value="";
   show("s5");
+}
+/* ---------- nhật ký cảm xúc ---------- */
+const KEY_MOOD="lro_moodlog";
+const MOOD_SCORE={"Buồn":1,"Lo âu":2,"Bối rối":3,"Ổn":4,"Quyết tâm":4,"Bình yên":5};
+const SCORE_ICON={1:"sad",2:"anx",3:"lost",4:"ok",5:"calm"};
+function moodLog(){try{return JSON.parse(localStorage.getItem(KEY_MOOD)||"[]")}catch(_){return[]}}
+function dayKey(ts){const d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+/* mỗi ngày chấm một điểm, dựa đúng vào trạng thái người ta chọn lúc mở đầu */
+function logMood(label){
+  if(!label)return;
+  const sc=MOOD_SCORE[label]||3,k=dayKey(Date.now()),l=moodLog();
+  const i=l.findIndex(e=>e.k===k);
+  const rec={k,d:Date.now(),m:label,s:sc};
+  if(i>=0)l[i]=rec;else l.push(rec);
+  localStorage.setItem(KEY_MOOD,JSON.stringify(l.slice(-180)));
+}
+/* biểu đồ đường tối giản: không lưới, không số — mức độ đọc bằng icon bên trái */
+function moodChart(){
+  const l=moodLog().slice(-14);
+  if(l.length<2)return `<p class="chartempty">Ghé qua vài ngày nữa, đường cảm xúc của bạn sẽ hiện ra ở đây.</p>`;
+  const W=300,H=132,PL=30,PR=8,PT=12,PB=20;
+  const iw=W-PL-PR,ih=H-PT-PB;
+  const x=i=>PL+(l.length===1?iw/2:i*iw/(l.length-1));
+  const y=v=>PT+ih-((v-1)/4)*ih;
+  const pts=l.map((e,i)=>[x(i),y(e.s)]);
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=line+` L${pts[pts.length-1][0].toFixed(1)} ${PT+ih} L${pts[0][0].toFixed(1)} ${PT+ih} Z`;
+  const icons=[5,3,1].map(v=>
+    `<foreignObject x="2" y="${(y(v)-9).toFixed(1)}" width="20" height="20">
+       <div xmlns="http://www.w3.org/1999/xhtml" class="cyi">${UI_ICONS[SCORE_ICON[v]]}</div></foreignObject>`).join("");
+  const dots=pts.map((p,i)=>
+    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===pts.length-1?3.4:2.2}"
+      fill="${i===pts.length-1?"#e8c87e":"#c9a24a"}"/>`).join("");
+  const first=new Date(l[0].d),last=new Date(l[l.length-1].d);
+  const dm=d=>d.getDate()+"/"+(d.getMonth()+1);
+  return `<div class="chartwrap"><svg viewBox="0 0 ${W} ${H}" class="moodchart" role="img"
+      aria-label="Mạch cảm xúc ${l.length} ngày gần đây">
+      <defs><linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="rgba(201,162,74,.28)"/><stop offset="1" stop-color="rgba(201,162,74,0)"/>
+      </linearGradient></defs>
+      ${icons}
+      <path d="${area}" fill="url(#mcg)"/>
+      <path d="${line}" fill="none" stroke="#c9a24a" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+      ${dots}
+    </svg>
+    <div class="chartfoot"><span>${dm(first)}</span><span>hôm nay</span></div></div>`;
 }
 function fmt(ts){return new Date(ts).toLocaleDateString("vi-VN",{day:"numeric",month:"long",year:"numeric"})}
 function showJournal(){
+  const el=document.getElementById("journalBody");
+  if(!isMember()){
+    el.innerHTML=`<div class="panel lockbox">
+      <div class="ai-label">✦ Cõi riêng của bạn</div>
+      ${lockField("Những gì bạn đã đi qua đang nằm sau cánh cửa này…",true)}
+      <p class="pw-note">Ký ức cần một cái tên để bám vào.<br>
+      Bước qua cánh cửa, mọi mảnh bạn từng giữ sẽ hiện ra — và theo bạn sang mọi thiết bị.</p>
+      <button class="btn" onclick="openSign('Ký ức của bạn đang đợi phía sau cánh cửa.',()=>showJournal())">Bước qua cánh cửa ✦</button></div>`;
+    show("sJournal");return;
+  }
   const list=load().slice().reverse();
-  const el=document.getElementById("journalList");
-  el.innerHTML=list.length?list.map(e=>
-    `<div class="journal-item"><div class="jdate">${fmt(e.d)}${e.mood?` · <span class="jmood">${e.mood}</span>`:""} · ${e.topic}</div>
-     <div style="color:var(--mist);font-size:12px;margin-bottom:6px">${e.cards.join(" · ")}</div>
-     <div>${e.text?escapeHtml(e.text):"<em style='color:var(--mist)'>Không ghi chú</em>"}</div></div>`).join("")
-   :`<div class="empty">Chưa có mảnh ký ức nào. Hãy bốc bài và viết dòng đầu tiên ✦</div>`;
+  el.innerHTML=`<div class="panel"><div class="ai-label">✦ Mạch cảm xúc gần đây</div>${moodChart()}</div>`
+   +(list.length?list.map(e=>
+    `<div class="panel journal-item"><div class="jdate">${fmt(e.d)}${e.mood?` · <span class="jmood">${e.mood}</span>`:""} · ${escapeHtml(e.topic||"")}</div>
+     <div class="jcards">${e.cards.join(" · ")}</div>
+     ${e.text?`<div class="jtext">${escapeHtml(e.text.length>230?e.text.slice(0,230)+"…":e.text)}</div>`:""}</div>`).join("")
+   :`<div class="panel"><div class="empty">Chưa có mảnh ký ức nào. Bốc một lần bài, rồi giữ nó lại ✦</div></div>`);
   show("sJournal");
 }
 function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function renderThrowback(){
-  const list=load().filter(e=>e.text);
-  const slot=document.getElementById("throwbackSlot");
-  if(!list.length){slot.innerHTML="";return}
-  const now=Date.now(),DAY=86400000;
-  const old=list.filter(e=>now-e.d>=3*DAY);
-  const pick=(old.length?old:list)[0];
-  const days=Math.max(1,Math.round((now-pick.d)/DAY));
-  const moodTxt=pick.mood?`thấy ${pick.mood.toLowerCase()} về`:"nghĩ về";
-  slot.innerHTML=`<div class="throwback"><div class="tb-label">✦ Mảnh ký ức · ${days} ngày trước</div>
-   <div class="tb-quote">"${escapeHtml(pick.text.length>140?pick.text.slice(0,140)+"…":pick.text)}"</div>
-   <div class="tb-note">Ngày đó bạn ${moodTxt} chuyện ${pick.topic.toLowerCase()}. Hôm nay nhìn lại, bạn đã đi thêm được ${days} ngày.</div></div>`;
-}
-function goHome(){renderThrowback();buildMoods();delete document.body.dataset.tint;show("sCenter")}
+function goHome(){buildMoods();delete document.body.dataset.tint;show("sCenter")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
 syncModel();
-renderThrowback();
 </script>
 </body>
 </html>
