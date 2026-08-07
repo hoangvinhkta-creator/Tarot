@@ -287,31 +287,21 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .collkind{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .collname{font-family:var(--serif);font-size:18px;color:var(--goldb);margin-bottom:6px}
 .collblurb{font-size:12.5px;line-height:1.7;color:var(--mut)}
-.bar{height:4px;border-radius:99px;background:rgba(201,162,74,.14);overflow:hidden}
-.bar i{display:block;height:100%;border-radius:99px;
-  background:linear-gradient(90deg,var(--gold),var(--goldb));box-shadow:0 0 12px rgba(232,200,126,.5);
-  transition:width .8s cubic-bezier(.3,.7,.3,1)}
-.barnum{margin-top:7px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
-.collsec{margin:20px 0 8px;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);
-  border-top:1px solid rgba(201,162,74,.16);padding-top:14px}
-.perkline,.secretline{list-style:none}
-.perkline li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:13px;line-height:1.6;
-  color:var(--mut);opacity:.65}
-.perkline li.got{color:var(--ivory);opacity:1}
-.perkline .pm{flex:none;width:36px;font-size:10px;letter-spacing:.1em;color:var(--gold);padding-top:3px}
-.secretline li{padding:11px 0;font-size:13px;line-height:1.6;color:var(--mut);opacity:.7;
-  border-top:1px solid rgba(201,162,74,.1)}
-.secretline li:first-child{border-top:none}
-.secretline li.got{opacity:1;color:var(--ivory)}
-.secretline strong{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--goldb)}
-.secretline .sp{font-size:12.5px;color:var(--mut);line-height:1.7}
-.sr{display:inline-block;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;
-  border:1px solid var(--hair);border-radius:99px;padding:3px 8px;margin-right:9px;color:var(--gold)}
-.sr.r-cực{border-color:rgba(232,200,126,.6);color:var(--goldb)}
-.sr.r-huyền{border-color:#e8c87e;color:#0b0a10;background:linear-gradient(120deg,#e8c87e,#c9a24a)}
 
 /* ===== giao ước ===== */
 .tier{margin-top:16px;text-align:center;position:relative}
+.tier.mine{border-color:var(--goldb)}
+.tier.mine .tiername::after{content:" ✓";color:var(--goldb)}
+.panel.drop{background:linear-gradient(165deg,#1d1830,var(--card));border-color:var(--hair2);text-align:center}
+.panel.coll.have{border-color:var(--hair2)}
+.collstate{margin-top:14px;padding-top:13px;border-top:1px solid rgba(201,162,74,.14)}
+.tagon{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#0b0a10;
+  background:linear-gradient(120deg,#e8c87e,#c9a24a);border-radius:99px;padding:4px 11px}
+.tagoff{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  border:1px solid var(--hair);border-radius:99px;padding:4px 11px}
+.collspecial{margin-top:14px;font-size:13px;line-height:1.75;color:var(--mut)}
+.collspecial .cs{display:block;font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px}
 .tier.best{border-color:var(--hair2);background:linear-gradient(165deg,#201a2e,var(--card));
   box-shadow:0 0 34px rgba(201,162,74,.12)}
 .tierflag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
@@ -322,12 +312,6 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .tierprice span{font-size:12px;color:var(--mut);letter-spacing:.1em}
 .tierlead{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--mut);margin:10px 0 4px;line-height:1.7}
 .tier .perks{text-align:left}
-.boxrow{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
-.bbox{text-align:center;padding:20px 16px}
-.bboxn{font-family:var(--serif);font-size:34px;color:var(--goldb);line-height:1}
-.bboxlabel{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-top:2px}
-.bboxprice{font-family:var(--serif);font-size:20px;color:var(--ivory);margin-top:8px}
-.bboxnote{font-size:12.5px;line-height:1.7;color:var(--mut);margin:8px 0 14px}
 
 .soonbar{margin:16px auto 0;max-width:520px;text-align:center;font-family:var(--serif);font-style:italic;
   font-size:13.5px;line-height:1.75;color:var(--mut);border:1px dashed rgba(201,162,74,.3);
@@ -1529,7 +1513,13 @@ function askUsed(){return +(localStorage.getItem(KEY_ASKN)||0)}
    member()/doSign() và hasPlan()/doPlan(), phần còn lại của app không phải sửa gì. */
 function member(){try{return JSON.parse(localStorage.getItem(KEY_USER)||"null")}catch(_){return null}}
 function isMember(){return !!member()}
-function hasPlan(){return localStorage.getItem(KEY_PLAN)==="1"}
+/* Bậc giao ước đang giữ: null | "nguyet" | "tinh" | "thien".
+   Giữ tương thích với dữ liệu cũ ("1" = bậc thấp nhất). */
+function planTier(){const v=localStorage.getItem(KEY_PLAN);
+  if(!v)return null;return v==="1"?"nguyet":v}
+function hasPlan(){return !!planTier()}
+/* Bốc bài không giới hạn chỉ có ở bậc cao nhất */
+function unlimitedDraw(){return planTier()==="thien"}
 let signedInHere=false;   /* có đăng nhập ngay trong lượt bốc bài này không */
 function askTurns(){return askThread.filter(m=>m.role==="user").length}
 /* Số lượt thổ lộ được mở: ai cũng có một lượt; đăng nhập ngay tại đây mở thêm một lượt;
@@ -1681,8 +1671,11 @@ function closePlan(e){
   const m=document.getElementById("planModal");
   m.classList.remove("shown");setTimeout(()=>m.classList.remove("open"),380);
 }
-function doPlan(){
-  localStorage.setItem(KEY_PLAN,"1");
+function doPlan(tier){
+  const t=tier||"nguyet";
+  localStorage.setItem(KEY_PLAN,t);
+  /* nhận bộ đi kèm bậc này — đã nhận là giữ vĩnh viễn */
+  const def=tierOf(t);if(def)grantColls(def.grants);
   closePlan();
   const fn=planAfter;planAfter=null;
   setTimeout(()=>{renderAskFree();renderDeepGate();renderFinalGate();if(fn)fn()},420);
@@ -2073,115 +2066,111 @@ async function aiRead(){
 }
 
 /* ============================================================
-   KHO TÀNG — 3 module sưu tầm.
-   Mỗi module để sẵn chỗ cắm file design: `art` là đường dẫn ảnh bìa,
-   `items` là danh sách lá/sắc sẽ nạp từ file thiết kế sau.
-   Phần thưởng xếp từ dễ tới đặc biệt; `secrets` là những mảnh hiếm
-   với lợi ích vượt trội hơn cả mốc 100%.
+   KHO TÀNG — bộ bài và sắc màn đi kèm từng bậc giao ước.
+   Không có yếu tố ngẫu nhiên, không mua lẻ: mỗi bậc mở ra đúng
+   những gì ghi trên bảng, và mỗi tháng có một bộ mới tặng kèm
+   cho người còn giữ giao ước.
+   `art` và `items` để trống, chờ cắm file thiết kế.
    ============================================================ */
 const COLLECTIONS=[
- {id:"deck-anhkim",kind:"Bộ bài",name:"Ánh Kim Nguyên Bản",total:78,art:null,items:[],
+ {id:"deck-anhkim",kind:"Bộ bài",name:"Ánh Kim Nguyên Bản",count:"78 lá",art:null,items:[],
   blurb:"Bộ khởi thuỷ — nét vàng trên nền mực. Ai cũng bắt đầu từ đây.",
-  perks:[
-    [25,"Thêm một lượt thổ lộ mỗi ngày"],
-    [50,"Mở viền vàng riêng cho lá bài khi trải"],
-    [75,"Bốc bài không giới hạn trong ngày"],
-    [100,"Thổ lộ không giới hạn, và mở tầng nghĩa riêng của bộ này"]],
-  secrets:[
-    {n:"Lá Vô Danh",r:"Hiếm",p:"Mỗi tháng một lần chiêm nghiệm sâu không tính lượt"},
-    {n:"Nguyệt Ấn",r:"Cực hiếm",p:"Vĩnh viễn thêm một lượt thổ lộ mỗi ngày"},
-    {n:"Cửa Sau Thời Gian",r:"Huyền thoại",p:"Mở lại bất kỳ lần bốc nào bạn từng đi qua, và xem mạch cảm xúc trọn năm"}]},
-
- {id:"deck-hacdieu",kind:"Bộ bài",name:"Hắc Diệu",total:78,art:null,items:[],
+  special:"Ba lá Ẩn chỉ hiện ra sau khi bạn quay lại đủ bảy ngày."},
+ {id:"deck-hacdieu",kind:"Bộ bài",name:"Hắc Diệu",count:"78 lá",art:null,items:[],
   blurb:"Bộ bài của những câu hỏi hỏi lúc nửa đêm.",
-  perks:[
-    [25,"Mở lối trải bài ban đêm — nền tối sâu hơn"],
-    [50,"Lá bài lật kèm hiệu ứng khói"],
-    [75,"Thêm một lá thứ tư: điều bạn chưa dám hỏi"],
-    [100,"Nghi thức riêng của Hắc Diệu, mở suốt đời"]],
-  secrets:[
-    {n:"Bóng Của Bạn",r:"Hiếm",p:"Một lần mỗi tháng, đọc mặt khuất của chính câu hỏi bạn vừa đặt"},
-    {n:"Khoá Nửa Đêm",r:"Cực hiếm",p:"Bốc bài không giới hạn từ 22h tới 4h sáng"},
-    {n:"Tấm Gương Vỡ",r:"Huyền thoại",p:"Mở toàn bộ tầng nghĩa ẩn của cả 78 lá, ở mọi bộ"}]},
-
- {id:"theme-mantrang",kind:"Sắc màn",name:"Màn Trăng",total:12,art:null,items:[],
+  special:"Mở thêm lá thứ tư trong mỗi lần trải: điều bạn chưa dám hỏi."},
+ {id:"theme-mantrang",kind:"Sắc màn",name:"Màn Trăng",count:"12 sắc",art:null,items:[],
   blurb:"Không phải bài — là bầu không khí phủ lên toàn bộ nghi thức.",
-  perks:[
-    [25,"Đổi sắc nền cho nghi thức"],
-    [50,"Hiệu ứng lật bài riêng"],
-    [75,"Âm thanh nền cho từng chặng"],
-    [100,"Cổng khai mở mang hình dạng riêng của Màn Trăng"]],
-  secrets:[
-    {n:"Trăng Non",r:"Hiếm",p:"Mỗi đầu tháng âm lịch, một lần bốc bài đặc biệt"},
-    {n:"Trăng Máu",r:"Cực hiếm",p:"Mở sắc màn không ai khác có, kèm khung viền riêng"},
-    {n:"Vô Nguyệt",r:"Huyền thoại",p:"Tự tạo sắc màn của riêng bạn và giữ nó vĩnh viễn"}]}
+  special:"Cổng khai mở và hiệu ứng lật bài mang hình dạng riêng."}
 ];
-const KEY_COLL="lro_collection";
-function collOwned(){try{return JSON.parse(localStorage.getItem(KEY_COLL)||"{}")}catch(_){return{}}}
+/* Bộ mới ra mỗi tháng, tặng cho người còn giữ giao ước ở tháng đó.
+   Thêm một dòng vào đây là xong một đợt phát hành. */
+const RELEASES=[
+ {m:"08/2026",id:"deck-thuytinh",kind:"Bộ bài",name:"Thuỷ Tinh",count:"78 lá",
+  blurb:"Bộ của những điều trong suốt mà vẫn không nhìn xuyên được."},
+ {m:"09/2026",id:"theme-suongsom",kind:"Sắc màn",name:"Sương Sớm",count:"12 sắc",
+  blurb:"Sắc của những buổi chưa kịp tỉnh hẳn."}
+];
+const KEY_OWNED="lro_owned";
+function owned(){try{return JSON.parse(localStorage.getItem(KEY_OWNED)||"[]")}catch(_){return[]}}
+function ownsColl(id){return owned().includes(id)}
+/* Đã nhận thì giữ vĩnh viễn, kể cả khi ngừng gia hạn. */
+function grantColls(ids){
+  const o=owned();ids.forEach(x=>{if(!o.includes(x))o.push(x)});
+  localStorage.setItem(KEY_OWNED,JSON.stringify(o));
+}
 function showVault(){
-  const el=document.getElementById("vaultBody"),own=collOwned();
-  el.innerHTML=COLLECTIONS.map(c=>{
-    const n=(own[c.id]&&own[c.id].count)||0,pct=Math.round(n/c.total*100);
-    const perks=c.perks.map(([at,txt])=>
-      `<li class="${pct>=at?"got":""}"><span class="pm">${at}%</span>${txt}</li>`).join("");
-    const secrets=c.secrets.map(sx=>{
-      const has=(own[c.id]&&(own[c.id].secrets||[]).includes(sx.n));
-      return `<li class="${has?"got":""}"><span class="sr r-${sx.r.split(" ")[0].toLowerCase()}">${sx.r}</span>
-        <strong>${sx.n}</strong><br><span class="sp">${sx.p}</span></li>`}).join("");
-    return `<div class="panel coll" data-coll="${c.id}">
+  const el=document.getElementById("vaultBody"),tier=planTier();
+  const drop=RELEASES[0];
+  const cards=COLLECTIONS.map(c=>{
+    const has=ownsColl(c.id);
+    const via=TIERS.find(t=>t.grants.includes(c.id));
+    return `<div class="panel coll${has?" have":""}">
       <div class="collhead">
         <div class="collart" data-art="${c.id}">${c.art?`<img src="${c.art}" alt="">`:'<span>✦</span>'}</div>
-        <div><div class="collkind">${c.kind}</div><div class="collname">${c.name}</div>
+        <div><div class="collkind">${c.kind} · ${c.count}</div>
+        <div class="collname">${c.name}</div>
         <div class="collblurb">${c.blurb}</div></div>
       </div>
-      <div class="bar"><i style="width:${pct}%"></i></div>
-      <div class="barnum">${n} / ${c.total} · ${pct}%</div>
-      <div class="collsec">Mở dần</div><ul class="perkline">${perks}</ul>
-      <div class="collsec">Mảnh hiếm</div><ul class="secretline">${secrets}</ul>
+      <div class="collstate">${has?'<span class="tagon">Đã thuộc về bạn</span>'
+        :`<span class="tagoff">Mở cùng ${via?via.name:"giao ước"}</span>`}</div>
+      <p class="collspecial"><span class="cs">Điều riêng của bộ này</span>${c.special}</p>
     </div>`}).join("");
+  el.innerHTML=`<div class="panel drop">
+      <div class="ai-label">✦ Bộ của tháng ${drop.m}</div>
+      <div class="collname">${drop.name}</div>
+      <div class="collkind" style="margin:6px 0 8px">${drop.kind} · ${drop.count}</div>
+      <div class="collblurb">${drop.blurb}</div>
+      <p class="pw-note" style="margin-top:14px">${tier
+        ?"Bạn đang giữ giao ước — bộ này sẽ về tay bạn khi tới ngày."
+        :"Mỗi tháng có một bộ mới. Ai còn giữ giao ước tháng đó thì bộ ấy thuộc về họ, giữ mãi."}</p>
+    </div>`+cards
+    +`<p class="note" style="text-align:center;margin-top:20px">Bộ bài và sắc màn đã nhận là của bạn mãi mãi.<br>
+      Ngừng gia hạn thì chỉ dừng nhận bộ mới và các phần cần kết nối.</p>`;
   show("sVault");
 }
 
 /* ============================================================
-   GIAO ƯỚC — các bậc theo tháng, và hộp bí ẩn mua lẻ.
+   GIAO ƯỚC — ba bậc cộng dồn, bậc trên bao trùm bậc dưới.
    ============================================================ */
 const TIERS=[
- {id:"nguyet",name:"Nguyệt Ước",price:"49k",per:"mỗi tháng",
+ {id:"nguyet",name:"Nguyệt Ước",price:"49k",per:"tháng",
   lead:"Đủ để lá bài không quên bạn",
-  perks:["Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức giữ qua mọi thiết bị","Biểu đồ cảm xúc theo ngày"]},
- {id:"tinh",name:"Tinh Ước",price:"99k",per:"mỗi tháng",best:true,
-  lead:"Đi sâu hơn, và bắt đầu sưu tầm",
-  perks:["Tất cả của Nguyệt Ước","Chiêm nghiệm sâu không giới hạn","Một hộp bí ẩn mỗi tháng","Mở sẵn một bộ bài bất kỳ"]},
- {id:"thien",name:"Thiên Ước",price:"199k",per:"mỗi tháng",
+  grants:["deck-anhkim"],
+  perks:["Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức giữ qua mọi thiết bị",
+    "Biểu đồ cảm xúc theo ngày","Nhận bộ Ánh Kim Nguyên Bản, giữ mãi"]},
+ {id:"tinh",name:"Tinh Ước",price:"99k",per:"tháng",best:true,
+  lead:"Đi sâu hơn, và mở thêm hai lớp nghi thức",
+  grants:["deck-anhkim","deck-hacdieu","theme-mantrang"],
+  perks:["Tất cả của Nguyệt Ước","Chiêm nghiệm sâu không giới hạn",
+    "Thêm bộ Hắc Diệu và sắc màn Màn Trăng","Bộ mới mỗi tháng, giữ mãi"]},
+ {id:"thien",name:"Thiên Ước",price:"199k",per:"tháng",
   lead:"Toàn bộ nghi thức, không còn cánh cửa nào",
-  perks:["Tất cả của Tinh Ước","Ba hộp bí ẩn mỗi tháng","Toàn bộ sắc màn hiện có","Tỉ lệ chạm mảnh hiếm cao hơn","Đọc lại mọi lần bốc đã qua"]}
+  grants:["deck-anhkim","deck-hacdieu","theme-mantrang"],
+  perks:["Tất cả của Tinh Ước","Bốc bài không giới hạn trong ngày",
+    "Được dùng trước mọi bộ ra sau","Đọc lại mọi lần bốc đã qua"]}
 ];
-const BOXES=[
- {n:1,price:"39k",note:"Một lá, một bất ngờ"},
- {n:5,price:"179k",note:"Chắc chắn có ít nhất một mảnh Hiếm"},
- {n:12,price:"399k",note:"Chắc chắn có ít nhất một mảnh Cực hiếm"}
-];
+function tierOf(id){return TIERS.find(t=>t.id===id)}
 function showPlanTab(){
-  const el=document.getElementById("planTabBody");
-  const cur=hasPlan()?`<div class="panel gate"><div class="ai-label">✦ Giao ước đang giữ</div>
-     <p class="pw-note">Bạn đang đi cùng lá bài. Đổi bậc hoặc dừng lại lúc nào cũng được.</p></div>`:"";
-  el.innerHTML=cur+TIERS.map(t=>`
-    <div class="panel tier${t.best?" best":""}">
+  const el=document.getElementById("planTabBody"),cur=planTier(),drop=RELEASES[0];
+  const head=cur?`<div class="panel gate"><div class="ai-label">✦ Đang giữ ${tierOf(cur).name}</div>
+     <p class="pw-note">Đổi bậc hoặc dừng lại lúc nào cũng được. Những gì đã nhận vẫn là của bạn.</p></div>`:"";
+  el.innerHTML=head+TIERS.map(t=>`
+    <div class="panel tier${t.best?" best":""}${cur===t.id?" mine":""}">
       ${t.best?'<div class="tierflag">Được chọn nhiều nhất</div>':""}
       <div class="tiername">${t.name}</div>
       <div class="tierprice">${t.price}<span> / ${t.per}</span></div>
       <p class="tierlead">${t.lead}</p>
       <ul class="perks">${t.perks.map(p=>`<li><span class="pi">${UI_ICONS.calm}</span>${p}</li>`).join("")}</ul>
-      <button class="btn" onclick="comingSoon('${t.name}','${t.price} ${t.per}')">Chọn ${t.name} ✦</button>
+      <button class="btn" onclick="comingSoon('${t.name}','${t.price} mỗi ${t.per}')">Chọn ${t.name} ✦</button>
     </div>`).join("")
-    +`<div class="stage" style="margin-top:34px">Hộp bí ẩn</div>
-      <h2 style="margin-top:8px;font-size:21px">Không biết trước lá nào sẽ đến</h2>
-      <p class="sub">Mỗi hộp là một mảnh cho kho tàng của bạn</p>
-      <div class="boxrow">${BOXES.map(b=>`
-        <div class="panel bbox"><div class="bboxn">${b.n}</div>
-        <div class="bboxlabel">hộp</div><div class="bboxprice">${b.price}</div>
-        <p class="bboxnote">${b.note}</p>
-        <button class="btn ghost" onclick="comingSoon('${b.n} hộp bí ẩn','${b.price}')">Chọn ✦</button></div>`).join("")}</div>`;
+    +`<div class="panel drop" style="margin-top:20px">
+      <div class="ai-label">✦ Bộ của tháng ${drop.m}</div>
+      <div class="collname">${drop.name}</div>
+      <div class="collblurb" style="margin-top:6px">${drop.blurb}</div>
+      <p class="pw-note" style="margin-top:12px">Mỗi tháng một bộ mới. Còn giữ giao ước tháng nào thì bộ tháng ấy thuộc về bạn, giữ mãi — kể cả sau này bạn dừng.</p>
+    </div>
+    <p class="note" style="text-align:center;margin-top:18px">Không có hộp ngẫu nhiên. Bạn thấy trước chính xác mình nhận gì.</p>`;
   show("sPlan");
 }
 
