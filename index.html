@@ -216,6 +216,9 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 
 /* ===== mạch chuyện: mỗi lá một đoạn, hiện dần theo thứ tự lật ===== */
 .wv{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s cubic-bezier(.25,.8,.3,1)}
+.wv.waiting{opacity:.3;transform:none}
+.wv.waiting .wvname,.wv.waiting .wvglyph{filter:grayscale(.55);opacity:.7}
+.wvwait{font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--mut);opacity:.7}
 .wv.in{opacity:1;transform:none}
 .wv+.wv{margin-top:22px;padding-top:20px;border-top:1px solid rgba(201,162,74,.16)}
 .wvhead{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap}
@@ -265,6 +268,7 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .cyi svg{width:16px;height:16px}
 .chartfoot{display:flex;justify-content:space-between;margin-top:4px;padding:0 8px 0 30px;
   font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.chartnote{margin-top:9px;font-size:10.5px;letter-spacing:.08em;color:var(--mut);text-align:center;opacity:.8}
 .chartempty{font-family:var(--serif);font-style:italic;color:var(--mut);font-size:14px;line-height:1.8;text-align:center;padding:14px 4px}
 .journal-item{margin-top:14px}
 .jdate{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
@@ -325,6 +329,9 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .bboxprice{font-family:var(--serif);font-size:20px;color:var(--ivory);margin-top:8px}
 .bboxnote{font-size:12.5px;line-height:1.7;color:var(--mut);margin:8px 0 14px}
 
+.soonbar{margin:16px auto 0;max-width:520px;text-align:center;font-family:var(--serif);font-style:italic;
+  font-size:13.5px;line-height:1.75;color:var(--mut);border:1px dashed rgba(201,162,74,.3);
+  border-radius:12px;padding:12px 16px;background:rgba(201,162,74,.03)}
 .perks.mini{margin:14px 0 18px}
 .perks.mini li{font-size:12.5px;padding:7px 0}
 #planModal .signcard{max-width:400px;text-align:center}
@@ -781,7 +788,7 @@ body.deep .stage{margin-top:26px}
   <h2>Hôm nay bạn cảm thấy thế nào?</h2>
   <p class="sub">Chọn một trạng thái gần nhất — hoặc bỏ qua, không bắt buộc</p>
   <div class="choices" id="moods"></div>
-  <button class="btn ghost" onclick="state.mood=null;buildTopics();show('s2')">Mình chưa gọi tên được — cứ bắt đầu nhé</button>
+  <button class="btn ghost" onclick="state.mood=null;logMood(null);buildTopics();show('s2')">Mình chưa gọi tên được — cứ bắt đầu nhé</button>
 </section>
 
 <section class="step" id="s2">
@@ -868,12 +875,14 @@ body.deep .stage{margin-top:26px}
   <div class="stage">Kho tàng · những gì bạn đang giữ</div>
   <h2>Kho tàng</h2>
   <p class="sub">Mỗi bộ sưu tầm đủ sẽ mở ra một phần của nghi thức</p>
+  <div class="soonbar">Cửa kho còn đang khép — những gì bạn thấy dưới đây là thứ sắp mở ra</div>
   <div id="vaultBody"></div>
 </section>
 
 <section class="step" id="sPlan">
   <div class="stage">Giao ước · đi cùng lá bài</div>
   <h2>Lời giao ước</h2>
+  <div class="soonbar">Chưa tới lúc trao ước — bạn cứ xem trước để biết mình sẽ chọn gì</div>
   <div id="planTabBody"></div>
 </section>
 
@@ -1127,9 +1136,15 @@ function aiModel(){return localStorage.getItem(KEY_MODEL)||"gpt-4o"}
 
 /* ---------- flow ---------- */
 const STAGE={sCenter:1,s1:2,s2:3,sShuffle:3,s3:4,sAsk:4,s4:5,s5:5,sJournal:2,sSet:2};
+let showTimer=null;
 function show(id){
-  const cur=document.querySelector(".step.active"),nx=document.getElementById(id);
+  const nx=document.getElementById(id);
   if(!nx)return;
+  /* Đổi bước hai lần thật nhanh (bấm liền hai tab) thì lần chuyển trước còn treo,
+     và cả hai bước cùng hiện. Dọn nốt lần trước rồi mới bắt đầu lần này. */
+  if(showTimer){clearTimeout(showTimer);showTimer=null;
+    document.querySelectorAll(".step.leaving").forEach(x=>x.classList.remove("active","leaving","shown"));}
+  const cur=document.querySelector(".step.active");
   const TABS={sJournal:"navJournal",sVault:"navVault",sPlan:"navPlan",sSet:"navSet"};
   document.getElementById("navHome").classList.toggle("on",!TABS[id]);
   Object.entries(TABS).forEach(([sec,btn])=>
@@ -1153,13 +1168,15 @@ function show(id){
     resetAskThread();
   }
   const go=()=>{
+    document.querySelectorAll(".step.active").forEach(x=>{
+      if(x!==nx)x.classList.remove("active","leaving","shown")});
     nx.classList.add("active");
     requestAnimationFrame(()=>requestAnimationFrame(()=>nx.classList.add("shown")));
     scrollTo({top:0,behavior:"smooth"});
   };
   if(cur&&cur!==nx){
     cur.classList.remove("shown");cur.classList.add("leaving");
-    setTimeout(()=>{cur.classList.remove("active","leaving");go()},430);
+    showTimer=setTimeout(()=>{showTimer=null;cur.classList.remove("active","leaving");go()},430);
   }else if(cur===nx){nx.classList.add("shown")}
   else go();
 }
@@ -1325,22 +1342,28 @@ let readQ=[],readBusy=false,weaveSaid=[];
 function weaveOpened(){return document.querySelectorAll("#slots .slotcard.opened").length}
 function onCardOpened(i){
   const ov=document.getElementById("overview");
+  /* Ba khối dựng sẵn theo đúng thứ tự Quá khứ → Hiện tại → Hướng đi ngay từ lá đầu tiên,
+     nên dù người ta chạm lá nào trước thì mạch chuyện vẫn đọc xuôi. */
   if(!document.getElementById("weave")){
     ov.style.display="block";
     ov.innerHTML='<div class="ai-label">✦ Mạch chuyện của bạn</div><div id="weave"></div>';
+    const w0=document.getElementById("weave");
+    state.drawn.forEach((c,k)=>{
+      const el=document.createElement("div");el.className="wv waiting";el.id="wv"+k;
+      el.innerHTML=`<div class="wvhead"><span class="wvglyph">${SUIT_ICONS[c.s]}</span>
+        <span class="wvname">${escapeHtml(c.n)}</span><span class="wvpos">${POS[k]}</span></div>
+        <div class="wvbody" id="wvb${k}"><span class="wvwait">Lá này chưa mở</span></div>`;
+      w0.appendChild(el);
+    });
     const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
     st.textContent="Interpret · mạch chuyện";ti.textContent="Lá mở tới đâu, chuyện hiện tới đó";su.textContent="";
   }
-  const w=document.getElementById("weave");
-  if(document.getElementById("wv"+i))return;
-  const c=state.drawn[i];
-  const b=document.createElement("div");b.className="wv";b.id="wv"+i;
-  b.innerHTML=`<div class="wvhead"><span class="wvglyph">${SUIT_ICONS[c.s]}</span>
-    <span class="wvname">${escapeHtml(c.n)}</span><span class="wvpos">${POS[i]}</span></div>
-    <div class="wvbody" id="wvb${i}"><span class="tw">✦</span></div>`;
-  w.appendChild(b);
+  const bl=document.getElementById("wv"+i);
+  if(!bl||!bl.classList.contains("waiting"))return;
+  bl.classList.remove("waiting");
+  document.getElementById("wvb"+i).innerHTML='<span class="tw">✦</span>';
   geoFlare();
-  requestAnimationFrame(()=>b.classList.add("in"));
+  requestAnimationFrame(()=>bl.classList.add("in"));
   readQ.push(i);runRead();
 }
 function makeTyper(el,speed){
@@ -1357,7 +1380,8 @@ async function runRead(){
   if(readBusy||!readQ.length)return;
   readBusy=true;
   const i=readQ.shift();
-  try{await streamCardRead(i)}catch(_){}
+  const isLast=(weaveOpened()>=3&&readQ.length===0);
+  try{await streamCardRead(i,isLast)}catch(_){}
   readBusy=false;
   if(readQ.length){runRead();return}
   if(weaveOpened()>=3&&!readQ.length)showWeaveArrow();
@@ -1367,7 +1391,7 @@ function showWeaveArrow(){
   t.style.display="flex";
   setTimeout(()=>{try{t.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}},320);
 }
-async function streamCardRead(i){
+async function streamCardRead(i,isLast){
   const te=document.getElementById("wvb"+i);if(!te)return;
   const c=state.drawn[i];
   const key=localStorage.getItem(KEY_API);
@@ -1384,8 +1408,10 @@ QUY TẮC
 3. Không lặp lại ý hay hình ảnh đã nói ở đoạn trước.
 4. Đoạn ${POS[i]}: ${i===0?"soi lại điều đã hình thành nên tình cảnh hôm nay, nhẹ nhàng, không phán xét."
     :i===1?"gọi đúng tên thứ đang thật sự cản họ lúc này — nói thẳng."
-    :"đưa một hướng đi cụ thể, một việc làm được trong tuần này. Khép lại bằng một câu mời họ nói ra điều còn giấu."}
-5. Nếu họ kể rất ít thì đọc theo hướng mở, đừng bịa chi tiết đời họ.
+    :"đưa một hướng đi cụ thể, một việc làm được trong tuần này."}
+5. ${isLast?"Đây là đoạn cuối cùng được mở. Khép lại bằng một câu mời họ nói ra điều còn giấu."
+    :"Vẫn còn lá chưa mở. ĐỪNG khép lại, đừng mời họ nói thêm, đừng tổng kết — chỉ nói phần của đoạn này rồi dừng."}
+6. Nếu họ kể rất ít thì đọc theo hướng mở, đừng bịa chi tiết đời họ.
 
 GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH 70-110 từ, một đoạn duy nhất, không đánh số, không tiêu đề.`;
   const usr=`Chủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}\nBa lá (ngầm, không nhắc tên): ${state.drawn.map(x=>x.n).join(" / ")}\n\nĐã nói ở các đoạn trước:\n${weaveSaid.join("\n---\n")||"(chưa có)"}\n\nLịch sử gần đây:\n${memorySummary()}`;
@@ -1621,6 +1647,21 @@ const PLAN_PERKS=[
   ["self","Mở ý nghĩa đặc biệt của từng lá, không chỉ ba lá hôm nay"]
 ];
 let planAfter=null;
+/* Chưa nối được cổng thanh toán: thay vì để mọi nút dẫn về cùng một chỗ,
+   ghi rõ người ta vừa chọn gì rồi nói thật là cửa chưa mở. */
+function comingSoon(what,price){
+  const el=document.getElementById("planBody"),u=member();
+  el.innerHTML=`<div class="ai-label">✦ Cửa chưa mở</div>
+   <h3>${escapeHtml(what)}</h3>
+   <p class="signwhy">${escapeHtml(price)}</p>
+   <p class="pw-note">Lời giao ước này đang được dệt.<br>
+   ${u?`Khi cửa mở, lá bài sẽ nhắn cho ${escapeHtml(u.name)} trước tiên.`
+      :"Để lại tên ở cõi riêng, bạn sẽ là người biết đầu tiên."}</p>
+   ${u?"":`<button class="btn" onclick="closePlan();setTimeout(()=>openSign('Để lá bài biết nhắn cho ai khi cửa mở.'),420)">Vào cõi riêng ✦</button>`}
+   <button class="btn ghost" onclick="closePlan()">Đã hiểu</button>`;
+  const m=document.getElementById("planModal");
+  m.classList.add("open");requestAnimationFrame(()=>m.classList.add("shown"));
+}
 function openPlan(after){
   if(!isMember()){openSign("Trước khi nhận lời giao ước, lá bài cần biết gọi bạn là gì.",()=>openPlan(after));return}
   planAfter=after||null;
@@ -2131,7 +2172,7 @@ function showPlanTab(){
       <div class="tierprice">${t.price}<span> / ${t.per}</span></div>
       <p class="tierlead">${t.lead}</p>
       <ul class="perks">${t.perks.map(p=>`<li><span class="pi">${UI_ICONS.calm}</span>${p}</li>`).join("")}</ul>
-      <button class="btn" onclick="openPlan()">Nhận ${t.name} ✦</button>
+      <button class="btn" onclick="comingSoon('${t.name}','${t.price} ${t.per}')">Chọn ${t.name} ✦</button>
     </div>`).join("")
     +`<div class="stage" style="margin-top:34px">Hộp bí ẩn</div>
       <h2 style="margin-top:8px;font-size:21px">Không biết trước lá nào sẽ đến</h2>
@@ -2140,7 +2181,7 @@ function showPlanTab(){
         <div class="panel bbox"><div class="bboxn">${b.n}</div>
         <div class="bboxlabel">hộp</div><div class="bboxprice">${b.price}</div>
         <p class="bboxnote">${b.note}</p>
-        <button class="btn ghost" onclick="openPlan()">Mở ✦</button></div>`).join("")}</div>`;
+        <button class="btn ghost" onclick="comingSoon('${b.n} hộp bí ẩn','${b.price}')">Chọn ✦</button></div>`).join("")}</div>`;
   show("sPlan");
 }
 
@@ -2161,44 +2202,44 @@ function moodLog(){try{return JSON.parse(localStorage.getItem(KEY_MOOD)||"[]")}c
 function dayKey(ts){const d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
 /* mỗi ngày chấm một điểm, dựa đúng vào trạng thái người ta chọn lúc mở đầu */
 function logMood(label){
-  if(!label)return;
-  const sc=MOOD_SCORE[label]||3,k=dayKey(Date.now()),l=moodLog();
+  const k=dayKey(Date.now()),l=moodLog();
+  const rec={k,d:Date.now(),m:label||null,s:label?(MOOD_SCORE[label]||3):null};
   const i=l.findIndex(e=>e.k===k);
-  const rec={k,d:Date.now(),m:label,s:sc};
-  if(i>=0)l[i]=rec;else l.push(rec);
+  /* ngày đã có điểm thì một lần bỏ qua sau đó không được xoá mất */
+  if(i>=0){if(rec.s===null&&l[i].s!==null)return;l[i]=rec}else l.push(rec);
   localStorage.setItem(KEY_MOOD,JSON.stringify(l.slice(-180)));
 }
 /* biểu đồ đường tối giản: không lưới, không số — mức độ đọc bằng icon bên trái */
 function moodChart(){
-  const l=moodLog().slice(-14);
-  if(l.length<2)return `<p class="chartempty">Ghé qua vài ngày nữa, đường cảm xúc của bạn sẽ hiện ra ở đây.</p>`;
-  const W=300,H=132,PL=30,PR=8,PT=12,PB=20;
-  const iw=W-PL-PR,ih=H-PT-PB;
-  const x=i=>PL+(l.length===1?iw/2:i*iw/(l.length-1));
-  const y=v=>PT+ih-((v-1)/4)*ih;
-  const pts=l.map((e,i)=>[x(i),y(e.s)]);
-  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
-  const area=line+` L${pts[pts.length-1][0].toFixed(1)} ${PT+ih} L${pts[0][0].toFixed(1)} ${PT+ih} Z`;
+  const DAY=86400000,all=moodLog();
+  /* cửa sổ 14 NGÀY THẬT, không phải 14 lần ghi — nghỉ mấy hôm thì đường phải hở đúng chừng ấy */
+  const today=new Date();today.setHours(0,0,0,0);
+  const from=today.getTime()-13*DAY;
+  const win=all.filter(e=>e.d>=from);
+  const scored=win.filter(e=>e.s!=null);
+  if(scored.length<2)return `<p class="chartempty">Ghé qua vài ngày nữa, đường cảm xúc của bạn sẽ hiện ra ở đây.</p>`;
+  const W=300,H=132,PL=30,PR=8,PT=12,PB=20,iw=W-PL-PR,ih=H-PT-PB;
+  const dayIdx=ts=>{const d=new Date(ts);d.setHours(0,0,0,0);return Math.round((d.getTime()-from)/DAY)};
+  const xf=ts=>PL+dayIdx(ts)*iw/13, yf=v=>PT+ih-((v-1)/4)*ih;
+  const pts=scored.map(e=>({x:xf(e.d),y:yf(e.s),day:dayIdx(e.d)}));
+  let segs="",area=`M${pts[0].x.toFixed(1)} ${(PT+ih).toFixed(1)} L${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for(let k=1;k<pts.length;k++){
+    const a=pts[k-1],b=pts[k],gap=(b.day-a.day)>1;
+    segs+=`<path d="M${a.x.toFixed(1)} ${a.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)}" fill="none" stroke="#c9a24a" stroke-width="1.6" stroke-linecap="round"${gap?' stroke-dasharray="2 4" opacity=".38"':''}/>`;
+    area+=` L${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+  area+=` L${pts[pts.length-1].x.toFixed(1)} ${(PT+ih).toFixed(1)} Z`;
   const icons=[5,3,1].map(v=>
-    `<foreignObject x="2" y="${(y(v)-9).toFixed(1)}" width="20" height="20">
-       <div xmlns="http://www.w3.org/1999/xhtml" class="cyi">${UI_ICONS[SCORE_ICON[v]]}</div></foreignObject>`).join("");
-  const dots=pts.map((p,i)=>
-    `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===pts.length-1?3.4:2.2}"
-      fill="${i===pts.length-1?"#e8c87e":"#c9a24a"}"/>`).join("");
-  const first=new Date(l[0].d),last=new Date(l[l.length-1].d);
-  const dm=d=>d.getDate()+"/"+(d.getMonth()+1);
-  return `<div class="chartwrap"><svg viewBox="0 0 ${W} ${H}" class="moodchart" role="img"
-      aria-label="Mạch cảm xúc ${l.length} ngày gần đây">
-      <defs><linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="rgba(201,162,74,.28)"/><stop offset="1" stop-color="rgba(201,162,74,0)"/>
-      </linearGradient></defs>
-      ${icons}
-      <path d="${area}" fill="url(#mcg)"/>
-      <path d="${line}" fill="none" stroke="#c9a24a" stroke-width="1.6"
-        stroke-linecap="round" stroke-linejoin="round"/>
-      ${dots}
-    </svg>
-    <div class="chartfoot"><span>${dm(first)}</span><span>hôm nay</span></div></div>`;
+    `<foreignObject x="2" y="${(yf(v)-9).toFixed(1)}" width="20" height="20"><div xmlns="http://www.w3.org/1999/xhtml" class="cyi">${UI_ICONS[SCORE_ICON[v]]}</div></foreignObject>`).join("");
+  const dots=pts.map((p,k)=>
+    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${k===pts.length-1?3.4:2.2}" fill="${k===pts.length-1?"#e8c87e":"#c9a24a"}"/>`).join("");
+  const skipped=win.length-scored.length;
+  const dm=ts=>{const d=new Date(ts);return d.getDate()+"/"+(d.getMonth()+1)};
+  return `<div class="chartwrap"><svg viewBox="0 0 ${W} ${H}" class="moodchart" role="img" aria-label="Mạch cảm xúc 14 ngày gần đây, ${scored.length} ngày có ghi">
+      <defs><linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(201,162,74,.28)"/><stop offset="1" stop-color="rgba(201,162,74,0)"/></linearGradient></defs>
+      ${icons}<path d="${area}" fill="url(#mcg)"/>${segs}${dots}</svg>
+    <div class="chartfoot"><span>${dm(from)}</span><span>hôm nay</span></div>
+    <p class="chartnote">${scored.length} ngày có ghi trong 14 ngày${skipped?` · ${skipped} ngày bạn chưa gọi tên cảm giác`:""}</p></div>`;
 }
 function fmt(ts){return new Date(ts).toLocaleDateString("vi-VN",{day:"numeric",month:"long",year:"numeric"})}
 function showJournal(){
