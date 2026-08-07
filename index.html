@@ -313,6 +313,25 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .tierlead{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--mut);margin:10px 0 4px;line-height:1.7}
 .tier .perks{text-align:left}
 
+/* ===== nhịp ngày ở màn lắng lại ===== */
+.dayline{margin-top:26px;display:flex;flex-direction:column;align-items:center;gap:7px;
+  animation:fadeIn 1s ease .5s both}
+.dl-streak{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.dl-today{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--mut)}
+.dl-today.done{color:var(--goldb);opacity:.8}
+.dl-drop{font-size:12.5px;line-height:1.6;color:var(--mut);text-align:center}
+.dl-drop strong{color:var(--goldb);font-weight:400;font-family:var(--serif)}
+.dl-link{background:none;border:none;font-family:var(--serif);font-style:italic;font-size:14px;
+  color:var(--goldb);cursor:pointer;padding:4px 8px;-webkit-tap-highlight-color:transparent;
+  border-bottom:1px solid rgba(201,162,74,.35)}
+
+/* ===== số mảnh đang chờ ở màn Ký ức khoá ===== */
+.waitrow{display:flex;justify-content:center;gap:22px;margin:6px 0 18px}
+.wcell{text-align:center}
+.wnum{font-family:var(--serif);font-size:32px;line-height:1;color:var(--goldb);
+  text-shadow:0 0 20px rgba(232,200,126,.35)}
+.wlab{margin-top:5px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+
 /* ===== chọn lối trải ===== */
 .pick{display:flex;align-items:center;gap:13px;width:100%;text-align:left;margin-top:11px;
   background:linear-gradient(158deg,#1a1722,var(--card));border:1px solid var(--hair);border-radius:13px;
@@ -682,6 +701,8 @@ body.at-center #breathGlow{opacity:1}
 
 /* Header thu gọn khi đã bước vào nghi lễ */
 body.deep header{padding:18px 6px 2px}
+/* Ở màn lắng lại nút Home đang ẩn nên không cần chừa chỗ né nó — trả lại bề ngang cho thanh tab */
+body.at-center header{padding-left:8px;padding-right:8px}
 body.deep .brand{font-size:clamp(13px,3.2vw,16px);gap:8px;letter-spacing:.18em}
 body.deep .brand .mark{width:clamp(19px,4.4vw,23px)}
 body.deep .tag,body.deep .hline{display:none}
@@ -787,6 +808,7 @@ body.deep .stage{margin-top:26px}
     <div class="breathe" aria-hidden="true"><span class="bt bt1">Hít vào</span><span class="bt bt2">Thở ra</span></div>
     <div class="bcount" id="bCount">Nhịp 1 / 3</div>
   </div>
+  <div id="dayline"></div>
   <button class="btn" onclick="show('s1')">Tôi đã sẵn sàng</button>
 </section>
 
@@ -966,7 +988,7 @@ const SPREADS=[
   pos:["Hôm nay"]},
  {id:"rel",n:3,tier:1,name:"Bạn và người ấy",note:"Bạn · Đối phương · Mối quan hệ",
   pos:["Bạn","Đối phương","Mối quan hệ"]},
- {id:"do",n:3,tier:1,name:"Nên và không nên",note:"Điều nên làm · Không nên · Kết quả",
+ {id:"do",n:3,tier:0,name:"Nên và không nên",note:"Điều nên làm · Không nên · Kết quả",
   pos:["Điều nên làm","Điều không nên làm","Kết quả"]},
  {id:"five",n:5,tier:1,name:"Năm lá soi đường",note:"Từ hiện trạng tới kết quả",
   pos:["Hiện trạng","Điều cản trở","Điều hỗ trợ","Lời khuyên","Kết quả"]},
@@ -1226,6 +1248,7 @@ function show(id){
   document.body.classList.toggle("deep",id!=="sCenter");
   document.body.classList.toggle("at-center",id==="sCenter");
   document.body.className=document.body.className.replace(/\bst-\d\b/g,"").trim()+" st-"+(STAGE[id]||2);
+  if(id==="sCenter")renderDayline();
   if(id==="s5")renderFinalGate();
   if(id==="sAsk"){
     renderAskFree();
@@ -1384,7 +1407,7 @@ function beginRitual(){
   iv.classList.add("exit");
   setTimeout(()=>iv.remove(),3400);
 }
-buildMoods();buildTopics();show("sCenter");
+buildMoods();buildTopics();
 /* tàn lửa bay quanh cổng khai mở */
 (function(){const pt=document.getElementById("portal");if(!pt)return;
   for(let i=0;i<10;i++){const a=(i/10)*Math.PI*2+.4,e=document.createElement("i");
@@ -2282,16 +2305,15 @@ function showVault(){
    ============================================================ */
 const TIERS=[
  {id:"nguyet",name:"Nguyệt Ước",price:"49k",per:"tháng",
-  lead:"Đủ để lá bài không quên bạn",
+  lead:"Giữ lại những gì bạn đã đi qua",
   grants:["deck-anhkim"],
-  perks:["Một lá hôm nay — xem nhanh mỗi ngày","Ba lá Quá khứ · Hiện tại · Tương lai",
-    "Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức và biểu đồ cảm xúc giữ qua mọi thiết bị",
-    "Nhận bộ Ánh Kim Nguyên Bản, giữ mãi"]},
+  perks:["Mảnh ký ức không mất khi đổi máy","Biểu đồ cảm xúc theo từng ngày",
+    "Thổ lộ không giới hạn mỗi lần bốc","Một lá hôm nay — xem nhanh mỗi sáng",
+    "Nên làm · Không nên · Kết quả","Nhận bộ Ánh Kim Nguyên Bản, giữ mãi"]},
  {id:"tinh",name:"Tinh Ước",price:"99k",per:"tháng",best:true,
-  lead:"Mở thêm sáu lối trải và một bộ bài",
+  lead:"Mở thêm bốn lối trải và một bộ bài",
   grants:["deck-anhkim","deck-hacdieu"],
-  perks:["Tất cả của Nguyệt Ước","Bạn · Đối phương · Mối quan hệ",
-    "Nên làm · Không nên · Kết quả","Năm lá soi đường",
+  perks:["Tất cả của Nguyệt Ước","Bạn · Đối phương · Mối quan hệ","Năm lá soi đường",
     "Xem tuần (7 lá) vào thứ hai và thứ ba","Xem tháng (12 lá) trong năm ngày đầu tháng",
     "Chiêm nghiệm sâu không giới hạn","Thêm bộ Hắc Diệu, và bộ mới mỗi tháng"]},
  {id:"thien",name:"Thiên Ước",price:"199k",per:"tháng",
@@ -2340,6 +2362,42 @@ const KEY_MOOD="lro_moodlog";
 const MOOD_SCORE={"Buồn":1,"Lo âu":2,"Bối rối":3,"Ổn":4,"Quyết tâm":4,"Bình yên":5};
 const SCORE_ICON={1:"sad",2:"anx",3:"lost",4:"ok",5:"calm"};
 function moodLog(){try{return JSON.parse(localStorage.getItem(KEY_MOOD)||"[]")}catch(_){return[]}}
+/* Ngày "có ghé qua" = ngày có chấm cảm xúc hoặc có giữ lại mảnh ký ức */
+function activeDays(){
+  const set=new Set();
+  moodLog().forEach(e=>set.add(e.k));
+  load().forEach(e=>set.add(dayKey(e.d)));
+  return set;
+}
+function doneToday(){return activeDays().has(dayKey(Date.now()))}
+function streakDays(){
+  const set=activeDays(),DAY=86400000;
+  let t=new Date();t.setHours(0,0,0,0);
+  if(!set.has(dayKey(t.getTime())))t=new Date(t.getTime()-DAY);
+  let n=0;
+  while(set.has(dayKey(t.getTime()))){n++;t=new Date(t.getTime()-DAY)}
+  return n;
+}
+/* Nhịp ngày ở màn lắng lại: chuỗi ngày, trạng thái hôm nay,
+   bộ của tháng cho người đang giữ giao ước, và số mảnh đang chờ cho khách. */
+function renderDayline(){
+  const el=document.getElementById("dayline");if(!el)return;
+  const st=streakDays(),done=doneToday(),tier=planTier();
+  const rows=[];
+  if(st>0)rows.push(`<span class="dl-streak">✦ ${st} ngày liền bạn ghé qua</span>`);
+  rows.push(`<span class="dl-today${done?" done":""}">${done
+    ?"Hôm nay bạn đã bốc rồi — bốc thêm cũng được"
+    :"Hôm nay bạn chưa bốc lá nào"}</span>`);
+  if(tier){
+    const d=RELEASES[0];
+    rows.push(`<span class="dl-drop">Bộ tháng ${d.m} · <strong>${d.name}</strong> đang chờ bạn</span>`);
+  }else{
+    const n=load().length,m=moodLog().filter(e=>e.s!=null).length;
+    if(n||m)rows.push(`<button class="dl-link" onclick="showJournal()">${
+      [n?`${n} mảnh ký ức`:"",m?`${m} ngày cảm xúc`:""].filter(Boolean).join(" và ")} đang đợi bạn →</button>`);
+  }
+  el.innerHTML=`<div class="dayline">${rows.join("")}</div>`;
+}
 function dayKey(ts){const d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
 /* mỗi ngày chấm một điểm, dựa đúng vào trạng thái người ta chọn lúc mở đầu */
 function logMood(label){
@@ -2386,12 +2444,20 @@ function fmt(ts){return new Date(ts).toLocaleDateString("vi-VN",{day:"numeric",m
 function showJournal(){
   const el=document.getElementById("journalBody");
   if(!isMember()){
+    const n=load().length,m=moodLog().filter(e=>e.s!=null).length,st=streakDays();
+    const have=n||m;
     el.innerHTML=`<div class="panel lockbox">
       <div class="ai-label">✦ Cõi riêng của bạn</div>
-      ${lockField("Những gì bạn đã đi qua đang nằm sau cánh cửa này…",true)}
-      <p class="pw-note">Ký ức cần một cái tên để bám vào.<br>
-      Bước qua cánh cửa, mọi mảnh bạn từng giữ sẽ hiện ra — và theo bạn sang mọi thiết bị.</p>
-      <button class="btn" onclick="openSign('Ký ức của bạn đang đợi phía sau cánh cửa.',()=>showJournal())">Bước qua cánh cửa ✦</button></div>`;
+      ${have?`<div class="waitrow">
+         ${n?`<div class="wcell"><div class="wnum">${n}</div><div class="wlab">mảnh ký ức</div></div>`:""}
+         ${m?`<div class="wcell"><div class="wnum">${m}</div><div class="wlab">ngày cảm xúc</div></div>`:""}
+         ${st>1?`<div class="wcell"><div class="wnum">${st}</div><div class="wlab">ngày liền</div></div>`:""}
+       </div>`:""}
+      ${lockField(have?"Tất cả đang nằm sau cánh cửa này…":"Bốc một lần bài, mảnh đầu tiên sẽ xuất hiện ở đây…",true)}
+      <p class="pw-note">${have
+        ?"Bạn đã đi được chừng ấy rồi — nhưng tất cả đang nằm trên đúng chiếc máy này.<br>Bước qua cánh cửa, chúng theo bạn đi bất cứ đâu."
+        :"Ký ức cần một cái tên để bám vào.<br>Bước qua cánh cửa, mọi mảnh bạn giữ sau này sẽ theo bạn sang mọi thiết bị."}</p>
+      <button class="btn" onclick="openSign('${have?`Đã có ${n?n+" mảnh ký ức":""}${n&&m?" và ":""}${m?m+" ngày cảm xúc":""} đang đợi bạn.`:"Ký ức của bạn sẽ bắt đầu từ đây."}',()=>showJournal())">Bước qua cánh cửa ✦</button></div>`;
     show("sJournal");return;
   }
   const list=load().slice().reverse();
@@ -2407,6 +2473,7 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;","
 function goHome(){buildMoods();delete document.body.dataset.tint;show("sCenter")}
 document.getElementById("apiKey").value=localStorage.getItem(KEY_API)||"";
 syncModel();
+show("sCenter");
 </script>
 </body>
 </html>
