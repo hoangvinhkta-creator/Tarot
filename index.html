@@ -914,7 +914,7 @@ body.deep .stage{margin-top:26px}
     <button class="chip mopt" data-m="gpt-4o" onclick="pickModel(this)">Sâu sắc</button>
     <button class="chip mopt" data-m="gpt-4o-mini" onclick="pickModel(this)">Nhanh &amp; nhẹ</button>
   </div>
-  <p class="note" style="text-align:center">Sâu sắc: lời đọc giàu cảm xúc và cụ thể hơn. Nhanh &amp; nhẹ: gọn gàng, tức thì.</p>
+  <p class="note" style="text-align:center">Lựa chọn này áp cho phần <strong style="color:var(--gold)">thổ lộ</strong> và <strong style="color:var(--gold)">chiêm nghiệm sâu</strong>.<br>Phần đọc từng lá luôn chạy ở chế độ nhanh để giữ nhịp nghi thức.</p>
   <button class="btn" onclick="saveKey()">Lưu</button>
   <p class="note">⚠️ Khóa được giữ riêng trên trình duyệt của bạn (localStorage). <strong style="color:var(--gold)">Không</strong> đặt khóa vào mã nguồn khi chia sẻ link công khai.</p>
 </section>
@@ -1199,6 +1199,10 @@ const SUIT_ICONS={
 let state={mood:null,topic:null,drawn:[],flipped:0};
 const KEY="lro_journal_v1", KEY_API="lro_openai_key", KEY_MODEL="lro_model";
 function aiModel(){return localStorage.getItem(KEY_MODEL)||"gpt-4o"}
+/* Phần đọc từng lá luôn dùng mô hình nhanh: mỗi lá là một lượt gọi riêng nên
+   số lượt tăng theo số lá, và ở độ dài này khác biệt gần như không thấy.
+   Nhờ vậy đọc được dài hơn hẳn mà vẫn rẻ hơn nhiều lần. */
+function readModel(){return "gpt-4o-mini"}
 
 /* ---------- stars ---------- */
 /* Nền gradient (Tín Phát style) thay cho hiệu ứng sao — bỏ animation canvas để tiết kiệm pin trên điện thoại */
@@ -1531,13 +1535,20 @@ QUY TẮC
     :"Vẫn còn lá chưa mở. ĐỪNG khép lại, đừng mời họ nói thêm, đừng tổng kết — chỉ nói phần của đoạn này rồi dừng."}
 6. Nếu họ kể rất ít thì đọc theo hướng mở, đừng bịa chi tiết đời họ.
 
-GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH ${big?"45-70":"70-110"} từ, một đoạn duy nhất, không đánh số, không tiêu đề.`;
+CÁCH VIẾT ĐỂ ĐOẠN NÀY CÓ SỨC NẶNG
+- Mở bằng một quan sát cụ thể về tình cảnh của họ, không mở bằng câu chung chung kiểu "cuộc sống luôn có lúc...".
+- Nêu ít nhất một chi tiết họ đã kể, nhắc lại bằng lời của bạn.
+- Nói thêm một tầng nữa: điều gì nằm dưới chuyện đó mà có thể họ chưa gọi tên.
+- Kết bằng một ý dùng được — một cách nghĩ khác, hoặc một việc nhỏ làm được.
+- Tuyệt đối không viết câu đệm, không lặp lại điều vừa nói bằng chữ khác.
+
+GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH ${big?"70-100":"110-160"} từ, chia 1-2 đoạn tự nhiên, không đánh số, không tiêu đề.`;
   const usr=`Lối trải: ${sp.name}\nChủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}${sp.ask2?`\nLựa chọn A: ${state.choiceA||""}\nLựa chọn B: ${state.choiceB||""}`:""}\nCác lá (ngầm, không nhắc tên): ${state.drawn.map(x=>x.n).join(" / ")}\n\nĐã nói ở các đoạn trước:\n${weaveSaid.join("\n---\n")||"(chưa có)"}\n\nLịch sử gần đây:\n${memorySummary()}`;
   const ty=makeTyper(te,30);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:aiModel(),max_tokens:big?260:400,temperature:.85,stream:true,
+      body:JSON.stringify({model:readModel(),max_tokens:big?520:820,temperature:.85,stream:true,
         presence_penalty:.5,messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
     if(!r.ok||!r.body)throw new Error("HTTP "+r.status);
     const rd=r.body.getReader(),dec=new TextDecoder();let buf="",raw="";
