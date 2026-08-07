@@ -313,6 +313,29 @@ textarea::placeholder,input::placeholder{color:var(--mut)}
 .tierlead{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--mut);margin:10px 0 4px;line-height:1.7}
 .tier .perks{text-align:left}
 
+/* ===== chọn lối trải ===== */
+.pick{display:flex;align-items:center;gap:13px;width:100%;text-align:left;margin-top:11px;
+  background:linear-gradient(158deg,#1a1722,var(--card));border:1px solid var(--hair);border-radius:13px;
+  padding:14px 15px;cursor:pointer;font-family:inherit;color:var(--ivory);
+  transition:border-color .35s,background .35s,opacity .35s;-webkit-tap-highlight-color:transparent}
+.pick.on{border-color:var(--goldb);box-shadow:0 0 22px rgba(201,162,74,.18)}
+.pick.off{opacity:.42;cursor:default}
+.pick .pn{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;color:var(--goldb)}
+.pick .pbody{flex:1;min-width:0}
+.pick .pname{font-family:var(--serif);font-size:16px;color:var(--ivory);margin-bottom:3px}
+.pick .pnote{font-size:12px;line-height:1.55;color:var(--mut)}
+.pick .pwhy{margin-top:5px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.pick .parrow{flex:none;color:var(--gold);font-size:16px}
+.pick .plock{flex:none;line-height:0}
+.pick .plock svg{width:20px;height:20px}
+.pick.on .parrow{color:var(--goldb)}
+
+/* ===== ô bài: xuống dòng khi trải nhiều lá ===== */
+.slots{flex-wrap:wrap}
+body.wide .slot{width:clamp(52px,15vw,74px)}
+body.wide .slot .cname{font-size:clamp(8px,2.2vw,10px)}
+body.wide .slot{font-size:7px}
 .soonbar{margin:16px auto 0;max-width:520px;text-align:center;font-family:var(--serif);font-style:italic;
   font-size:13.5px;line-height:1.75;color:var(--mut);border:1px dashed rgba(201,162,74,.3);
   border-radius:12px;padding:12px 16px;background:rgba(201,162,74,.03)}
@@ -782,7 +805,20 @@ body.deep .stage{margin-top:26px}
   <input type="text" id="topicCustom" class="tcustom" style="display:none" placeholder="Điều bạn đang mang trong lòng...">
   <h2 style="margin-top:36px;font-size:20px">Mở lòng sâu hơn</h2>
   <textarea id="story" placeholder="Hãy nói hết ra..."></textarea>
-  <button class="btn" id="toShuffle" style="display:none" onclick="goShuffle()">Tiếp tục</button>
+  <button class="btn" id="toShuffle" style="display:none" onclick="goPick()">Tiếp tục</button>
+</section>
+
+<section class="step" id="sPick">
+  <div class="stage">Spread · chọn lối trải</div>
+  <h2>Bạn muốn lá bài soi theo lối nào?</h2>
+  <p class="sub">Mỗi lối trải hỏi một câu khác nhau</p>
+  <div id="pickList"></div>
+  <div id="pickAsk2" style="display:none">
+    <h2 style="margin-top:30px;font-size:19px">Hai ngả bạn đang cân nhắc</h2>
+    <input type="text" id="choiceA" placeholder="Lựa chọn A...">
+    <input type="text" id="choiceB" placeholder="Lựa chọn B..." style="margin-top:10px">
+  </div>
+  <button class="btn" id="pickGo" style="display:none" onclick="goShuffle()">Trộn bài ✦</button>
 </section>
 
 <section class="step" id="sShuffle">
@@ -918,7 +954,56 @@ body.deep .stage{margin-top:26px}
 /* ---------- data ---------- */
 const MOODS=[["calm","Bình yên"],["ok","Ổn"],["lost","Bối rối"],["sad","Buồn"],["anx","Lo âu"],["fire","Quyết tâm"]];
 const TOPICS=[["heart","Tình cảm"],["work","Công việc"],["self","Bản thân"],["coin","Tài chính"],["other","Điều khác"]];
-const POS=["Quá khứ","Hiện tại","Hướng đi"];
+/* ============================================================
+   CÁC KIỂU TRẢI BÀI
+   tier: -1 ai cũng xem được · 0 Nguyệt Ước · 1 Tinh Ước · 2 Thiên Ước
+   win : cửa sổ thời gian cho bậc vừa đủ mở nó; bậc Thiên bỏ qua giới hạn
+   ============================================================ */
+const SPREADS=[
+ {id:"ppf",n:3,tier:-1,name:"Ba lá mở đầu",note:"Quá khứ · Hiện tại · Tương lai",
+  pos:["Quá khứ","Hiện tại","Tương lai"]},
+ {id:"today",n:1,tier:0,name:"Một lá hôm nay",note:"Nhanh gọn, cho một ngày",
+  pos:["Hôm nay"]},
+ {id:"rel",n:3,tier:1,name:"Bạn và người ấy",note:"Bạn · Đối phương · Mối quan hệ",
+  pos:["Bạn","Đối phương","Mối quan hệ"]},
+ {id:"do",n:3,tier:1,name:"Nên và không nên",note:"Điều nên làm · Không nên · Kết quả",
+  pos:["Điều nên làm","Điều không nên làm","Kết quả"]},
+ {id:"five",n:5,tier:1,name:"Năm lá soi đường",note:"Từ hiện trạng tới kết quả",
+  pos:["Hiện trạng","Điều cản trở","Điều hỗ trợ","Lời khuyên","Kết quả"]},
+ {id:"week",n:7,tier:1,name:"Xem tuần",note:"Bảy ngày phía trước",win:"week",
+  pos:["Thứ hai","Thứ ba","Thứ tư","Thứ năm","Thứ sáu","Thứ bảy","Chủ nhật"]},
+ {id:"month",n:12,tier:1,name:"Xem tháng",note:"Mười hai chặng của tháng",win:"month",
+  pos:["Đầu tháng","Tuần một","Giữa tuần một","Tuần hai","Giữa tuần hai","Giữa tháng",
+       "Tuần ba","Giữa tuần ba","Tuần bốn","Cuối tháng","Điều cần giữ","Điều tháng này dạy"]},
+ {id:"ten",n:10,tier:2,name:"Mười lá toàn diện",note:"Trải sâu nhất, đọc trọn một tình cảnh",
+  pos:["Hiện tại","Khó khăn","Nền tảng","Quá khứ","Mục tiêu","Tương lai gần",
+       "Bản thân","Môi trường","Hy vọng và nỗi sợ","Kết quả"]},
+ {id:"year",n:12,tier:2,name:"Xem năm",note:"Mười hai tháng phía trước",
+  pos:["Tháng một","Tháng hai","Tháng ba","Tháng tư","Tháng năm","Tháng sáu",
+       "Tháng bảy","Tháng tám","Tháng chín","Tháng mười","Tháng mười một","Tháng mười hai"]},
+ {id:"choice",n:5,tier:2,name:"Ra quyết định",note:"Đặt hai lựa chọn, lá bài soi từng ngả",ask2:true,
+  pos:["Bạn lúc này","Nếu chọn A","Nếu chọn B","Điều bạn chưa thấy","Lời khuyên"]},
+ {id:"shadow",n:4,tier:2,name:"Shadow Work",note:"Phần bạn ít khi dám nhìn",
+  pos:["Nỗi sợ","Vết thương cũ","Điều nằm trong tiềm thức","Điều bạn đang né tránh"]}
+];
+const TIER_RANK={nguyet:0,tinh:1,thien:2};
+function tierRank(){const t=planTier();return t?TIER_RANK[t]:-1}
+/* Xem tuần chỉ mở hai ngày đầu tuần, xem tháng chỉ năm ngày đầu tháng —
+   trừ bậc Thiên Ước thì xem lúc nào cũng được. */
+function winOpen(sp){
+  if(!sp.win)return true;
+  if(tierRank()>=2)return true;
+  const d=new Date();
+  if(sp.win==="week"){const w=d.getDay();return w===1||w===2}
+  return d.getDate()<=5;
+}
+function winNote(sp){
+  if(!sp.win||tierRank()>=2)return "";
+  return sp.win==="week"?"Mở vào thứ hai và thứ ba":"Mở vào năm ngày đầu tháng";
+}
+function spreadOpen(sp){return tierRank()>=sp.tier&&winOpen(sp)}
+function tierNameOf(r){return r<0?"":["Nguyệt Ước","Tinh Ước","Thiên Ước"][r]}
+let POS=SPREADS[0].pos;
 const REFLECT={
  "Tình cảm":"Điều gì trong mối quan hệ này nằm trong tầm kiểm soát của bạn — và điều gì không?",
  "Công việc":"Nếu không có nỗi sợ, bước tiếp theo trong công việc bạn muốn làm là gì?",
@@ -1119,7 +1204,7 @@ function aiModel(){return localStorage.getItem(KEY_MODEL)||"gpt-4o"}
 /* Nền gradient (Tín Phát style) thay cho hiệu ứng sao — bỏ animation canvas để tiết kiệm pin trên điện thoại */
 
 /* ---------- flow ---------- */
-const STAGE={sCenter:1,s1:2,s2:3,sShuffle:3,s3:4,sAsk:4,s4:5,s5:5,sJournal:2,sSet:2};
+const STAGE={sCenter:1,s1:2,s2:3,sPick:3,sShuffle:3,s3:4,sAsk:4,s4:5,s5:5,sJournal:2,sVault:2,sPlan:2,sSet:2};
 let showTimer=null;
 function show(id){
   const nx=document.getElementById(id);
@@ -1234,7 +1319,7 @@ function buildTopics(){
     el.appendChild(b);
   });
 }
-function goShuffle(){
+function goPick(){
   const ci=document.getElementById("topicCustom");
   if(ci.style.display!=="none"){
     const v=ci.value.trim();
@@ -1243,7 +1328,49 @@ function goShuffle(){
   }
   if(!state.topic)return;
   geoFlare();
-  flyOutAll(document.getElementById("topics"),()=>{resetShuffle();show("sShuffle")});
+  flyOutAll(document.getElementById("topics"),()=>{buildPick();show("sPick")});
+}
+function buildPick(){
+  const el=document.getElementById("pickList"),r=tierRank();
+  el.innerHTML=SPREADS.map(sp=>{
+    const ok=spreadOpen(sp),locked=r<sp.tier,shut=!locked&&!ok;
+    const why=locked?`Mở cùng ${tierNameOf(sp.tier)}`:(shut?winNote(sp):"");
+    return `<button class="pick${ok?"":" off"}" data-sp="${sp.id}"
+      ${ok?`onclick="choosePick('${sp.id}',this)"`:`onclick="pickLocked('${sp.id}')"`}>
+      <div class="pn">${sp.n}</div>
+      <div class="pbody"><div class="pname">${sp.name}</div>
+        <div class="pnote">${sp.note}</div>
+        ${why?`<div class="pwhy">${why}</div>`:""}</div>
+      ${ok?'<span class="parrow">→</span>':`<span class="plock">${SEAL_SVG}</span>`}
+    </button>`}).join("");
+  document.getElementById("pickAsk2").style.display="none";
+  document.getElementById("pickGo").style.display="none";
+  state.spread=null;
+}
+function choosePick(id,btn){
+  const sp=SPREADS.find(x=>x.id===id);if(!sp)return;
+  state.spread=sp;POS=sp.pos;
+  document.querySelectorAll(".pick").forEach(x=>x.classList.remove("on"));
+  btn.classList.add("on");
+  document.getElementById("pickAsk2").style.display=sp.ask2?"block":"none";
+  const g=document.getElementById("pickGo");g.style.display="block";
+  setTimeout(()=>{try{g.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(_){}},220);
+}
+function pickLocked(id){
+  const sp=SPREADS.find(x=>x.id===id);if(!sp)return;
+  if(tierRank()<sp.tier){comingSoon(sp.name,`Mở cùng ${tierNameOf(sp.tier)}`);return}
+  comingSoon(sp.name,winNote(sp));
+}
+function goShuffle(){
+  if(!state.spread){state.spread=SPREADS[0];POS=SPREADS[0].pos}
+  if(state.spread.ask2){
+    const A=document.getElementById("choiceA"),B=document.getElementById("choiceB");
+    if(!A.value.trim()){A.focus();return}
+    if(!B.value.trim()){B.focus();return}
+    state.choiceA=A.value.trim();state.choiceB=B.value.trim();
+  }
+  geoFlare();
+  resetShuffle();show("sShuffle");
 }
 function beginRitual(){
   const iv=document.getElementById("intro");
@@ -1296,16 +1423,18 @@ function geoFlare(){
   if(!g)return;g.classList.remove("flare");void g.offsetWidth;g.classList.add("flare");
 }
 function buildSpread(){
-  spreadPool=[...DECK].sort(()=>Math.random()-.5).slice(0,7);
+  spreadPool=[...DECK].sort(()=>Math.random()-.5).slice(0,Math.max(7,POS.length+4));
   state.drawn=[];
   const sl=document.getElementById("slots");
+  document.body.classList.toggle("wide",POS.length>5);
   sl.innerHTML=POS.map((p,i)=>`<div class="slot" id="slot${i}"><span>${p}</span></div>`).join("");
   const sp=document.getElementById("spread");sp.innerHTML="";
   spreadPool.forEach((c,i)=>{
     const b=document.createElement("button");
     b.className="spcard";b.setAttribute("aria-label","Chọn lá thứ "+(i+1));
-    b.style.setProperty("--a",((i-3)*15)+"deg");
-    b.style.setProperty("--y",(Math.abs(i-3)*5)+"px");
+    const mid=(spreadPool.length-1)/2,sprd=Math.min(15,90/spreadPool.length);
+    b.style.setProperty("--a",((i-mid)*sprd).toFixed(1)+"deg");
+    b.style.setProperty("--y",(Math.abs(i-mid)*5).toFixed(0)+"px");
     b.style.animationDelay=(i*130)+"ms";b.style.zIndex=i;
     b.innerHTML=`<div class="card-inner"><div class="face back"></div><div class="face front">
       <div class="glyph">${SUIT_ICONS[c.s]}</div><div class="cname">${c.n}</div><div class="cpos"></div></div></div>`;
@@ -1340,7 +1469,7 @@ function onCardOpened(i){
       w0.appendChild(el);
     });
     const st=document.getElementById("drawStage"),ti=document.getElementById("drawTitle"),su=document.getElementById("drawSub");
-    st.textContent="Interpret · mạch chuyện";ti.textContent="Lá mở tới đâu, chuyện hiện tới đó";su.textContent="";
+    st.textContent="Interpret · "+(state.spread?state.spread.name.toLowerCase():"mạch chuyện");ti.textContent="Lá mở tới đâu, chuyện hiện tới đó";su.textContent="";
   }
   const bl=document.getElementById("wv"+i);
   if(!bl||!bl.classList.contains("waiting"))return;
@@ -1364,11 +1493,11 @@ async function runRead(){
   if(readBusy||!readQ.length)return;
   readBusy=true;
   const i=readQ.shift();
-  const isLast=(weaveOpened()>=3&&readQ.length===0);
+  const isLast=(weaveOpened()>=POS.length&&readQ.length===0);
   try{await streamCardRead(i,isLast)}catch(_){}
   readBusy=false;
   if(readQ.length){runRead();return}
-  if(weaveOpened()>=3&&!readQ.length)showWeaveArrow();
+  if(weaveOpened()>=POS.length&&!readQ.length)showWeaveArrow();
 }
 function showWeaveArrow(){
   const t=document.getElementById("toAsk");if(!t)return;
@@ -1382,28 +1511,33 @@ async function streamCardRead(i,isLast){
   if(!key){te.innerHTML=`<p>${escapeHtml(["Trong chuyện "+(state.topic||"này").toLowerCase()+", có dấu ấn của "+c.past+".",
     "Lúc này, điều nổi bật là "+c.now+".","Lá gợi ý: "+c.next+"."][i])}</p>`;return}
   const story=(document.getElementById("story")||{}).value||"";
+  const sp=state.spread||SPREADS[0];
+  const big=POS.length>5;
   const sys=`Bạn là một người bạn hiểu chuyện, có nền tarot, đang ngồi cạnh người hỏi và đọc cho họ nghe từng lá một.
 
-Đây là lá ở vị trí ${POS[i]}. Hãy nói về ĐỜI HỌ ở khía cạnh ${POS[i].toLowerCase()}, không nói về lá bài.
+Lối trải: ${sp.name} (${sp.note}), gồm ${POS.length} lá.
+Đây là lá thứ ${i+1}, ở vị trí ${POS[i]}. Hãy nói về ĐỜI HỌ ở khía cạnh ${POS[i].toLowerCase()}, không nói về lá bài.
 
 QUY TẮC
 1. TUYỆT ĐỐI không giải nghĩa lá bài. Không viết "Lá này cho thấy...", "Với ${c.n}...". Tên lá đã hiện sẵn phía trên rồi.
 2. Bám vào chủ đề, tâm trạng và những gì họ tự kể. Nhắc lại chi tiết cụ thể của họ bằng lời của bạn.
 3. Không lặp lại ý hay hình ảnh đã nói ở đoạn trước.
-4. Đoạn ${POS[i]}: ${i===0?"soi lại điều đã hình thành nên tình cảnh hôm nay, nhẹ nhàng, không phán xét."
-    :i===1?"gọi đúng tên thứ đang thật sự cản họ lúc này — nói thẳng."
-    :"đưa một hướng đi cụ thể, một việc làm được trong tuần này."}
+4. Bám đúng nghĩa của vị trí "${POS[i]}" trong lối trải này, đừng lạc sang vị trí khác.${
+    i===0?" Đây là lá mở đầu — vào chuyện nhẹ nhàng, không phán xét.":""}${
+    i===POS.length-1?" Đây là lá cuối — đưa một hướng đi cụ thể, một việc làm được trong tuần này.":""}${
+    sp.ask2?`\nHai ngả họ đang cân nhắc — A: ${state.choiceA||"?"} · B: ${state.choiceB||"?"}. Bám đúng ngả tương ứng nếu vị trí này nói về một ngả.`:""}${
+    sp.id==="shadow"?"\nĐây là trải Shadow Work: được phép chạm vào chỗ đau, nhưng phải dịu và không quy kết. Nếu thấy dấu hiệu khủng hoảng, nhẹ nhàng gợi ý tìm người thân hoặc chuyên gia.":""}
 5. ${isLast?"Đây là đoạn cuối cùng được mở. Khép lại bằng một câu mời họ nói ra điều còn giấu."
     :"Vẫn còn lá chưa mở. ĐỪNG khép lại, đừng mời họ nói thêm, đừng tổng kết — chỉ nói phần của đoạn này rồi dừng."}
 6. Nếu họ kể rất ít thì đọc theo hướng mở, đừng bịa chi tiết đời họ.
 
-GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH 70-110 từ, một đoạn duy nhất, không đánh số, không tiêu đề.`;
-  const usr=`Chủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}\nBa lá (ngầm, không nhắc tên): ${state.drawn.map(x=>x.n).join(" / ")}\n\nĐã nói ở các đoạn trước:\n${weaveSaid.join("\n---\n")||"(chưa có)"}\n\nLịch sử gần đây:\n${memorySummary()}`;
+GIỌNG: tiếng Việt ấm, thẳng, như bạn thân. Không sáo rỗng, không phán định mệnh, không khuyên y tế/pháp lý/đầu tư. Viết LIỀN MẠCH ${big?"45-70":"70-110"} từ, một đoạn duy nhất, không đánh số, không tiêu đề.`;
+  const usr=`Lối trải: ${sp.name}\nChủ đề: ${state.topic||"chưa gọi tên"}\nTâm trạng hôm nay: ${state.mood||"không nói"}\nHọ tự kể: ${story.trim()||"(không kể thêm)"}${sp.ask2?`\nLựa chọn A: ${state.choiceA||""}\nLựa chọn B: ${state.choiceB||""}`:""}\nCác lá (ngầm, không nhắc tên): ${state.drawn.map(x=>x.n).join(" / ")}\n\nĐã nói ở các đoạn trước:\n${weaveSaid.join("\n---\n")||"(chưa có)"}\n\nLịch sử gần đây:\n${memorySummary()}`;
   const ty=makeTyper(te,30);
   try{
     const r=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",
       headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body:JSON.stringify({model:aiModel(),max_tokens:400,temperature:.85,stream:true,
+      body:JSON.stringify({model:aiModel(),max_tokens:big?260:400,temperature:.85,stream:true,
         presence_penalty:.5,messages:[{role:"system",content:sys},{role:"user",content:usr}]})});
     if(!r.ok||!r.body)throw new Error("HTTP "+r.status);
     const rd=r.body.getReader(),dec=new TextDecoder();let buf="",raw="";
@@ -1425,10 +1559,10 @@ function toAsk(){
 function updateDrawHead(){
   const n=state.drawn.length;
   const t=document.getElementById("drawTitle"),s=document.getElementById("drawSub"),st=document.getElementById("drawStage");
-  if(n>=3){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm từng lá để nghe lá ấy nói";return}
+  if(n>=POS.length){st.textContent="Draw · mở từng lá";t.textContent="Ba lá đã về chỗ";s.textContent="Chạm từng lá để nghe lá ấy nói";return}
   st.textContent=n===0?"Spread · chọn lá của bạn":"Spread · chọn lá tiếp theo";
   t.textContent="Chọn lá cho "+POS[n];
-  s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(3-n)+" lá nữa";
+  s.textContent=n===0?"Đưa tay theo trực giác — chạm vào lá bạn thấy gọi mình":"Còn "+(POS.length-n)+" lá nữa";
 }
 function sparkAt(rect,n){
   for(let k=0;k<n;k++){
@@ -1442,7 +1576,7 @@ function sparkAt(rect,n){
   }
 }
 function pickSpread(i,el){
-  if(el.dataset.taken||state.drawn.length>=3)return;
+  if(el.dataset.taken||state.drawn.length>=POS.length)return;
   el.dataset.taken="1";
   const c=spreadPool[i],slot=state.drawn.length;
   state.drawn.push(c);
@@ -1480,7 +1614,7 @@ function pickSpread(i,el){
     sparkAt(sEl.getBoundingClientRect(),10);
     setTimeout(()=>{sEl.classList.remove("lit");if(sc)sc.classList.remove("lit")},1900);
     updateDrawHead();
-    if(state.drawn.length===3)scatterRest();
+    if(state.drawn.length===POS.length)scatterRest();
   },1270);
 }
 function scatterRest(){
@@ -1866,7 +2000,7 @@ function openCard(i,srcEl,mode){
     story.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ${POS[i]}</div>
       <div class="bglyph mini">${SUIT_ICONS[c.s]}</div>
       <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
-      <p class="imean">Ở vị trí <strong>${POS[i]}</strong>, lá này nói về ${escapeHtml([c.past,c.now,c.next][i])}.</p>
+      <p class="imean">Ở vị trí <strong>${POS[i]}</strong>, lá này nói về ${escapeHtml([c.past,c.now,c.next][i%3])}.</p>
       <div class="bhint">Chạm ra ngoài để đóng</div>`;
   }else{
     art.className="bigface art";
@@ -1920,13 +2054,15 @@ function closeCard(e){
 }
 addEventListener("keydown",e=>{if(e.key==="Escape")closeCard()});
 function showReading(){
-  const [a,b,c]=state.drawn;
   renderResultCards();
   const moodLine=state.mood?` Cảm giác "${state.mood.toLowerCase()}" của bạn hôm nay có thể liên quan đến điều đó.`:"";
   document.getElementById("reading").innerHTML=
-   `<div class="cardline"><strong>${a.n} · Quá khứ</strong> — Trong chuyện ${state.topic.toLowerCase()}, có dấu ấn của ${a.past}.</div>
-    <div class="cardline"><strong>${b.n} · Hiện tại</strong> — Lúc này, điều nổi bật là ${b.now}.${moodLine}</div>
-    <div class="cardline"><strong>${c.n} · Hướng đi</strong> — Lá bài gợi ý: ${c.next}. Không phải định mệnh — chỉ là một góc nhìn để bạn tự quyết định.</div>`;
+   state.drawn.map((c,i)=>{
+     const seed=[c.past,c.now,c.next][i%3];
+     return `<div class="cardline"><strong>${escapeHtml(c.n)} · ${POS[i]}</strong> — ${
+       i===0?`Trong chuyện ${(state.topic||"này").toLowerCase()}, có dấu ấn của ${seed}.`
+       :i===state.drawn.length-1?`Lá bài gợi ý: ${seed}. Không phải định mệnh — chỉ là một góc nhìn để bạn tự quyết định.`
+       :`Ở chặng này, điều nổi bật là ${seed}.${i===1?moodLine:""}`}</div>`}).join("");
   document.getElementById("reflectQ").textContent=REFLECT[state.topic]||REFLECT_FALLBACK;
   document.getElementById("aiOut").style.display="none";
   renderNote();
@@ -1940,7 +2076,7 @@ function renderNote(){
     `<div class="ncard"><div class="nglyph">${SUIT_ICONS[c.s]}</div>
       <div class="nbody"><div class="nname">${escapeHtml(c.n)} · ${POS[i]}</div>
       <p class="nstory">${escapeHtml(STORY[c.n]||"")}</p>
-      <p class="nmean">Ở vị trí này, lá nói về ${escapeHtml([c.past,c.now,c.next][i])}.</p></div></div>`).join("");
+      <p class="nmean">Ở vị trí này, lá nói về ${escapeHtml([c.past,c.now,c.next][i%3])}.</p></div></div>`).join("");
   const said=askThread.filter(m=>m.role==="assistant").map(m=>m.content);
   const asked=askThread.filter(m=>m.role==="user").map(m=>m.content);
   const talk=said.length?`<div class="nsep">Điều đã nói với bạn hôm nay</div>`+
@@ -2137,18 +2273,23 @@ const TIERS=[
  {id:"nguyet",name:"Nguyệt Ước",price:"49k",per:"tháng",
   lead:"Đủ để lá bài không quên bạn",
   grants:["deck-anhkim"],
-  perks:["Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức giữ qua mọi thiết bị",
-    "Biểu đồ cảm xúc theo ngày","Nhận bộ Ánh Kim Nguyên Bản, giữ mãi"]},
+  perks:["Một lá hôm nay — xem nhanh mỗi ngày","Ba lá Quá khứ · Hiện tại · Tương lai",
+    "Thổ lộ không giới hạn mỗi lần bốc","Mảnh ký ức và biểu đồ cảm xúc giữ qua mọi thiết bị",
+    "Nhận bộ Ánh Kim Nguyên Bản, giữ mãi"]},
  {id:"tinh",name:"Tinh Ước",price:"99k",per:"tháng",best:true,
-  lead:"Đi sâu hơn, và mở thêm hai lớp nghi thức",
-  grants:["deck-anhkim","deck-hacdieu","theme-mantrang"],
-  perks:["Tất cả của Nguyệt Ước","Chiêm nghiệm sâu không giới hạn",
-    "Thêm bộ Hắc Diệu và sắc màn Màn Trăng","Bộ mới mỗi tháng, giữ mãi"]},
+  lead:"Mở thêm sáu lối trải và một bộ bài",
+  grants:["deck-anhkim","deck-hacdieu"],
+  perks:["Tất cả của Nguyệt Ước","Bạn · Đối phương · Mối quan hệ",
+    "Nên làm · Không nên · Kết quả","Năm lá soi đường",
+    "Xem tuần (7 lá) vào thứ hai và thứ ba","Xem tháng (12 lá) trong năm ngày đầu tháng",
+    "Chiêm nghiệm sâu không giới hạn","Thêm bộ Hắc Diệu, và bộ mới mỗi tháng"]},
  {id:"thien",name:"Thiên Ước",price:"199k",per:"tháng",
-  lead:"Toàn bộ nghi thức, không còn cánh cửa nào",
+  lead:"Toàn bộ nghi thức, thêm sắc màn và những lối trải sâu nhất",
   grants:["deck-anhkim","deck-hacdieu","theme-mantrang"],
-  perks:["Tất cả của Tinh Ước","Bốc bài không giới hạn trong ngày",
-    "Được dùng trước mọi bộ ra sau","Đọc lại mọi lần bốc đã qua"]}
+  perks:["Tất cả của Tinh Ước","Mười lá toàn diện","Xem năm (12 lá)",
+    "Ra quyết định — đặt hai ngả, lá bài soi từng bên","Shadow Work — phần bạn ít khi dám nhìn",
+    "Xem tuần và xem tháng không giới hạn ngày","Bốc bài không giới hạn trong ngày",
+    "Sắc màn Màn Trăng, và được dùng trước mọi bộ ra sau"]}
 ];
 function tierOf(id){return TIERS.find(t=>t.id===id)}
 function showPlanTab(){
