@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b0a10">
 <title>Life Reflection OS — Demo</title>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
@@ -20,7 +20,9 @@
   --moon:var(--ivory); --mist:var(--mut); --navy:var(--ivory); --rose:var(--gold);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+/* nghi lễ phải đứng yên: chạm hai lần không phóng to, xoay máy không nở chữ */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{touch-action:manipulation}
 body{background:var(--ink);color:var(--ivory);font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
 /* vignette thở ±2% */
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
@@ -1047,6 +1049,19 @@ body.deep .stage{margin-top:26px}
 </div>
 
 <script>
+/* ---------- khoá phóng to ----------
+   Ba cửa vào khác nhau, chặn ba kiểu:
+   · chạm hai lần  -> touch-action:manipulation bên CSS
+   · véo hai ngón trên Android -> user-scalable=no ở thẻ viewport
+   · véo hai ngón trên iOS -> Safari cố tình bỏ qua viewport, phải chặn tay ở đây
+   Không đụng gì tới touchend nên chạm nhanh liên tiếp (xào bài chẳng hạn)
+   vẫn ăn đủ từng cú. */
+(function lockZoom(){
+  const stop=e=>e.preventDefault();
+  ["gesturestart","gesturechange","gestureend"].forEach(ev=>
+    document.addEventListener(ev,stop,{passive:false}));
+})();
+
 /* ---------- data ---------- */
 const MOODS=[["calm","Bình yên"],["ok","Ổn"],["lost","Bối rối"],["sad","Buồn"],["anx","Lo âu"],["fire","Quyết tâm"]];
 const TOPICS=[["heart","Tình cảm"],["work","Công việc"],["self","Bản thân"],["coin","Tài chính"],["other","Điều khác"]];
