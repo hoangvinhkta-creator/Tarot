@@ -164,14 +164,6 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
 .hasart .cpos,.hasart .bpos,.hasart .bhint{position:relative;z-index:2}
 .hasart .cpos{margin:0 0 5px;padding:0 4px;color:var(--goldb);font-size:8.5px;letter-spacing:.18em}
 .face.front.hasart::before{z-index:3}
-/* lá lớn: tên vị trí nằm trên, lời nhắc nằm dưới, tranh trọn vẹn ở giữa */
-/* chừa chỗ cho dải tên in sẵn dưới đáy tranh */
-.bigface.art.hasart{gap:6px;padding:13px 10px 46px!important;justify-content:space-between!important}
-.bigface.art.hasart::after{height:20%}
-.bigface.art.hasart .bpos,.bigface.art.hasart .bhint{
-  background:rgba(6,5,9,.74);padding:5px 13px;border-radius:99px;
-  border:1px solid rgba(201,162,74,.22);align-self:center}
-.bigface.art.hasart .bpos{color:var(--goldb)}
 .minicard.hasart{position:relative;overflow:hidden;gap:0}
 /* lá bị úp thì không nhìn thấy tranh dù ảnh đã tải */
 .spcard .front.hasart .cpos{display:none}
@@ -181,10 +173,6 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
   border-radius:4px;overflow:hidden;border:1px solid var(--hair);background:#0d0c12}
 .thumb .cimg{border-radius:0}
 .wvhead .wvglyph.thumb{width:24px}
-.bthumb{position:relative;width:clamp(74px,20vw,92px);aspect-ratio:300/527;margin:2px auto 10px;
-  border-radius:8px;overflow:hidden;border:1px solid var(--hair2);background:#0d0c12;flex:none;
-  box-shadow:0 6px 20px rgba(0,0,0,.5)}
-.bthumb .cimg{border-radius:0}
 /* bộ sưu tập: xem trước sắc của từng bộ */
 .collrow{display:flex;gap:8px;margin:14px 0 4px}
 .collmini{position:relative;flex:1 1 0;aspect-ratio:300/527;border-radius:7px;overflow:hidden;
@@ -453,38 +441,75 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 .taphint{font-size:12px;margin-bottom:16px}
 
 /* ===== modal lá phóng to ===== */
-#cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;
+#cardModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:16px 16px 20px;
   background:rgba(5,4,9,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   opacity:0;transition:opacity .38s ease}
 #cardModal.open{display:flex}
 #cardModal.shown{opacity:1}
-.bigcard{position:relative;width:min(320px,80vw);aspect-ratio:300/527;max-height:76vh;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;
+/* sân khấu dọc: lá nằm trên, lời của lá nằm ở khoảng trống phía dưới */
+/* neo lá từ trên xuống: lật qua lật lại lá vẫn đứng yên một chỗ */
+.cardstage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding-top:clamp(10px,8vh,80px);gap:clamp(12px,2.6vh,20px);width:100%;height:100%;min-height:0}
+.bigcard{position:relative;width:min(74vw,300px,30vh);aspect-ratio:300/527;flex:none;perspective:1500px;background:none;border:none;padding:0;cursor:pointer;
   transform-origin:center center;will-change:transform;-webkit-tap-highlight-color:transparent}
 .bigcard-inner{position:relative;z-index:1;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.4s cubic-bezier(.34,.06,.2,1)}
 .bigcard.flipped .bigcard-inner{transform:rotateY(180deg)}
 .bigface{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:26px 20px;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;
   background:linear-gradient(165deg,#1a1822,#131118);border:1px solid var(--hair2);
   box-shadow:var(--shadow),0 0 34px rgba(201,162,74,.22)}
-.bigface::before{content:"";position:absolute;inset:9px;border:1px solid var(--hair);border-radius:10px;pointer-events:none}
-.bigface.art{justify-content:center}
-.bigface.art.asback{justify-content:center;gap:0}
-.bigface.art.asback .bmark{font-size:clamp(38px,11vw,52px);color:var(--gold);line-height:1}
+.bigface::before{content:"";position:absolute;inset:9px;border:1px solid var(--hair);border-radius:10px;pointer-events:none;z-index:3}
+.bigface.story{transform:rotateY(180deg)}
 .bigcard.nofx .bigcard-inner{transition:none}
-.bglyph.mini{line-height:0;margin:2px 0 6px}
-.bglyph.mini svg{width:clamp(30px,8vw,38px);height:auto}
-.bigface.story .istory{font-family:var(--serif);font-style:italic;font-size:clamp(13.5px,3.5vw,15px);line-height:1.78;color:var(--ivory);text-align:left}
-.bigface.story .imean{margin-top:12px;font-size:clamp(12.5px,3.2vw,13.5px);line-height:1.7;color:var(--mut);text-align:left}
-.bigface.story .bigface.art .bglyph{line-height:0}
-.bigface.art .bglyph svg{width:clamp(58px,16vw,76px);height:auto}
-.bigface.art .bname{font-family:var(--serif);font-size:clamp(17px,4.6vw,21px);font-weight:600;color:var(--goldb);line-height:1.3;letter-spacing:.04em}
-.bigface.art .bpos{font-size:10.5px;color:var(--mut);letter-spacing:.26em;text-transform:uppercase}
-.bigface.story{transform:rotateY(180deg);justify-content:flex-start;overflow-y:auto}
-.bigface.story p{font-size:clamp(14px,3.7vw,15.5px);line-height:1.8;color:var(--ivory);text-align:left}
-.bigcard.flipped .story::after{content:"";position:absolute;inset:0;pointer-events:none;
+/* mặt úp */
+.bigface.asback{gap:0}
+.bigface.asback .bmark{font-size:clamp(38px,11vw,52px);color:var(--gold);line-height:1}
+/* mặt tranh: tranh phủ kín cả mặt, chỉ còn viền vàng mảnh nằm đè lên */
+.bigface.full{padding:0;gap:0;background:#0b0a10}
+.bigface.full::before{inset:7px;border-color:rgba(201,162,74,.42);border-radius:9px;
+  box-shadow:0 0 0 1px rgba(6,5,9,.55),inset 0 0 18px rgba(6,5,9,.38)}
+.bigface.full .cimg{border-radius:inherit}
+.bigcard.flipped .story::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;
   background:linear-gradient(115deg,transparent 32%,rgba(232,200,126,.28) 50%,transparent 68%);
   transform:translateX(-130%);animation:foil 1.1s ease 1.35s forwards}
-.bhint{margin-top:auto;padding-top:12px;font-size:11px;color:var(--mut);letter-spacing:.04em}
+
+/* ánh sáng chạy chậm bên trong tranh */
+.artsheen{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;overflow:hidden}
+.artsheen::before{content:"";position:absolute;top:-30%;bottom:-30%;left:0;right:0;
+  background:linear-gradient(112deg,transparent 42%,rgba(255,241,208,.17) 50%,transparent 58%);
+  transform:translateX(-135%);animation:artSheen 6.5s ease-in-out 1.4s infinite}
+@keyframes artSheen{0%{transform:translateX(-135%)}46%,100%{transform:translateX(135%)}}
+/* bụi sao lấp lánh rải trong lòng lá */
+.artsparks{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;overflow:hidden}
+.artsparks i{position:absolute;width:var(--s);height:var(--s);border-radius:50%;
+  margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);
+  background:radial-gradient(circle,#fff 0%,rgba(255,240,198,.92) 38%,rgba(232,200,126,0) 72%);
+  box-shadow:0 0 7px rgba(255,232,178,.8),0 0 15px rgba(201,162,74,.45);
+  opacity:0;animation:artTwinkle var(--d) ease-in-out var(--dl) infinite}
+@keyframes artTwinkle{
+  0%,66%,100%{opacity:0;transform:scale(.3)}
+  9%{opacity:1;transform:scale(1.22)}
+  19%{opacity:.26;transform:scale(.82)}
+  31%{opacity:.9;transform:scale(1.04)}
+  50%{opacity:0;transform:scale(.45)}}
+
+/* lời của lá — nằm dưới lá, hiện ra khi mặt tranh đang ngửa */
+.cardinfo{position:relative;width:min(360px,92vw);flex:0 1 auto;min-height:0;overflow-y:auto;
+  text-align:center;-webkit-overflow-scrolling:touch}
+/* lá còn úp thì lời chưa có mặt — lời nhắc nằm sát ngay dưới lá */
+.cardinfo .ci-head,.cardinfo .ci-story,.cardinfo .ci-mean{display:none}
+.cardinfo.show .ci-head,.cardinfo.show .ci-story,.cardinfo.show .ci-mean{
+  display:block;animation:ciUp .55s cubic-bezier(.25,.8,.3,1) both}
+.cardinfo.show .ci-story{animation-delay:.12s}
+.cardinfo.show .ci-mean{animation-delay:.24s}
+@keyframes ciUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ci-head{font-family:var(--serif);font-size:clamp(16px,4.4vw,19px);font-weight:600;color:var(--goldb);letter-spacing:.03em;margin-bottom:9px}
+.ci-dot{opacity:.45;margin:0 7px;font-weight:400}
+.ci-pos{font-family:inherit;font-size:10.5px;font-weight:400;color:var(--mut);letter-spacing:.24em;text-transform:uppercase;vertical-align:middle}
+.ci-story{font-family:var(--serif);font-style:italic;font-size:clamp(13.5px,3.5vw,15px);line-height:1.75;color:var(--ivory)}
+.ci-mean{margin-top:10px;font-size:clamp(12.5px,3.2vw,13.5px);line-height:1.7;color:var(--mut)}
+.ci-mean strong{color:var(--goldb);font-weight:500}
+.ci-hint{margin-top:13px;font-size:11px;color:var(--mut);letter-spacing:.05em;opacity:.75}
 
 /* hào quang phép thuật — vàng kim */
 .magic{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s ease .25s}
@@ -765,6 +790,8 @@ body.deep .stage{margin-top:26px}
   .card-inner,.bigcard-inner{transition:none!important}
   body::before,body::after,#geo,.deck,.ihero-card,.hline::after{animation:none}
   .magic .aura,.magic .spark{animation:none}.magic .spark{opacity:.7}
+  .artsheen::before,.artsparks i{animation:none}.artsparks i{opacity:.5}
+  .cardinfo.show .ci-head,.cardinfo.show .ci-story,.cardinfo.show .ci-mean{animation:none}
   #geo .g-slow,#geo .g-rev,#geo .g-trace,#geo .g-trace2{animation:none}
   .chip,.iportal,.ihero-card,.ispark,#breathGlow i,.tw{animation:none!important;opacity:1}
   .step{transition:none}
@@ -1007,13 +1034,16 @@ body.deep .stage{margin-top:26px}
 </div>
 
 <div id="cardModal" onclick="closeCard(event)">
-  <button class="bigcard" id="bigCard" onclick="flipBig()" aria-label="Lật lá bài">
-    <div class="magic" id="magic" aria-hidden="true"></div>
-    <div class="bigcard-inner">
-      <div class="bigface art" id="bcArt"></div>
-      <div class="bigface story" id="bcStory"></div>
-    </div>
-  </button>
+  <div class="cardstage">
+    <button class="bigcard" id="bigCard" onclick="flipBig()" aria-label="Lật lá bài">
+      <div class="magic" id="magic" aria-hidden="true"></div>
+      <div class="bigcard-inner">
+        <div class="bigface art" id="bcArt"></div>
+        <div class="bigface story" id="bcStory"></div>
+      </div>
+    </button>
+    <div class="cardinfo" id="bcInfo"></div>
+  </div>
 </div>
 
 <script>
@@ -1260,8 +1290,9 @@ DECK.forEach((c,i)=>{c.s=i<22?"major":i<36?"wands":i<50?"cups":i<64?"swords":"pe
 const CARD_DIR="cards/";
 function cardSrc(c){return CARD_DIR+String(c&&c.i!=null?c.i:0).padStart(2,"0")+".webp"}
 function cardArt(c,cls){
+  // lá phóng to phải có ngay khi mở, không chờ trình duyệt thấy mới tải
   return `<img class="cimg${cls?" "+cls:""}" src="${cardSrc(c)}" alt="" aria-hidden="true"
-    loading="lazy" decoding="async" onload="this.classList.add('on')">`;
+    loading="${cls==="big"?"eager":"lazy"}" decoding="async" onload="this.classList.add('on')">`;
 }
 const IC='stroke="#c9a24a" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" fill="none"';
 const SPARK='M24 13 C25.8 19 28 21.2 34 23 C28 24.8 25.8 27 24 33 C22.2 27 20 24.8 14 23 C20 21.2 22.2 19 24 13 Z';
@@ -2080,6 +2111,33 @@ function buildMagic(){
   }
   m.innerHTML=html;
 }
+/* bụi sao nằm trong lòng lá — vị trí trải đều nhưng không thành hàng */
+function innerSparks(seed){
+  let h="";const N=16;
+  for(let i=0;i<N;i++){
+    const x=6+((i*37+seed*19)%89),y=5+((i*61+seed*31)%91);
+    const s=(1.7+((i*5)%4)*.85).toFixed(1);
+    const d=(2.8+((i*3)%5)*.6).toFixed(2);
+    const dl=(((i*7)%13)*.38).toFixed(2);
+    h+=`<i style="left:${x}%;top:${y}%;--s:${s}px;--d:${d}s;--dl:${dl}s"></i>`;
+  }
+  return `<div class="artsparks" aria-hidden="true">${h}</div>`;
+}
+/* mặt tranh phủ kín + lớp lấp lánh phủ lên trên */
+function artFaceHtml(c,seed){
+  return `${cardArt(c,"big")}<div class="artsheen" aria-hidden="true"></div>${innerSparks(seed)}`;
+}
+/* mặt tranh đang ngửa hay không — quyết định lời của lá dưới kia có hiện không */
+function artIsUp(){
+  const card=document.getElementById("bigCard");
+  return card.classList.contains("flipped")===(modalMode==="draw");
+}
+function syncCardInfo(){
+  const info=document.getElementById("bcInfo"),up=artIsUp();
+  info.classList.toggle("show",up);
+  const h=info.querySelector(".ci-hint");
+  if(h)h.textContent=up?"Chạm ra ngoài để đóng":"Chạm vào lá để lật";
+}
 function openCard(i,srcEl,mode){
   if(modalBusy)return;
   buildMagic();
@@ -2087,22 +2145,21 @@ function openCard(i,srcEl,mode){
   const c=state.drawn[i];
   const modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
   const art=document.getElementById("bcArt"),story=document.getElementById("bcStory");
+  const info=document.getElementById("bcInfo");
   modalSrc=srcEl;
-  if(modalMode==="draw"){
-    art.className="bigface art asback";
-    art.innerHTML=`<div class="bmark">✦</div><div class="bhint">Chạm vào lá để lật</div>`;
-    story.innerHTML=`<div class="ai-label">✦ ${escapeHtml(c.n)} · ${POS[i]}</div>
-      <div class="bthumb">${cardArt(c)}</div>
-      <p class="istory">${escapeHtml(STORY[c.n]||"")}</p>
-      <p class="imean">Ở vị trí <strong>${POS[i]}</strong>, lá này nói về ${escapeHtml([c.past,c.now,c.next][i%3])}.</p>
-      <div class="bhint">Chạm ra ngoài để đóng</div>`;
-  }else{
-    art.className="bigface art hasart";
-    art.innerHTML=`${cardArt(c,"big")}<div class="bglyph">${SUIT_ICONS[c.s]}</div><div class="bname">${escapeHtml(c.n)}</div>
-      <div class="bpos">${POS[i]}</div><div class="bhint">Chạm vào lá để lật · chạm ra ngoài để đóng</div>`;
-    story.innerHTML=`<div class="ai-label">✦ Câu chuyện trong tranh</div><p>${escapeHtml(STORY[c.n]||"")}</p>
-      <div class="bhint">Chạm để lật lại · chạm ra ngoài để đóng</div>`;
+  const face=artFaceHtml(c,i),back=`<div class="bmark">✦</div>`;
+  if(modalMode==="draw"){          // úp trước, lật ra mới thấy tranh
+    art.className="bigface art asback";art.innerHTML=back;
+    story.className="bigface story full";story.innerHTML=face;
+  }else{                            // đã mở rồi thì mở ra là thấy tranh ngay
+    art.className="bigface art full";art.innerHTML=face;
+    story.className="bigface story asback";story.innerHTML=back;
   }
+  info.classList.remove("show");
+  info.innerHTML=`<div class="ci-head">${escapeHtml(c.n)}<span class="ci-dot">·</span><span class="ci-pos">${escapeHtml(POS[i]||"")}</span></div>
+    <p class="ci-story">${escapeHtml(STORY[c.n]||"")}</p>
+    <p class="ci-mean">Ở vị trí <strong>${escapeHtml(POS[i]||"")}</strong>, lá này nói về ${escapeHtml([c.past,c.now,c.next][i%3])}.</p>
+    <div class="ci-hint"></div>`;
   card.classList.remove("flipped","nofx");
   card.style.transition="none";card.style.transform="none";
   modal.classList.add("open");
@@ -2114,6 +2171,7 @@ function openCard(i,srcEl,mode){
   srcEl.style.visibility="hidden";
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     modal.classList.add("shown");
+    syncCardInfo();
     card.style.transition="transform .55s cubic-bezier(.2,.8,.25,1)";
     card.style.transform="none";
   }));
@@ -2121,6 +2179,7 @@ function openCard(i,srcEl,mode){
 function flipBig(){
   const card=document.getElementById("bigCard");
   card.classList.toggle("flipped");
+  syncCardInfo();
   const m=document.getElementById("magic");
   m.classList.remove("burst");void m.offsetWidth;m.classList.add("burst");
   geoFlare();
@@ -2131,10 +2190,11 @@ function flipBig(){
   }
 }
 function closeCard(e){
-  if(e&&e.target.closest&&e.target.closest(".bigcard"))return;
+  if(e&&e.target.closest&&e.target.closest(".bigcard,.cardinfo"))return;
   const modal=document.getElementById("cardModal"),card=document.getElementById("bigCard");
   if(!modal.classList.contains("open")||modalBusy)return;
   modalBusy=true;
+  document.getElementById("bcInfo").classList.remove("show");
   const src=modalSrc;
   card.style.transition="transform .45s cubic-bezier(.4,0,.55,1)";
   card.style.transform=src?morphFrom(src,card):"scale(.85)";
