@@ -153,7 +153,7 @@ h2{font-family:var(--serif);font-size:clamp(20px,5vw,25px);font-weight:500;text-
 
 /* ===== tranh 78 lá =====
    Một bộ file duy nhất; --deckfx quyết định bộ nào đang phủ lên nó. */
-:root{--deckfx:none}
+:root{--deckfx:none;--deckspark:255,240,198;--deckglow:201,162,74}
 .cimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
   filter:var(--deckfx);opacity:0;transition:opacity .45s ease;border-radius:inherit}
 .cimg.on{opacity:1}
@@ -478,15 +478,15 @@ footer{text-align:center;color:rgba(155,145,166,.7);font-size:10.5px;letter-spac
 /* ánh sáng chạy chậm bên trong tranh */
 .artsheen{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;overflow:hidden}
 .artsheen::before{content:"";position:absolute;top:-30%;bottom:-30%;left:0;right:0;
-  background:linear-gradient(112deg,transparent 42%,rgba(255,241,208,.17) 50%,transparent 58%);
+  background:linear-gradient(112deg,transparent 42%,rgba(var(--deckspark),.17) 50%,transparent 58%);
   transform:translateX(-135%);animation:artSheen 6.5s ease-in-out 1.4s infinite}
 @keyframes artSheen{0%{transform:translateX(-135%)}46%,100%{transform:translateX(135%)}}
 /* bụi sao lấp lánh rải trong lòng lá */
 .artsparks{position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;overflow:hidden}
 .artsparks i{position:absolute;width:var(--s);height:var(--s);border-radius:50%;
   margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);
-  background:radial-gradient(circle,#fff 0%,rgba(255,240,198,.92) 38%,rgba(232,200,126,0) 72%);
-  box-shadow:0 0 7px rgba(255,232,178,.8),0 0 15px rgba(201,162,74,.45);
+  background:radial-gradient(circle,#fff 0%,rgba(var(--deckspark),.92) 38%,rgba(var(--deckspark),0) 72%);
+  box-shadow:0 0 7px rgba(var(--deckspark),.8),0 0 15px rgba(var(--deckglow),.45);
   opacity:0;animation:artTwinkle var(--d) ease-in-out var(--dl) infinite}
 @keyframes artTwinkle{
   0%,66%,100%{opacity:0;transform:scale(.3)}
@@ -1037,7 +1037,7 @@ body.deep .stage{margin-top:26px}
 
 <div id="cardModal" onclick="closeCard(event)">
   <div class="cardstage">
-    <button class="bigcard" id="bigCard" onclick="flipBig()" aria-label="Lật lá bài">
+    <button class="bigcard" id="bigCard" onclick="tapBigCard()" aria-label="Lật lá bài">
       <div class="magic" id="magic" aria-hidden="true"></div>
       <div class="bigcard-inner">
         <div class="bigface art" id="bcArt"></div>
@@ -2104,6 +2104,9 @@ function renderResultCards(){
 }
 /* morph: lá nhỏ nở dần thành lá lớn, và thu ngược lại khi đóng */
 let modalSrc=null,modalBusy=false,modalMode="result",modalIdx=-1;
+/* Còn tranh chưa lộ ra hay không. Hết cái để lộ thì chạm vào lá là đóng,
+   chứ không lật sang tấm lưng trống. */
+let modalCanFlip=false;
 function morphFrom(src,card){
   const to=card.getBoundingClientRect(),from=src.getBoundingClientRect();
   if(!to.width||!from.width)return "none";
@@ -2151,8 +2154,11 @@ function syncCardInfo(){
   const info=document.getElementById("bcInfo"),up=artIsUp();
   info.classList.toggle("show",up);
   const h=info.querySelector(".ci-hint");
-  if(h)h.textContent=up?"Chạm ra ngoài để đóng":"Chạm vào lá để lật";
+  if(h)h.textContent=modalCanFlip?"Chạm vào lá để lật":"Chạm để đóng";
+  document.getElementById("bigCard")
+    .setAttribute("aria-label",modalCanFlip?"Lật lá bài":"Đóng lá bài");
 }
+function tapBigCard(){modalCanFlip?flipBig():closeCard()}
 function openCard(i,srcEl,mode){
   if(modalBusy)return;
   buildMagic();
@@ -2170,6 +2176,7 @@ function openCard(i,srcEl,mode){
     art.className="bigface art full";art.innerHTML=face;
     story.className="bigface story asback";story.innerHTML=back;
   }
+  modalCanFlip=modalMode==="draw"&&!srcEl.classList.contains("opened");
   info.classList.remove("show");
   info.innerHTML=`<div class="ci-head">${escapeHtml(c.n)}<span class="ci-dot">·</span><span class="ci-pos">${escapeHtml(POS[i]||"")}</span></div>
     <p class="ci-story">${escapeHtml(STORY[c.n]||"")}</p>
@@ -2194,6 +2201,7 @@ function openCard(i,srcEl,mode){
 function flipBig(){
   const card=document.getElementById("bigCard");
   card.classList.toggle("flipped");
+  modalCanFlip=false;      // tranh đã lộ, không còn gì sau lưng nữa
   syncCardInfo();
   const m=document.getElementById("magic");
   m.classList.remove("burst");void m.offsetWidth;m.classList.add("burst");
@@ -2378,15 +2386,22 @@ async function aiRead(){
    `art` và `items` để trống, chờ cắm file thiết kế.
    ============================================================ */
 const COLLECTIONS=[
+ /* fx: sắc phủ lên tranh · spark/glow: tông bụi sao trong lòng lá, phải đi
+    cùng họ màu với fx thì mới thấy được trên nền tranh của bộ đó */
  {id:"deck-banmoc",kind:"Bộ bài",name:"Bản Mộc",count:"78 lá",free:true,fx:"",
+  spark:"255,240,198",glow:"201,162,74",
   blurb:"Bản khắc gốc, sắc tro. Ai cũng bắt đầu từ đây.",
   special:"Bộ này ở lại với bạn dù bạn chưa giữ giao ước nào."},
  {id:"deck-anhkim",kind:"Bộ bài",name:"Ánh Kim",count:"78 lá",
   fx:"brightness(1.02) sepia(.85) saturate(1.9)",
+  spark:"255,232,168",glow:"212,168,72",
   blurb:"Vẫn bản khắc ấy, nhưng phủ một lớp vàng cũ như giấy để lâu.",
   special:"Ba lá Ẩn chỉ hiện ra sau khi bạn quay lại đủ bảy ngày."},
  {id:"deck-hacdieu",kind:"Bộ bài",name:"Hắc Diệu",count:"78 lá",
-  fx:"brightness(.78) sepia(.95) hue-rotate(185deg) saturate(1.7)",
+  /* contrast dưới 1 để nâng vùng tối lên trước khi hạ sáng — nếu không,
+     những lá vốn đã tối (Tám Cốc, Chín Kiếm) sẽ đen đặc mất hết chi tiết */
+  fx:"grayscale(1) contrast(.92) brightness(.66) sepia(1) hue-rotate(193deg) saturate(2.3)",
+  spark:"198,220,255",glow:"120,150,220",
   blurb:"Sắc chàm nửa đêm — bộ bài của những câu hỏi hỏi lúc không ngủ được.",
   special:"Mở thêm lá thứ tư trong mỗi lần trải: điều bạn chưa dám hỏi."},
  {id:"theme-mantrang",kind:"Sắc màn",name:"Màn Trăng",count:"12 sắc",art:null,items:[],
@@ -2406,7 +2421,10 @@ function setDeck(id){
   if(document.getElementById("sVault")?.classList.contains("active"))showVault();
 }
 function applyDeck(){
-  document.documentElement.style.setProperty("--deckfx",deckOf(activeDeck()).fx||"none");
+  const d=deckOf(activeDeck()),r=document.documentElement.style;
+  r.setProperty("--deckfx",d.fx||"none");
+  r.setProperty("--deckspark",d.spark||"255,240,198");
+  r.setProperty("--deckglow",d.glow||"201,162,74");
 }
 /* Bộ mới ra mỗi tháng, tặng cho người còn giữ giao ước ở tháng đó.
    Thêm một dòng vào đây là xong một đợt phát hành. */
